@@ -397,6 +397,15 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
       <div class="fg"><label class="fl">Identifiant</label><input class="fi" id="l-user" type="text" placeholder="pseudo…" autocomplete="off"></div>
       <div class="fg"><label class="fl">Mot de passe</label><input class="fi" id="l-pass" type="password" placeholder="••••••••"></div>
       <button class="btn-auth" onclick="doLogin()">Se connecter</button>
+      <div style="display:flex;align-items:center;gap:10px;margin:14px 0 4px">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+        <span style="font-size:9px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase">ou</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+      </div>
+      <a id="discord-login-btn" href="#" onclick="redirectDiscord()" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;border-radius:8px;background:#5865F2;color:#fff;font-weight:700;font-size:12px;letter-spacing:0.12em;text-decoration:none;text-transform:uppercase;font-family:'Rajdhani',sans-serif;transition:all 0.2s;cursor:pointer;border:none" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+        <svg width="18" height="14" viewBox="0 0 71 55" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.7a40.7 40.7 0 0 0-1.8 3.7 54 54 0 0 0-16.4 0A38.5 38.5 0 0 0 25.5.7 58.4 58.4 0 0 0 10.9 5C1.6 18.7-1 32 .3 45.1a58.9 58.9 0 0 0 18 9.1 42.2 42.2 0 0 0 3.7-6l-2.4-.9.1-.3 2.5.9a41 41 0 0 0 2.1-7.3 38.3 38.3 0 0 1-6.1-3l.4-.6a42 42 0 0 0 36 0l.3.6a38.2 38.2 0 0 1-6.1 3 41 41 0 0 0 2 7.3l2.6-.9.1.3-2.4.9a42 42 0 0 0 3.7 6 58.8 58.8 0 0 0 18-9.1C72 32 69 18.6 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.3 3.2 6.3 7.2s-2.8 7.2-6.3 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.3 3.2 6.3 7.2s-2.8 7.2-6.3 7.2Z"/></svg>
+        Se connecter avec Discord
+      </a>
     </div>
 
     <div id="form-register" style="display:none">
@@ -1071,7 +1080,75 @@ function startClock() {
   tick(); setInterval(tick, 1000);
 }
 
-// Auto-login
+// ══════════════════════════════════════════════════════
+//  DISCORD OAUTH
+// ══════════════════════════════════════════════════════
+const DISCORD_CLIENT_ID = 'DISCORD_CLIENT_ID_PLACEHOLDER';
+const DISCORD_REDIRECT   = window.location.origin + '/api/discord-callback';
+
+// Mapping rôles Discord → rôles site (IDs à remplir sur Vercel)
+// Ces valeurs sont injectées via l'URL de retour côté serveur Vercel
+function redirectDiscord() {
+  const url = 'https://discord.com/api/oauth2/authorize' +
+    '?client_id=' + DISCORD_CLIENT_ID +
+    '&redirect_uri=' + encodeURIComponent(DISCORD_REDIRECT) +
+    '&response_type=code' +
+    '&scope=identify%20guilds.members.read';
+  window.location.href = url;
+}
+
+// Gestion du retour Discord après auth
+(function handleDiscordAuth() {
+  const params = new URLSearchParams(window.location.search);
+  const authParam = params.get('discord_auth');
+  if (!authParam) return;
+
+  const data = Object.fromEntries(new URLSearchParams(authParam));
+  if (!data.id) return;
+
+  const users = getUsers();
+  let user = users.find(u => u.discordId === data.id);
+
+  if (!user) {
+    user = {
+      id:        'u' + Date.now(),
+      username:  data.username,
+      discordId: data.id,
+      avatar:    data.avatar || '',
+      role:      data.role || 'player',
+      nomrp:     data.username,
+      discord:   data.id,
+      steam:     '',
+      createdAt: new Date().toISOString(),
+      isBanned:  false,
+      password:  '',
+    };
+    users.push(user);
+    setUsers(users);
+    addLogSystem('Connexion Discord — nouveau compte créé : @' + data.username);
+  } else {
+    // Met à jour le rôle selon Discord
+    user.role   = data.role || user.role;
+    user.avatar = data.avatar || user.avatar;
+    const idx = users.findIndex(u => u.id === user.id);
+    users[idx] = user;
+    setUsers(users);
+  }
+
+  if (user.isBanned) {
+    window.history.replaceState({}, '', '/');
+    alert('Ce compte Discord est banni du portail.');
+    return;
+  }
+
+  setSession(user.id);
+  CU = user;
+  window.history.replaceState({}, '', '/');
+  addLog('auth', 'connexion via Discord');
+  launchApp();
+})();
+
+// Auto-login classique
 (function() {
   const sid = getSession();
   if (sid) { const u = getUsers().find(x => x.id === sid); if (u && !u.isBanned) { CU = u; launchApp(); } }
@@ -1723,3 +1800,4 @@ document.getElementById('r-pass2').addEventListener('keydown', e => { if (e.key 
 </script>
 </body>
 </html>
+

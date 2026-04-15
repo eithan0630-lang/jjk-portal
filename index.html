@@ -121,8 +121,9 @@ select.fi option{background:var(--bg3)}
 /* ══════════════════════════════════
    APP LAYOUT
 ══════════════════════════════════ */
-#app{display:none;height:100vh;overflow:hidden;position:relative;z-index:1}
-.layout{display:flex;height:100%}
+#app{display:none;height:100%;overflow:hidden;position:relative;z-index:1}
+#app.visible{display:flex;flex-direction:column}
+.layout{display:flex;height:100%;overflow:hidden}
 
 /* SIDEBAR */
 .sidebar{width:var(--sw);background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;position:relative;z-index:10}
@@ -355,6 +356,15 @@ textarea.fi{resize:vertical;min-height:80px}
 
 input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:pointer}
 
+/* SIDEBAR PROFILE AVATAR */
+.sb-profile-pic{padding:10px 14px 14px;display:flex;justify-content:center}
+.sb-profile-pic-inner{position:relative;width:64px;height:64px;border-radius:50%;cursor:pointer;transition:transform 0.2s;flex-shrink:0}
+.sb-profile-pic-inner:hover{transform:scale(1.06)}
+.sb-profile-pic-img{width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;border:2px solid var(--border2)}
+.sb-profile-pic-fallback{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;border:2px solid;box-shadow:0 0 16px rgba(0,0,0,0.4)}
+.sb-profile-pic-ring{position:absolute;inset:-4px;border-radius:50%;border:1px solid;opacity:0.4;pointer-events:none}
+.sb-profile-pic-status{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--success);border:2px solid var(--bg1);box-shadow:0 0 6px var(--success)}
+
 .tag-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 
 /* PERM CHECKBOXES */
@@ -467,6 +477,13 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
         <div class="sb-item staff-only" id="nav-panel" style="display:none" onclick="goPage('panel')"><span class="ico">🛡</span>Panel Staff</div>
         <div class="sb-item staff-only" id="nav-logs" style="display:none" onclick="goPage('logs')"><span class="ico">📜</span>Journaux<span class="sb-badge" id="nav-badge-logs" style="display:none">!</span></div>
         <div class="sb-item staff-only" id="nav-roles" style="display:none" onclick="goPage('roles')"><span class="ico">🎖</span>Rôles & Perms</div>
+      </div>
+
+      <div class="sb-profile-pic" id="sb-profile-pic-wrap" onclick="goPage('profil')" title="Mon Profil">
+        <div class="sb-profile-pic-inner" id="sb-profile-pic-inner">
+          <!-- filled by JS -->
+          <div class="sb-profile-pic-status"></div>
+        </div>
       </div>
 
       <div class="sb-user">
@@ -1026,7 +1043,7 @@ function doRegister() {
 function doLogout() {
   addLog('auth', 'déconnexion du portail');
   setSession(null); CU = null;
-  document.getElementById('app').style.display = 'none';
+  document.getElementById('app').classList.remove('visible');
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('l-user').value = '';
   document.getElementById('l-pass').value = '';
@@ -1038,7 +1055,7 @@ function doLogout() {
 // ══════════════════════════════════════════════════════
 function launchApp() {
   document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+  document.getElementById('app').classList.add('visible');
   updateSidebar();
   startClock();
   goPage('catalogue');
@@ -1054,6 +1071,36 @@ function updateSidebar() {
   const rEl = document.getElementById('sb-urole');
   rEl.textContent = r.icon + ' ' + r.label;
   rEl.style.color = r.color;
+
+  // Profile picture bottom-left
+  const picInner = document.getElementById('sb-profile-pic-inner');
+  if (picInner) {
+    // Remove old content except status dot
+    const status = picInner.querySelector('.sb-profile-pic-status');
+    picInner.innerHTML = '';
+    if (status) picInner.appendChild(status);
+
+    if (CU.avatar && CU.discordId) {
+      // Discord avatar
+      const avatarUrl = `https://cdn.discordapp.com/avatars/${CU.discordId}/${CU.avatar}.png?size=128`;
+      const img = document.createElement('img');
+      img.className = 'sb-profile-pic-img';
+      img.src = avatarUrl;
+      img.alt = CU.username;
+      img.onerror = () => {
+        img.replaceWith(makeFallbackAv(init, r.color));
+      };
+      picInner.insertBefore(img, picInner.firstChild);
+    } else {
+      picInner.insertBefore(makeFallbackAv(init, r.color), picInner.firstChild);
+    }
+    // Ring
+    const ring = document.createElement('div');
+    ring.className = 'sb-profile-pic-ring';
+    ring.style.borderColor = r.color;
+    picInner.appendChild(ring);
+  }
+
   // Show staff nav items
   const staff = isStaff(CU);
   document.querySelectorAll('.staff-only').forEach(el => el.style.display = staff ? '' : 'none');
@@ -1063,6 +1110,15 @@ function updateSidebar() {
   document.querySelectorAll('.founder-only').forEach(el => el.style.display = CU.role === 'founder' ? '' : 'none');
   updateLogBadge();
   updateDemBadge();
+}
+function makeFallbackAv(init, color) {
+  const d = document.createElement('div');
+  d.className = 'sb-profile-pic-fallback';
+  d.textContent = init;
+  d.style.background = `linear-gradient(135deg, ${color}55, ${color}22)`;
+  d.style.borderColor = color + '88';
+  d.style.color = color;
+  return d;
 }
 function updateLogBadge() {
   // No persistent "unread" count — just live indicator for admin+
@@ -1281,12 +1337,17 @@ function renderProfil() {
   const r = ROLES[u.role] || ROLES.player;
   const init = initials(u.nomrp || u.username);
   const av = document.getElementById('profil-av');
-  av.textContent = init;
   av.style.background = `linear-gradient(135deg, ${r.color}44, ${r.color}11)`;
   av.style.borderColor = r.color + '88';
   av.style.setProperty('--c', r.color);
-  av.style.color = r.color;
-  av.style.fontSize = '22px';
+  if (u.avatar && u.discordId) {
+    const avatarUrl = `https://cdn.discordapp.com/avatars/${u.discordId}/${u.avatar}.png?size=128`;
+    av.innerHTML = `<img src="${avatarUrl}" alt="${esc(u.username)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='${init}';this.parentElement.style.fontSize='22px';this.parentElement.style.color='${r.color}'">`;
+  } else {
+    av.textContent = init;
+    av.style.color = r.color;
+    av.style.fontSize = '22px';
+  }
   document.getElementById('profil-nomrp').textContent = u.nomrp || '—';
   document.getElementById('profil-username').textContent = '@' + u.username;
   document.getElementById('profil-discord').textContent = u.discord || 'Non renseigné';

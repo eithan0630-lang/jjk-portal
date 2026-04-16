@@ -34,11 +34,12 @@
   --warn2:    #fcd34d;
   --sw: 230px;
   /* Role colors */
-  --r-founder: #ff6b35;
-  --r-admin: #ef4444;
-  --r-mj: #a78bfa;
-  --r-modo: #3b82f6;
-  --r-player: #22c55e;
+  --r-zenith:   #ff6b35;
+  --r-resp-rp:  #f43f5e;
+  --r-gerant-mj:#f59e0b;
+  --r-cadre-mj: #a78bfa;
+  --r-mj:       #60a5fa;
+  --r-player:   #22c55e;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;line-height:1.5;overflow:hidden}
@@ -212,10 +213,11 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 
 /* ROLE BADGES */
 .role-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:1px solid}
-.rb-founder{background:rgba(255,107,53,0.1);color:var(--r-founder);border-color:rgba(255,107,53,0.3)}
-.rb-admin{background:rgba(239,68,68,0.1);color:var(--r-admin);border-color:rgba(239,68,68,0.25)}
-.rb-mj{background:rgba(167,139,250,0.1);color:var(--r-mj);border-color:rgba(167,139,250,0.25)}
-.rb-modo{background:rgba(59,130,246,0.1);color:var(--r-modo);border-color:rgba(59,130,246,0.25)}
+.rb-zenith{background:rgba(255,107,53,0.1);color:var(--r-zenith);border-color:rgba(255,107,53,0.3)}
+.rb-resp-rp{background:rgba(244,63,94,0.1);color:var(--r-resp-rp);border-color:rgba(244,63,94,0.3)}
+.rb-gerant-mj{background:rgba(245,158,11,0.1);color:var(--r-gerant-mj);border-color:rgba(245,158,11,0.3)}
+.rb-cadre-mj{background:rgba(167,139,250,0.1);color:var(--r-cadre-mj);border-color:rgba(167,139,250,0.25)}
+.rb-mj{background:rgba(96,165,250,0.1);color:var(--r-mj);border-color:rgba(96,165,250,0.25)}
 .rb-player{background:rgba(34,197,94,0.08);color:var(--r-player);border-color:rgba(34,197,94,0.2)}
 
 /* BUTTONS */
@@ -691,10 +693,11 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
             </select>
             <select class="filter-sel" id="log-role-filter" onchange="renderLogs()">
               <option value="">Tous les rôles</option>
-              <option value="founder">Fondateur</option>
-              <option value="admin">Admin</option>
+              <option value="zenith">zenith.</option>
+              <option value="resp_rp">Responsable RP</option>
+              <option value="gerant_mj">Gérant MJ</option>
+              <option value="cadre_mj">Cadre MJ</option>
               <option value="mj">MJ</option>
-              <option value="modo">Modérateur</option>
               <option value="player">Joueur</option>
             </select>
             <div class="search-bar" style="flex:1"><input type="text" id="log-search" placeholder="Rechercher dans les logs…" oninput="renderLogs()"></div>
@@ -840,10 +843,11 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
     </div>
     <div class="fg"><label class="fl">Rôle à attribuer *</label>
       <select class="fi" id="ar-role">
-        <option value="player">Joueur</option>
-        <option value="modo">Modérateur</option>
-        <option value="mj">Maître de Jeu (MJ)</option>
-        <option value="admin">Admin</option>
+        <option value="player">⚔ Joueur</option>
+        <option value="mj">🎲 MJ</option>
+        <option value="cadre_mj">🎭 Cadre MJ</option>
+        <option value="gerant_mj">🌟 Gérant MJ</option>
+        <option value="resp_rp">👑 Responsable RP</option>
       </select>
     </div>
     <div class="modal-footer">
@@ -889,12 +893,12 @@ const setInitialized = v => DB.set('initialized', v);
 //  ROLE SYSTEM
 // ══════════════════════════════════════════════════════
 const ROLES = {
-  zenith:   { label: 'zenith.',          color: '#ff6b35', cls: 'rb-founder', level: 6, icon: '⚜' },
-  founder:  { label: 'Fondateur',        color: '#ff6b35', cls: 'rb-founder', level: 5, icon: '⚜' },
-  admin:    { label: 'Admin',            color: '#ef4444', cls: 'rb-admin',   level: 4, icon: '⚡' },
-  mj:       { label: 'Maître de Jeu',    color: '#a78bfa', cls: 'rb-mj',     level: 3, icon: '🎲' },
-  modo:     { label: 'Modérateur',       color: '#3b82f6', cls: 'rb-modo',   level: 2, icon: '🛡' },
-  player:   { label: 'Joueur',           color: '#22c55e', cls: 'rb-player', level: 1, icon: '⚔' },
+  zenith:    { label: 'zenith.',          color: '#ff6b35', cls: 'rb-zenith',    level: 6, icon: '⚜' },
+  resp_rp:   { label: 'Responsable RP',   color: '#f43f5e', cls: 'rb-resp-rp',   level: 5, icon: '👑' },
+  gerant_mj: { label: 'Gérant MJ',        color: '#f59e0b', cls: 'rb-gerant-mj', level: 4, icon: '🌟' },
+  cadre_mj:  { label: 'Cadre MJ',         color: '#a78bfa', cls: 'rb-cadre-mj',  level: 3, icon: '🎭' },
+  mj:        { label: 'MJ',               color: '#60a5fa', cls: 'rb-mj',        level: 2, icon: '🎲' },
+  player:    { label: 'Joueur',           color: '#22c55e', cls: 'rb-player',    level: 1, icon: '⚔' },
 };
 const PERMS = {
   'manage_subs':      'Gérer les Sub-Jutsu',
@@ -906,19 +910,19 @@ const PERMS = {
   'ban_users':        'Bannir des membres',
 };
 const ROLE_PERMS = {
-  zenith:   ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
-  founder:  ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
-  admin:    ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs'],
-  mj:       ['manage_subs','approve_requests','view_logs'],
-  modo:     ['approve_requests','view_logs'],
-  player:   [],
+  zenith:    ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
+  resp_rp:   ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
+  gerant_mj: ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs'],
+  cadre_mj:  ['manage_subs','approve_requests','view_logs','assign_roles'],
+  mj:        ['manage_subs','approve_requests','view_logs'],
+  player:    [],
 };
 function hasPerm(user, perm) {
   if (!user) return false;
   return ROLE_PERMS[user.role]?.includes(perm) ?? false;
 }
 function isStaff(user) {
-  return user && ['zenith','founder','admin','mj','modo'].includes(user.role);
+  return user && ['zenith','resp_rp','gerant_mj','cadre_mj','mj'].includes(user.role);
 }
 
 // ══════════════════════════════════════════════════════
@@ -1113,7 +1117,7 @@ function updateSidebar() {
   document.getElementById('nav-panel').style.display = (hasPerm(CU,'manage_subs')||hasPerm(CU,'approve_requests')) ? '' : 'none';
   document.getElementById('nav-logs').style.display = hasPerm(CU,'view_logs') ? '' : 'none';
   document.getElementById('nav-roles').style.display = (hasPerm(CU,'assign_roles') || hasPerm(CU,'view_logs')) ? '' : 'none';
-  document.querySelectorAll('.founder-only').forEach(el => el.style.display = CU.role === 'founder' ? '' : 'none');
+  document.querySelectorAll('.founder-only').forEach(el => el.style.display = CU.role === 'zenith' ? '' : 'none');
   updateLogBadge();
   updateDemBadge();
 }
@@ -1779,7 +1783,7 @@ function clearLogs() {
 //  ROLES PAGE
 // ══════════════════════════════════════════════════════
 function renderRoles() {
-  const roleOrder = ['founder', 'admin', 'mj', 'modo', 'player'];
+  const roleOrder = ['zenith', 'resp_rp', 'gerant_mj', 'cadre_mj', 'mj', 'player'];
   document.getElementById('roles-list').innerHTML = roleOrder.map(roleId => {
     const r = ROLES[roleId];
     const perms = ROLE_PERMS[roleId];

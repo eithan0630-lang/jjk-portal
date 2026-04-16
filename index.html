@@ -61,8 +61,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Rajdha
 #auth-screen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center}
 .auth-glows{position:absolute;inset:0;overflow:hidden}
 .auth-glow1{position:absolute;width:600px;height:600px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(124,92,191,0.15) 0%,transparent 70%);animation:glow-pulse 4s ease-in-out infinite}
-.auth-glow2{position:absolute;width:400px;height:400px;left:20%;top:20%;background:radial-gradient(circle,rgba(201,162,39,0.06) 0%,transparent 70%);animation:glow-pulse 6s ease-in-out infinite reverse}
+.auth-glow2{position:absolute;width:400px;height:400px;left:20%;top:20%;background:radial-gradient(circle,rgba(201,162,39,0.06) 0%,transparent 70%);animation:glow-pulse2 6s ease-in-out infinite reverse}
 @keyframes glow-pulse{0%,100%{opacity:0.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+@keyframes glow-pulse2{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
 .auth-kanji{position:absolute;font-family:'Noto Serif JP',serif;font-weight:700;color:rgba(255,255,255,0.025);user-select:none;pointer-events:none;animation:float-kanji 20s linear infinite}
 .auth-kanji:nth-child(1){font-size:22vw;top:5%;left:5%;animation-duration:25s}
 .auth-kanji:nth-child(2){font-size:15vw;bottom:5%;right:5%;animation-duration:18s;animation-direction:reverse}
@@ -72,10 +73,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Rajdha
 .auth-card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,39,0.5),transparent)}
 
 .auth-logo{text-align:center;margin-bottom:34px}
-.auth-logo-sigil{width:64px;height:64px;margin:0 auto 14px;position:relative;display:flex;align-items:center;justify-content:center}
-.auth-logo-sigil::before{content:'';position:absolute;inset:0;border:2px solid;border-image:linear-gradient(135deg,var(--gold),var(--purple)) 1;border-radius:12px;animation:sigil-spin 8s linear infinite}
+.auth-logo-sigil{width:64px;height:64px;margin:0 auto 14px;position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:12px;z-index:0}
+.auth-logo-sigil::before{content:'';position:absolute;inset:-2px;background:linear-gradient(135deg,var(--gold),var(--purple),var(--gold));border-radius:14px;z-index:-1;animation:sigil-spin 8s linear infinite}
 @keyframes sigil-spin{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}
-.auth-logo-sigil-inner{width:48px;height:48px;background:linear-gradient(135deg,rgba(201,162,39,0.2),rgba(124,92,191,0.2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:var(--gold);text-shadow:0 0 20px rgba(201,162,39,0.8)}
+.auth-logo-sigil-inner{width:48px;height:48px;background:linear-gradient(135deg,rgba(201,162,39,0.25),rgba(124,92,191,0.25)),var(--bg1);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:var(--gold);text-shadow:0 0 20px rgba(201,162,39,0.8);position:relative;z-index:1}
 .auth-logo h1{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--gold);letter-spacing:0.15em;margin-bottom:4px;text-shadow:0 0 30px rgba(201,162,39,0.4)}
 .auth-logo p{font-size:10px;color:var(--muted);letter-spacing:0.25em;text-transform:uppercase}
 
@@ -282,8 +283,8 @@ textarea.fi{resize:vertical;min-height:80px}
 .profil-hero{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
 .profil-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:60px;background:linear-gradient(180deg,rgba(201,162,39,0.06),transparent)}
 .profil-av-wrap{display:flex;align-items:center;gap:18px;margin-bottom:20px}
-.profil-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid;position:relative}
-.profil-av::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid;opacity:0.3}
+.profil-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid var(--c,var(--gold));position:relative}
+.profil-av::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--c,var(--gold));opacity:0.3}
 .profil-name{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--text)}
 .profil-handle{font-size:12px;color:var(--muted);margin-top:2px}
 .profil-id-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:4px}
@@ -361,7 +362,7 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
 .sb-profile-pic-inner{position:relative;width:38px;height:38px;border-radius:50%;transition:transform 0.2s}
 .sb-user-row:hover .sb-profile-pic-inner{transform:scale(1.06)}
 .sb-profile-pic-img{width:38px;height:38px;border-radius:50%;object-fit:cover;display:block;border:2px solid var(--border2)}
-.sb-profile-pic-fallback{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;border:2px solid;box-shadow:0 0 12px rgba(0,0,0,0.4)}
+.sb-profile-pic-fallback{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;border:2px solid var(--gold);box-shadow:0 0 12px rgba(0,0,0,0.4)}
 .sb-profile-pic-ring{position:absolute;inset:-3px;border-radius:50%;border:1px solid;opacity:0.4;pointer-events:none}
 .sb-profile-pic-status{position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;background:var(--success);border:2px solid var(--bg1);box-shadow:0 0 5px var(--success)}
 
@@ -600,8 +601,8 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
           </div>
           <div class="sdiv"><span class="sdiv-label">⚡ Sub-Jutsu maîtrisés</span><div class="sdiv-line"></div></div>
           <div id="profil-subs-list"></div>
-          <div class="sdiv" style="margin-top:20px"><span class="sdiv-label">🔑 Changer le mot de passe</span><div class="sdiv-line"></div></div>
-          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;max-width:400px">
+          <div class="sdiv" style="margin-top:20px" id="profil-pass-section"><span class="sdiv-label">🔑 Changer le mot de passe</span><div class="sdiv-line"></div></div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;max-width:400px" id="profil-pass-box">
             <div class="fg"><label class="fl">Nouveau mot de passe</label><input class="fi" id="chg-pass1" type="password" placeholder="••••••••"></div>
             <div class="fg"><label class="fl">Confirmer</label><input class="fi" id="chg-pass2" type="password" placeholder="••••••••"></div>
             <button class="btn btn-ghost" onclick="changePassword()">Mettre à jour</button>
@@ -1080,30 +1081,28 @@ function updateSidebar() {
   // Profile picture bottom-left
   const picInner = document.getElementById('sb-profile-pic-inner');
   if (picInner) {
-    // Remove old content except status dot
-    const status = picInner.querySelector('.sb-profile-pic-status');
     picInner.innerHTML = '';
-    if (status) picInner.appendChild(status);
 
     if (CU.avatar && CU.discordId) {
-      // Discord avatar
       const avatarUrl = `https://cdn.discordapp.com/avatars/${CU.discordId}/${CU.avatar}.png?size=128`;
       const img = document.createElement('img');
       img.className = 'sb-profile-pic-img';
       img.src = avatarUrl;
       img.alt = CU.username;
-      img.onerror = () => {
-        img.replaceWith(makeFallbackAv(init, r.color));
-      };
-      picInner.insertBefore(img, picInner.firstChild);
+      img.onerror = () => { img.replaceWith(makeFallbackAv(init, r.color)); };
+      picInner.appendChild(img);
     } else {
-      picInner.insertBefore(makeFallbackAv(init, r.color), picInner.firstChild);
+      picInner.appendChild(makeFallbackAv(init, r.color));
     }
     // Ring
     const ring = document.createElement('div');
     ring.className = 'sb-profile-pic-ring';
     ring.style.borderColor = r.color;
     picInner.appendChild(ring);
+    // Status dot last so it always renders on top
+    const status = document.createElement('div');
+    status.className = 'sb-profile-pic-status';
+    picInner.appendChild(status);
   }
 
   // Show staff nav items
@@ -1359,6 +1358,12 @@ function renderProfil() {
   document.getElementById('profil-steam').textContent = u.steam || 'Non renseigné';
   document.getElementById('profil-date').textContent = fmtDate(u.createdAt);
   document.getElementById('profil-role-badge').innerHTML = roleBadge(u.role);
+  // Hide password section for Discord-only accounts
+  const isDiscordUser = !!u.discordId;
+  ['profil-pass-section','profil-pass-box'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isDiscordUser ? 'none' : '';
+  });
   const dems = getDemandes().filter(d => d.userId === u.id && d.status === 'approved');
   document.getElementById('profil-count').textContent = dems.length;
   const subs = getSubs();
@@ -1690,6 +1695,7 @@ function viewUser(id) {
     ${subs.length ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${subs.map(d=>{const s=subsList.find(x=>x.id===d.subId);return s?`<span class="badge badge-rank">⚡ ${esc(s.nom)}</span>`:''}).join('')}</div>` : '<p style="font-size:12px;color:var(--muted)">Aucun sub-jutsu appris.</p>'}`;
   openModal('modal-view-user');
 }
+
 function toggleBan(id) {
   if (!hasPerm(CU, 'ban_users')) { toast('Permission refusée.', 'error'); return; }
   const users = getUsers(), i = users.findIndex(u => u.id === id); if (i === -1) return;

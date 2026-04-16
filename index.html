@@ -889,11 +889,12 @@ const setInitialized = v => DB.set('initialized', v);
 //  ROLE SYSTEM
 // ══════════════════════════════════════════════════════
 const ROLES = {
-  founder:  { label: 'Fondateur',      color: '#ff6b35', cls: 'rb-founder', level: 5, icon: '⚜' },
-  admin:    { label: 'Admin',           color: '#ef4444', cls: 'rb-admin',   level: 4, icon: '⚡' },
-  mj:       { label: 'Maître de Jeu',   color: '#a78bfa', cls: 'rb-mj',     level: 3, icon: '🎲' },
-  modo:     { label: 'Modérateur',      color: '#3b82f6', cls: 'rb-modo',   level: 2, icon: '🛡' },
-  player:   { label: 'Joueur',          color: '#22c55e', cls: 'rb-player', level: 1, icon: '⚔' },
+  zenith:   { label: 'zenith.',          color: '#ff6b35', cls: 'rb-founder', level: 6, icon: '⚜' },
+  founder:  { label: 'Fondateur',        color: '#ff6b35', cls: 'rb-founder', level: 5, icon: '⚜' },
+  admin:    { label: 'Admin',            color: '#ef4444', cls: 'rb-admin',   level: 4, icon: '⚡' },
+  mj:       { label: 'Maître de Jeu',    color: '#a78bfa', cls: 'rb-mj',     level: 3, icon: '🎲' },
+  modo:     { label: 'Modérateur',       color: '#3b82f6', cls: 'rb-modo',   level: 2, icon: '🛡' },
+  player:   { label: 'Joueur',           color: '#22c55e', cls: 'rb-player', level: 1, icon: '⚔' },
 };
 const PERMS = {
   'manage_subs':      'Gérer les Sub-Jutsu',
@@ -905,6 +906,7 @@ const PERMS = {
   'ban_users':        'Bannir des membres',
 };
 const ROLE_PERMS = {
+  zenith:   ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
   founder:  ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
   admin:    ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs'],
   mj:       ['manage_subs','approve_requests','view_logs'],
@@ -916,7 +918,7 @@ function hasPerm(user, perm) {
   return ROLE_PERMS[user.role]?.includes(perm) ?? false;
 }
 function isStaff(user) {
-  return user && ['founder','admin','mj','modo'].includes(user.role);
+  return user && ['zenith','founder','admin','mj','modo'].includes(user.role);
 }
 
 // ══════════════════════════════════════════════════════
@@ -1157,6 +1159,9 @@ function redirectDiscord() {
   window.location.href = url;
 }
 
+// Discord ID propriétaire — toujours founder, toutes permissions
+const OWNER_DISCORD_ID = '661189164867256331';
+
 // Gestion du retour Discord après auth
 (function handleDiscordAuth() {
   const params = new URLSearchParams(window.location.search);
@@ -1165,6 +1170,9 @@ function redirectDiscord() {
 
   const data = Object.fromEntries(new URLSearchParams(authParam));
   if (!data.id) return;
+
+  // Forcer zenith si c'est le propriétaire
+  if (data.id === OWNER_DISCORD_ID) data.role = 'zenith';
 
   const users = getUsers();
   let user = users.find(u => u.discordId === data.id);
@@ -1175,7 +1183,7 @@ function redirectDiscord() {
       username:  data.username,
       discordId: data.id,
       avatar:    data.avatar || '',
-      role:      data.role || 'player',
+      role:      data.id === OWNER_DISCORD_ID ? 'zenith' : (data.role || 'player'),
       nomrp:     data.username,
       discord:   data.id,
       steam:     '',
@@ -1187,9 +1195,10 @@ function redirectDiscord() {
     setUsers(users);
     addLogSystem('Connexion Discord — nouveau compte créé : @' + data.username);
   } else {
-    // Met à jour le rôle selon Discord
-    user.role   = data.role || user.role;
+    // Met à jour le rôle selon Discord, mais toujours founder pour le propriétaire
+    user.role   = data.id === OWNER_DISCORD_ID ? 'zenith' : (data.role || user.role);
     user.avatar = data.avatar || user.avatar;
+    user.isBanned = data.id === OWNER_DISCORD_ID ? false : user.isBanned;
     const idx = users.findIndex(u => u.id === user.id);
     users[idx] = user;
     setUsers(users);
@@ -1211,7 +1220,21 @@ function redirectDiscord() {
 // Auto-login classique
 (function() {
   const sid = getSession();
-  if (sid) { const u = getUsers().find(x => x.id === sid); if (u && !u.isBanned) { CU = u; launchApp(); } }
+  if (sid) {
+    const users = getUsers();
+    const u = users.find(x => x.id === sid);
+    if (u && !u.isBanned) {
+      // Garantir founder si propriétaire même en auto-login
+      if (u.discordId === OWNER_DISCORD_ID && u.role !== 'zenith') {
+        u.role = 'zenith';
+        const idx = users.findIndex(x => x.id === u.id);
+        users[idx] = u;
+        setUsers(users);
+      }
+      CU = u;
+      launchApp();
+    }
+  }
 })();
 
 // ══════════════════════════════════════════════════════

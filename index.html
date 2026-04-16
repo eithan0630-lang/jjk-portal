@@ -68,7 +68,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Rajdha
 .auth-kanji:nth-child(2){font-size:15vw;bottom:5%;right:5%;animation-duration:18s;animation-direction:reverse}
 @keyframes float-kanji{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(3deg) scale(1.02)}100%{transform:rotate(0deg) scale(1)}}
 
-.auth-card{position:relative;z-index:1;background:rgba(10,13,21,0.97);border:1px solid rgba(201,162,39,0.2);border-radius:16px;padding:42px 46px;width:440px;max-width:96vw;box-shadow:0 0 60px rgba(124,92,191,0.15),0 0 120px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.06)}
+.auth-card{position:relative;z-index:1;background:rgba(10,13,21,0.98);border:1px solid rgba(201,162,39,0.22);border-radius:18px;padding:42px 46px;width:460px;max-width:96vw;box-shadow:0 0 80px rgba(124,92,191,0.18),0 0 0 1px rgba(255,255,255,0.04),0 0 140px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.07)}
 .auth-card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,39,0.5),transparent)}
 
 .auth-logo{text-align:center;margin-bottom:34px}
@@ -131,7 +131,7 @@ select.fi option{background:var(--bg3)}
 
 .sb-logo{padding:18px 16px 15px;border-bottom:1px solid var(--border)}
 .sb-logo-row{display:flex;align-items:center;gap:10px}
-.sb-icon{width:36px;height:36px;background:linear-gradient(135deg,rgba(201,162,39,0.3),rgba(124,92,191,0.3));border:1px solid rgba(201,162,39,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif JP',serif;font-size:15px;color:var(--gold);flex-shrink:0;text-shadow:0 0 10px rgba(201,162,39,0.5)}
+.sb-icon{width:38px;height:38px;background:linear-gradient(135deg,rgba(201,162,39,0.3),rgba(124,92,191,0.3));border:1px solid rgba(201,162,39,0.35);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif JP',serif;font-size:16px;color:var(--gold);flex-shrink:0;text-shadow:0 0 12px rgba(201,162,39,0.6);box-shadow:0 0 18px rgba(201,162,39,0.1)}
 .sb-title{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:0.08em;line-height:1.3}
 .sb-sub{font-size:8px;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase}
 
@@ -146,8 +146,8 @@ select.fi option{background:var(--bg3)}
 .sb-badge{background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:auto}
 
 .sb-user{padding:12px 14px;border-top:1px solid var(--border)}
-.sb-user-row{display:flex;align-items:center;gap:9px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color 0.2s}
-.sb-user-row:hover{border-color:var(--border2)}
+.sb-user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.2s}
+.sb-user-row:hover{border-color:rgba(201,162,39,0.3);background:rgba(201,162,39,0.04)}
 .sb-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid}
 .sb-uname{font-size:12px;font-weight:600;color:var(--text);line-height:1.2}
 .sb-urole{font-size:9px;letter-spacing:0.08em;text-transform:uppercase;margin-top:1px}
@@ -356,14 +356,27 @@ textarea.fi{resize:vertical;min-height:80px}
 
 input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:pointer}
 
-/* SIDEBAR PROFILE AVATAR */
-.sb-profile-pic{padding:10px 14px 14px;display:flex;justify-content:center}
-.sb-profile-pic-inner{position:relative;width:64px;height:64px;border-radius:50%;cursor:pointer;transition:transform 0.2s;flex-shrink:0}
-.sb-profile-pic-inner:hover{transform:scale(1.06)}
-.sb-profile-pic-img{width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;border:2px solid var(--border2)}
-.sb-profile-pic-fallback{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;border:2px solid;box-shadow:0 0 16px rgba(0,0,0,0.4)}
-.sb-profile-pic-ring{position:absolute;inset:-4px;border-radius:50%;border:1px solid;opacity:0.4;pointer-events:none}
-.sb-profile-pic-status{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--success);border:2px solid var(--bg1);box-shadow:0 0 6px var(--success)}
+/* SIDEBAR PROFILE AVATAR — inline with username */
+.sb-profile-pic-wrap{flex-shrink:0;cursor:pointer}
+.sb-profile-pic-inner{position:relative;width:38px;height:38px;border-radius:50%;transition:transform 0.2s}
+.sb-user-row:hover .sb-profile-pic-inner{transform:scale(1.06)}
+.sb-profile-pic-img{width:38px;height:38px;border-radius:50%;object-fit:cover;display:block;border:2px solid var(--border2)}
+.sb-profile-pic-fallback{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;border:2px solid;box-shadow:0 0 12px rgba(0,0,0,0.4)}
+.sb-profile-pic-ring{position:absolute;inset:-3px;border-radius:50%;border:1px solid;opacity:0.4;pointer-events:none}
+.sb-profile-pic-status{position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;background:var(--success);border:2px solid var(--bg1);box-shadow:0 0 5px var(--success)}
+
+/* DISCORD ONLY AUTH */
+.discord-only-info{display:flex;align-items:flex-start;gap:14px;background:rgba(88,101,242,0.08);border:1px solid rgba(88,101,242,0.25);border-radius:10px;padding:16px;margin-bottom:20px}
+.doi-icon{width:40px;height:40px;background:rgba(88,101,242,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#7289da}
+.doi-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;font-family:'Cinzel',serif;letter-spacing:0.04em}
+.doi-desc{font-size:11px;color:var(--muted2);line-height:1.5}
+.btn-discord-main{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#5865F2,#4752C4);color:#fff;font-weight:700;font-size:13px;letter-spacing:0.1em;text-decoration:none;text-transform:uppercase;font-family:'Rajdhani',sans-serif;transition:all 0.25s;cursor:pointer;border:1px solid rgba(255,255,255,0.1);position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(88,101,242,0.35)}
+.btn-discord-main::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.08),transparent);opacity:0;transition:opacity 0.2s}
+.btn-discord-main:hover::before{opacity:1}
+.btn-discord-main:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(88,101,242,0.5)}
+.btn-discord-arrow{margin-left:auto;font-size:16px;opacity:0.7;transition:transform 0.2s}
+.btn-discord-main:hover .btn-discord-arrow{transform:translateX(3px);opacity:1}
+.auth-notice{text-align:center;font-size:10px;color:var(--muted);margin-top:14px;letter-spacing:0.06em;line-height:1.5}
 
 .tag-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 
@@ -396,43 +409,37 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
       <h1>Sub-Jutsu</h1>
       <p>Portail de Gestion — Serveur JJK</p>
     </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuthTab('login')">Connexion</button>
-      <button class="auth-tab" onclick="switchAuthTab('register')">Inscription</button>
-    </div>
     <div id="auth-err" class="auth-msg auth-err"></div>
     <div id="auth-ok" class="auth-msg auth-ok"></div>
 
+    <!-- Discord-only login -->
     <div id="form-login">
-      <div class="fg"><label class="fl">Identifiant</label><input class="fi" id="l-user" type="text" placeholder="pseudo…" autocomplete="off"></div>
-      <div class="fg"><label class="fl">Mot de passe</label><input class="fi" id="l-pass" type="password" placeholder="••••••••"></div>
-      <button class="btn-auth" onclick="doLogin()">Se connecter</button>
-      <div style="display:flex;align-items:center;gap:10px;margin:14px 0 4px">
-        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
-        <span style="font-size:9px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase">ou</span>
-        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+      <div class="discord-only-info">
+        <div class="doi-icon">
+          <svg width="22" height="17" viewBox="0 0 71 55" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.7a40.7 40.7 0 0 0-1.8 3.7 54 54 0 0 0-16.4 0A38.5 38.5 0 0 0 25.5.7 58.4 58.4 0 0 0 10.9 5C1.6 18.7-1 32 .3 45.1a58.9 58.9 0 0 0 18 9.1 42.2 42.2 0 0 0 3.7-6l-2.4-.9.1-.3 2.5.9a41 41 0 0 0 2.1-7.3 38.3 38.3 0 0 1-6.1-3l.4-.6a42 42 0 0 0 36 0l.3.6a38.2 38.2 0 0 1-6.1 3 41 41 0 0 0 2 7.3l2.6-.9.1.3-2.4.9a42 42 0 0 0 3.7 6 58.8 58.8 0 0 0 18-9.1C72 32 69 18.6 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.3 3.2 6.3 7.2s-2.8 7.2-6.3 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.3 3.2 6.3 7.2s-2.8 7.2-6.3 7.2Z"/></svg>
+        </div>
+        <div class="doi-text">
+          <div class="doi-title">Connexion via Discord</div>
+          <div class="doi-desc">Accédez au portail avec votre compte Discord. Votre rôle sera synchronisé automatiquement avec le serveur.</div>
+        </div>
       </div>
-      <a id="discord-login-btn" href="#" onclick="redirectDiscord()" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;border-radius:8px;background:#5865F2;color:#fff;font-weight:700;font-size:12px;letter-spacing:0.12em;text-decoration:none;text-transform:uppercase;font-family:'Rajdhani',sans-serif;transition:all 0.2s;cursor:pointer;border:none" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-        <svg width="18" height="14" viewBox="0 0 71 55" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.7a40.7 40.7 0 0 0-1.8 3.7 54 54 0 0 0-16.4 0A38.5 38.5 0 0 0 25.5.7 58.4 58.4 0 0 0 10.9 5C1.6 18.7-1 32 .3 45.1a58.9 58.9 0 0 0 18 9.1 42.2 42.2 0 0 0 3.7-6l-2.4-.9.1-.3 2.5.9a41 41 0 0 0 2.1-7.3 38.3 38.3 0 0 1-6.1-3l.4-.6a42 42 0 0 0 36 0l.3.6a38.2 38.2 0 0 1-6.1 3 41 41 0 0 0 2 7.3l2.6-.9.1.3-2.4.9a42 42 0 0 0 3.7 6 58.8 58.8 0 0 0 18-9.1C72 32 69 18.6 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.3 3.2 6.3 7.2s-2.8 7.2-6.3 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.3 3.2 6.3 7.2s-2.8 7.2-6.3 7.2Z"/></svg>
+      <a id="discord-login-btn" href="#" onclick="redirectDiscord()" class="btn-discord-main">
+        <svg width="20" height="16" viewBox="0 0 71 55" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.7a40.7 40.7 0 0 0-1.8 3.7 54 54 0 0 0-16.4 0A38.5 38.5 0 0 0 25.5.7 58.4 58.4 0 0 0 10.9 5C1.6 18.7-1 32 .3 45.1a58.9 58.9 0 0 0 18 9.1 42.2 42.2 0 0 0 3.7-6l-2.4-.9.1-.3 2.5.9a41 41 0 0 0 2.1-7.3 38.3 38.3 0 0 1-6.1-3l.4-.6a42 42 0 0 0 36 0l.3.6a38.2 38.2 0 0 1-6.1 3 41 41 0 0 0 2 7.3l2.6-.9.1.3-2.4.9a42 42 0 0 0 3.7 6 58.8 58.8 0 0 0 18-9.1C72 32 69 18.6 60.1 4.9ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.3 3.2 6.3 7.2s-2.8 7.2-6.3 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.3 3.2 6.3 7.2s-2.8 7.2-6.3 7.2Z"/></svg>
         Se connecter avec Discord
+        <span class="btn-discord-arrow">→</span>
       </a>
+      <p class="auth-notice">Seuls les membres du serveur Discord Sub-Jutsu peuvent accéder au portail.</p>
     </div>
 
-    <div id="form-register" style="display:none">
-      <div class="form-row">
-        <div class="fg"><label class="fl">Pseudo *</label><input class="fi" id="r-user" type="text" placeholder="pseudo…" autocomplete="off"></div>
-        <div class="fg"><label class="fl">Nom RP *</label><input class="fi" id="r-nomrp" type="text" placeholder="Prénom Nom"></div>
-      </div>
-      <div class="form-row">
-        <div class="fg"><label class="fl">Discord ID</label><input class="fi" id="r-discord" type="text" placeholder="123456789…"></div>
-        <div class="fg"><label class="fl">Steam ID 64</label><input class="fi" id="r-steam" type="text" placeholder="76561198…"></div>
-      </div>
-      <div class="form-row">
-        <div class="fg"><label class="fl">Mot de passe *</label><input class="fi" id="r-pass" type="password" placeholder="••••••••"></div>
-        <div class="fg"><label class="fl">Confirmer *</label><input class="fi" id="r-pass2" type="password" placeholder="••••••••"></div>
-      </div>
-      <button class="btn-auth" onclick="doRegister()">Créer le compte</button>
-    </div>
+    <!-- hidden inputs kept for JS compat -->
+    <input id="l-user" type="hidden">
+    <input id="l-pass" type="hidden">
+    <input id="r-user" type="hidden">
+    <input id="r-nomrp" type="hidden">
+    <input id="r-discord" type="hidden">
+    <input id="r-steam" type="hidden">
+    <input id="r-pass" type="hidden">
+    <input id="r-pass2" type="hidden">
   </div>
 </div>
 
@@ -479,23 +486,21 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
         <div class="sb-item staff-only" id="nav-roles" style="display:none" onclick="goPage('roles')"><span class="ico">🎖</span>Rôles & Perms</div>
       </div>
 
-      <div class="sb-profile-pic" id="sb-profile-pic-wrap" onclick="goPage('profil')" title="Mon Profil">
-        <div class="sb-profile-pic-inner" id="sb-profile-pic-inner">
-          <!-- filled by JS -->
-          <div class="sb-profile-pic-status"></div>
-        </div>
-      </div>
-
       <div class="sb-user">
         <div class="sb-user-row" onclick="goPage('profil')">
-          <div class="sb-av" id="sb-av-el"></div>
-          <div style="min-width:0">
+          <div class="sb-profile-pic-wrap" id="sb-profile-pic-wrap" title="Mon Profil">
+            <div class="sb-profile-pic-inner" id="sb-profile-pic-inner">
+              <div class="sb-profile-pic-status"></div>
+            </div>
+          </div>
+          <div style="min-width:0;flex:1">
             <div class="sb-uname" id="sb-uname">—</div>
             <div class="sb-urole" id="sb-urole">—</div>
           </div>
         </div>
         <button class="sb-logout" onclick="doLogout()">⏻ Déconnexion</button>
       </div>
+      <div id="sb-av-el" style="display:none"></div>
     </nav>
 
     <!-- MAIN -->
@@ -1855,9 +1860,8 @@ function roleBadge(role) {
 }
 function emptyState(ico, txt) { return `<div class="empty-state"><div class="empty-state-icon">${ico}</div><p>${txt}</p></div>`; }
 
-// Enter keys
-document.getElementById('l-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('r-pass2').addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+// Enter key for Discord redirect (not needed but keep for completeness)
+
 </script>
 </body>
 </html>

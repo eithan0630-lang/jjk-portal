@@ -171,8 +171,8 @@ select.fi option{background:var(--bg3)}
 /* ══════════════════════════════════
    PAGES
 ══════════════════════════════════ */
-.page{display:none;animation:page-in 0.2s ease}
-.page.active{display:block}
+.page{display:none}
+.page.active{display:block;animation:page-in 0.2s ease}
 @keyframes page-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 .page-header{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -1064,7 +1064,7 @@ function launchApp() {
   document.getElementById('app').classList.add('visible');
   updateSidebar();
   startClock();
-  goPage('catalogue');
+  requestAnimationFrame(() => goPage('catalogue'));
 }
 function updateSidebar() {
   const r = ROLES[CU.role] || ROLES.player;
@@ -1224,7 +1224,8 @@ const PAGE_LABELS = {
 function goPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
-  document.getElementById('page-' + id)?.classList.add('active');
+  const activePage = document.getElementById('page-' + id);
+  if (activePage) { activePage.classList.add('active'); void activePage.offsetHeight; }
   document.getElementById('nav-' + id)?.classList.add('active');
   document.getElementById('bc-current').textContent = PAGE_LABELS[id] || id;
   if (id === 'catalogue') renderCatalogue();

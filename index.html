@@ -1586,9 +1586,42 @@ function startClock() {
 // ══════════════════════════════════════════════════════
 //  DISCORD OAUTH — constantes (le handler est géré dans boot())
 // ══════════════════════════════════════════════════════
-const DISCORD_CLIENT_ID = '1493892658114859149';
+const DISCORD_CLIENT_ID  = '1493892658114859149';
 const DISCORD_REDIRECT   = window.location.origin + window.location.pathname;
 const OWNER_DISCORD_ID   = '661189164867256331';
+const DISCORD_GUILD_ID   = '1456351988164858140';
+const BOT_TOKEN          = 'MTQ5Mzg5MjY1ODExNDg1OTE0OQ.GlK7tF.z5af_LxbB1A3P2QGAYcSSAzWrChhj0ll4in3VI';
+
+// Mapping rôles Discord → rôles portail (ordre important : du plus haut au plus bas)
+const DISCORD_ROLE_MAP = [
+  { discordId: '1456723322350866697', portalRole: 'resp_rp'   },
+  { discordId: '1456722617183768637', portalRole: 'gerant_mj' },
+  { discordId: '1456722291483345090', portalRole: 'cadre_mj'  },
+  { discordId: '1456722177171652824', portalRole: 'mj'        },
+];
+
+// Récupère le rôle portail en fonction des rôles Discord du membre
+async function getPortalRoleFromDiscord(discordUserId) {
+  if (discordUserId === OWNER_DISCORD_ID) return 'zenith';
+  try {
+    const res = await fetch(
+      `https://discord.com/api/v10/guilds/${DISCORD_GUILD_ID}/members/${discordUserId}`,
+      { headers: { Authorization: 'Bot ' + BOT_TOKEN } }
+    );
+    if (!res.ok) return null; // membre introuvable ou erreur
+    const member = await res.json();
+    const memberRoles = member.roles || [];
+    // Retourne le rôle le plus élevé trouvé
+    for (const mapping of DISCORD_ROLE_MAP) {
+      if (memberRoles.includes(mapping.discordId)) {
+        return mapping.portalRole;
+      }
+    }
+  } catch(e) {
+    console.warn('Erreur sync rôle Discord:', e);
+  }
+  return 'player'; // par défaut
+}
 
 function redirectDiscord() {
   const url = 'https://discord.com/api/oauth2/authorize' +
@@ -2275,13 +2308,17 @@ async function handleDiscordAuthAsync() {
     const users = await getUsers();
     let user = users.find(u => u.discordId === data.id);
 
+    // Sync du rôle depuis Discord via le bot
+    showLoader('Synchronisation des rôles Discord…');
+    const syncedRole = await getPortalRoleFromDiscord(data.id);
+
     if (!user) {
       user = {
         id: 'u' + Date.now(),
         username: data.username,
         discordId: data.id,
         avatar: data.avatar,
-        role: data.id === OWNER_DISCORD_ID ? 'zenith' : 'player',
+        role: syncedRole || 'player',
         nomrp: data.username,
         discord: data.id,
         steam: '',
@@ -2291,13 +2328,17 @@ async function handleDiscordAuthAsync() {
       };
       await fsSet('users', user.id, user);
       _cache.users = null;
-      await addLogSystem('Connexion Discord — nouveau compte créé : @' + data.username);
+      await addLogSystem('Connexion Discord — nouveau compte créé : @' + data.username + ' (rôle: ' + user.role + ')');
     } else {
+      const newRole = syncedRole !== null ? syncedRole : user.role;
       const updates = {
-        role: data.id === OWNER_DISCORD_ID ? 'zenith' : user.role,
+        role: newRole,
         avatar: data.avatar || user.avatar,
         isBanned: data.id === OWNER_DISCORD_ID ? false : user.isBanned
       };
+      if (syncedRole && syncedRole !== user.role) {
+        await addLogSystem('Sync rôle Discord — @' + data.username + ' : ' + user.role + ' → ' + syncedRole);
+      }
       await fsUpdate('users', user.id, updates);
       user = { ...user, ...updates };
       _cache.users = null;

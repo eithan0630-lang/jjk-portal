@@ -1436,8 +1436,6 @@ async function boot() {
   }
 }
 
-boot();
-
 // ══════════════════════════════════════════════════════
 //  AUTH (async)
 // ══════════════════════════════════════════════════════
@@ -2042,83 +2040,6 @@ async function submitMJRep(status) {
 }
 
 // ══════════════════════════════════════════════════════
-//  PANEL STAFF — MEMBRES
-// ══════════════════════════════════════════════════════
-function renderPanelMembers() {
-  const q = (document.getElementById('pm-search').value || '').toLowerCase();
-  let users = getUsers();
-  if (q) users = users.filter(u => u.username.toLowerCase().includes(q) || (u.nomrp || '').toLowerCase().includes(q));
-  users.sort((a, b) => (ROLES[b.role]?.level || 0) - (ROLES[a.role]?.level || 0));
-  const tbody = document.getElementById('pm-tbody');
-  const canManage = hasPerm(CU, 'manage_users');
-  const canAssign = hasPerm(CU, 'assign_roles');
-  if (!users.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Aucun membre.</td></tr>`; return; }
-  tbody.innerHTML = users.map(u => {
-    const subCount = getDemandes().filter(d => d.userId === u.id && d.status === 'approved').length;
-    const isSelf = u.id === CU.id;
-    const canAct = canManage && !isSelf && ROLES[u.role]?.level < ROLES[CU.role]?.level;
-    return `<tr>
-      <td>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:26px;height:26px;border-radius:50%;background:${ROLES[u.role]?.color || '#333'}22;border:1px solid ${ROLES[u.role]?.color || '#333'}44;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${ROLES[u.role]?.color || '#aaa'};flex-shrink:0">${initials(u.nomrp||u.username)}</div>
-          <div><div style="font-weight:600">@${esc(u.username)}</div>${u.isBanned ? '<span style="font-size:9px;color:var(--danger)">BANNI</span>' : ''}</div>
-        </div>
-      </td>
-      <td style="color:var(--muted2)">${esc(u.nomrp || '—')}</td>
-      <td style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--muted)">${esc(u.discord || '—')}</td>
-      <td>${roleBadge(u.role)}</td>
-      <td style="font-size:11px;color:var(--muted)">${fmtDate(u.createdAt)}</td>
-      <td style="color:var(--muted2)">${subCount}</td>
-      <td>
-        <div style="display:flex;gap:4px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-xs" onclick="viewUser('${u.id}')">👁</button>
-          ${canAct && canAssign ? `<button class="btn btn-purple btn-xs" onclick="quickAssignRole('${u.id}')">Rôle</button>` : ''}
-          ${canAct && hasPerm(CU,'ban_users') ? `<button class="btn ${u.isBanned ? 'btn-success' : 'btn-danger'} btn-xs" onclick="toggleBan('${u.id}')">${u.isBanned ? 'Débannir' : 'Bannir'}</button>` : ''}
-          ${isSelf ? `<span style="font-size:10px;color:var(--muted)">Vous</span>` : ''}
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-function viewUser(id) {
-  const users = getUsers(), u = users.find(x => x.id === id); if (!u) return;
-  const r = ROLES[u.role] || ROLES.player;
-  const subs = getDemandes().filter(d => d.userId === id && d.status === 'approved');
-  const subsList = getSubs();
-  document.getElementById('vu-title').textContent = 'Fiche — @' + u.username;
-  document.getElementById('vu-content').innerHTML = `
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-      <div style="width:48px;height:48px;border-radius:50%;background:${r.color}22;border:2px solid ${r.color}55;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:${r.color}">${initials(u.nomrp||u.username)}</div>
-      <div><div style="font-family:\'Cinzel\',serif;font-size:16px;color:var(--text)">${esc(u.nomrp||u.username)}</div><div style="font-size:11px;color:var(--muted)">@${esc(u.username)}</div><div style="margin-top:5px">${roleBadge(u.role)}</div></div>
-    </div>
-    <div class="profil-id-grid" style="margin-bottom:16px">
-      <div class="profil-field"><div class="profil-field-label">Discord</div><div class="profil-field-val">${esc(u.discord||'—')}</div></div>
-      <div class="profil-field"><div class="profil-field-label">Steam ID</div><div class="profil-field-val">${esc(u.steam||'—')}</div></div>
-      <div class="profil-field"><div class="profil-field-label">Inscrit le</div><div class="profil-field-val">${fmtDate(u.createdAt)}</div></div>
-      <div class="profil-field"><div class="profil-field-label">Statut</div><div class="profil-field-val" style="color:${u.isBanned?'var(--danger)':'var(--success)'}">${u.isBanned?'Banni':'Actif'}</div></div>
-    </div>
-    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px">Sub-Jutsu maîtrisés (${subs.length})</div>
-    ${subs.length ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${subs.map(d=>{const s=subsList.find(x=>x.id===d.subId);return s?`<span class="badge badge-rank">⚡ ${esc(s.nom)}</span>`:''}).join('')}</div>` : '<p style="font-size:12px;color:var(--muted)">Aucun sub-jutsu appris.</p>'}`;
-  openModal('modal-view-user');
-}
-
-function toggleBan(id) {
-  if (!hasPerm(CU, 'ban_users')) { toast('Permission refusée.', 'error'); return; }
-  const users = getUsers(), i = users.findIndex(u => u.id === id); if (i === -1) return;
-  if (ROLES[users[i].role]?.level >= ROLES[CU.role]?.level) { toast('Vous ne pouvez pas bannir quelqu\'un de rang supérieur ou égal.', 'error'); return; }
-  users[i].isBanned = !users[i].isBanned;
-  setUsers(users);
-  addLog('user', `a ${users[i].isBanned ? 'banni' : 'débanni'} @${users[i].username}`);
-  renderPanelMembers();
-  toast(`@${users[i].username} ${users[i].isBanned ? 'banni' : 'débanni'}.`, users[i].isBanned ? 'warn' : 'success');
-}
-function quickAssignRole(userId) {
-  document.getElementById('ar-user').innerHTML = getUsers().filter(u => u.id === userId).map(u => `<option value="${u.id}">${esc(u.nomrp||u.username)} (@${esc(u.username)})</option>`).join('');
-  document.getElementById('ar-role').value = 'player';
-  openModal('modal-assign-role');
-}
-
-// ══════════════════════════════════════════════════════
 //  PANEL STAFF — MEMBRES (async)
 // ══════════════════════════════════════════════════════
 async function renderPanelMembers() {
@@ -2441,22 +2362,32 @@ boot().then(() => handleDiscordAuthAsync());
 //  EXPOSE FONCTIONS GLOBALES (nécessaire avec type="module")
 // ══════════════════════════════════════════════════════
 Object.assign(window, {
+  // Auth & session
   redirectDiscord,
   switchAuthTab, doLogin, doRegister, doLogout,
+  // Navigation
   goPage, switchInnerTab,
+  // Modals génériques
   openModal, closeModal,
+  // Catalogue & demandes
+  renderCatalogue,
   openModalDemande, saveDemande, updateDemSubInfo,
-  openModalSub, saveSub, deleteSub, toggleSubActive,
+  // Sub-jutsu (staff)
+  openModalAddSub, openModalEditSub, saveSub, deleteSub,
+  // Panel staff
+  submitMJRep, openMJRep,
+  // Membres
+  viewUser, toggleBan, quickAssignRole,
+  // Rôles
   openModalAssignRole, assignRole, saveRoleFromPage,
-  applyRoleChange,
-  saveEditProfil,
-  submitMJRep,
-  renderCatalogue, renderLogs, renderRoles,
+  // Profil
+  openModalEditProfil, saveEditProfil, changePassword,
+  // Logs
+  renderLogs, clearLogs,
+  // Rôles page
+  renderRoles,
+  // Fondateur
   closeFounderReveal,
-  clearLogs,
-  viewUserModal,
-  banUser, unbanUser,
-  openModalEditDem,
 });
 
 </script>

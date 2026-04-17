@@ -1200,26 +1200,95 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
   </div>
 </div>
 
-<script>
+<!-- ══ FIREBASE SDK ══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection,
+  getDocs, addDoc, updateDoc, deleteDoc, query, orderBy, limit, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 // ══════════════════════════════════════════════════════
-//  STORAGE
+//  ▼▼▼ COLLE ICI TA CONFIG FIREBASE ▼▼▼
 // ══════════════════════════════════════════════════════
-const DB = {
-  get(k, d) { try { const v = localStorage.getItem('jjk2_' + k); return v != null ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { localStorage.setItem('jjk2_' + k, JSON.stringify(v)); }
+const firebaseConfig = {
+  apiKey: "AIzaSyBMVBxZWy-ghymJezMuv3FZDiSK24QrtIs",
+  authDomain: "jjk-portal.firebaseapp.com",
+  projectId: "jjk-portal",
+  storageBucket: "jjk-portal.firebasestorage.app",
+  messagingSenderId: "88733810579",
+  appId: "1:88733810579:web:51a3e3171876556fc3b266",
+  measurementId: "G-9WEW0R6YYN"
 };
-const getUsers = () => DB.get('users', []);
-const setUsers = u => DB.set('users', u);
-const getSubs = () => DB.get('subs', []);
-const setSubs = s => DB.set('subs', s);
-const getDemandes = () => DB.get('demandes', []);
-const setDemandes = d => DB.set('demandes', d);
-const getLogs = () => DB.get('logs', []);
-const setLogs = l => DB.set('logs', l);
-const getSession = () => DB.get('session', null);
-const setSession = s => DB.set('session', s);
-const getInitialized = () => DB.get('initialized', false);
-const setInitialized = v => DB.set('initialized', v);
+// ══════════════════════════════════════════════════════
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ══════════════════════════════════════════════════════
+//  CACHE LOCAL (évite les lectures répétées)
+// ══════════════════════════════════════════════════════
+const _cache = { users: null, subs: null, demandes: null, logs: null };
+const _session = { userId: null };
+
+// ── Helpers Firestore ──────────────────────────────────
+async function fsGetAll(col) {
+  const snap = await getDocs(collection(db, col));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+async function fsSet(col, id, data) {
+  await setDoc(doc(db, col, id), data);
+}
+async function fsUpdate(col, id, data) {
+  await updateDoc(doc(db, col, id), data);
+}
+async function fsDelete(col, id) {
+  await deleteDoc(doc(db, col, id));
+}
+async function fsGetOne(col, id) {
+  const snap = await getDoc(doc(db, col, id));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+}
+
+// ── API publique (remplace les get/set localStorage) ──
+const getUsers    = async () => { if (!_cache.users)    _cache.users    = await fsGetAll('users');    return _cache.users; };
+const getSubs     = async () => { if (!_cache.subs)     _cache.subs     = await fsGetAll('subs');     return _cache.subs; };
+const getDemandes = async () => { if (!_cache.demandes) _cache.demandes = await fsGetAll('demandes'); return _cache.demandes; };
+const getLogs     = async () => { if (!_cache.logs)     _cache.logs     = await fsGetAll('logs');     return _cache.logs; };
+
+const setUsers    = async (arr) => { _cache.users    = arr; await _syncCollection('users', arr); };
+const setSubs     = async (arr) => { _cache.subs     = arr; await _syncCollection('subs', arr); };
+const setDemandes = async (arr) => { _cache.demandes = arr; await _syncCollection('demandes', arr); };
+const setLogs     = async (arr) => { _cache.logs     = arr; await _syncCollection('logs', arr); };
+
+// Sync un tableau entier dans une collection (upsert chaque item)
+async function _syncCollection(col, arr) {
+  await Promise.all(arr.map(item => fsSet(col, item.id, item)));
+}
+
+// Session stockée en localStorage (juste l'ID utilisateur, pas les données)
+const getSession    = () => { try { return localStorage.getItem('jjk2_session'); } catch { return null; } };
+const setSession    = (v) => { try { if (v) localStorage.setItem('jjk2_session', v); else localStorage.removeItem('jjk2_session'); } catch {} };
+const getInitialized = async () => { const d = await fsGetOne('meta', 'config'); return d?.initialized === true; };
+const setInitialized = async (v)  => { await fsSet('meta', 'config', { initialized: v, founder_version: 'v2' }); };
+
+// Invalider le cache après écriture pour que le prochain read soit frais
+function invalidateCache(...cols) { cols.forEach(c => { _cache[c] = null; }); }
+
+// ── Affichage chargement ──────────────────────────────
+function showLoader(msg = 'Connexion à la base de données…') {
+  let el = document.getElementById('fb-loader');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'fb-loader';
+    el.style.cssText = 'position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:Rajdhani,sans-serif';
+    el.innerHTML = `<div style="font-size:32px">🔥</div><div style="color:var(--gold);font-size:14px;letter-spacing:0.1em" id="fb-loader-msg">${msg}</div><div style="width:180px;height:2px;background:var(--bg3);border-radius:1px;overflow:hidden"><div id="fb-bar" style="width:0%;height:100%;background:linear-gradient(90deg,var(--gold),var(--purple2));transition:width 0.4s;border-radius:1px"></div></div>`;
+    document.body.appendChild(el);
+  }
+  document.getElementById('fb-loader-msg').textContent = msg;
+}
+function setLoaderProgress(pct) { const b = document.getElementById('fb-bar'); if (b) b.style.width = pct + '%'; }
+function hideLoader() { const el = document.getElementById('fb-loader'); if (el) el.remove(); }
 
 // ══════════════════════════════════════════════════════
 //  ROLE SYSTEM
@@ -1258,13 +1327,12 @@ function isStaff(user) {
 }
 
 // ══════════════════════════════════════════════════════
-//  LOGGING SYSTEM
+//  LOGGING SYSTEM (async)
 // ══════════════════════════════════════════════════════
 const LOG_COLORS = {
   auth: '#60a5fa', sub: '#c9a227', demande: '#a78bfa', user: '#f59e0b', role: '#ff6b35', system: '#6b7280'
 };
-function addLog(type, action, details = {}) {
-  const logs = getLogs();
+async function addLog(type, action, details = {}) {
   const entry = {
     id: 'l' + Date.now() + Math.random().toString(36).slice(2,5),
     ts: new Date().toISOString(),
@@ -1274,63 +1342,53 @@ function addLog(type, action, details = {}) {
     action,
     details
   };
-  logs.unshift(entry);
-  if (logs.length > 500) logs.splice(500);
-  setLogs(logs);
+  await fsSet('logs', entry.id, entry);
+  _cache.logs = null;
   updateLogBadge();
 }
 
 // ══════════════════════════════════════════════════════
-//  FOUNDER INIT
+//  FOUNDER INIT (async)
 // ══════════════════════════════════════════════════════
 function genRandom(chars, len) {
   let r = '';
   for (let i = 0; i < len; i++) r += chars[Math.floor(Math.random() * chars.length)];
   return r;
 }
-function initFounder() {
-  if (getInitialized()) return;
-  const alpha = 'abcdefghijklmnopqrstuvwxyz0123456789';
+async function initFounder() {
+  const already = await getInitialized();
+  if (already) return;
   const sym = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   const username = 'fondateur';
   const password = 'zenith67.Eithan2009';
   const secret = genRandom(sym.toUpperCase(), 4) + '-' + genRandom(sym, 4) + '-' + genRandom(sym.toUpperCase(), 4);
   const founder = {
-    id: 'founder_' + Date.now(),
+    id: 'founder_init',
     username, password,
-    role: 'founder',
+    role: 'zenith',
     nomrp: 'Fondateur',
     discord: '', steam: '',
     createdAt: new Date().toISOString(),
     secret,
     isBanned: false,
   };
-  const users = getUsers();
-  users.push(founder);
-  setUsers(users);
-  setInitialized(true);
+  await fsSet('users', founder.id, founder);
+  _cache.users = null;
+  await setInitialized(true);
   document.getElementById('fr-username').textContent = username;
   document.getElementById('fr-password').textContent = password;
   document.getElementById('fr-secret').textContent = secret;
   document.getElementById('founder-reveal').classList.add('open');
-  addLogSystem('Système initialisé — compte Fondateur créé');
+  await addLogSystem('Système initialisé — compte Fondateur créé');
 }
-function addLogSystem(msg) {
-  const logs = getLogs();
-  logs.unshift({ id: 'l'+Date.now(), ts: new Date().toISOString(), type:'system', actor:'system', actorRole:'system', action: msg, details:{} });
-  setLogs(logs);
+async function addLogSystem(msg) {
+  const entry = { id: 'l'+Date.now()+'sys', ts: new Date().toISOString(), type:'system', actor:'system', actorRole:'system', action: msg, details:{} };
+  await fsSet('logs', entry.id, entry);
+  _cache.logs = null;
 }
 function closeFounderReveal() {
   document.getElementById('founder-reveal').classList.remove('open');
 }
-
-// Run init (reset unique si nouvelle version des identifiants)
-if (DB.get('founder_version') !== 'v2') {
-  DB.set('initialized', false);
-  DB.set('users', []);
-  DB.set('founder_version', 'v2');
-}
-initFounder();
 
 // ══════════════════════════════════════════════════════
 //  STATE
@@ -1340,7 +1398,48 @@ let editingSubId = null;
 let editingDemId = null;
 
 // ══════════════════════════════════════════════════════
-//  AUTH
+//  BOOT ASYNC — remplace les deux IIFE du bas
+// ══════════════════════════════════════════════════════
+async function boot() {
+  showLoader('Connexion à Firebase…');
+  setLoaderProgress(20);
+  try {
+    await initFounder();
+    setLoaderProgress(60);
+
+    // Tenter auto-login via session stockée
+    const sid = getSession();
+    if (sid) {
+      setLoaderProgress(80);
+      const users = await getUsers();
+      let u = users.find(x => x.id === sid);
+      if (u && !u.isBanned) {
+        if (u.discordId === OWNER_DISCORD_ID && u.role !== 'zenith') {
+          u.role = 'zenith';
+          await fsUpdate('users', u.id, { role: 'zenith' });
+          _cache.users = null;
+        }
+        CU = u;
+        setLoaderProgress(100);
+        hideLoader();
+        launchApp();
+        return;
+      }
+    }
+
+    setLoaderProgress(100);
+    hideLoader();
+  } catch(e) {
+    hideLoader();
+    console.error('Firebase error:', e);
+    showLoader('❌ Erreur de connexion Firebase. Vérifie ta config.');
+  }
+}
+
+boot();
+
+// ══════════════════════════════════════════════════════
+//  AUTH (async)
 // ══════════════════════════════════════════════════════
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', i === (tab === 'login' ? 0 : 1)));
@@ -1352,18 +1451,25 @@ function authErr(m) { const e = document.getElementById('auth-err'); e.textConte
 function authOk(m) { const e = document.getElementById('auth-ok'); e.textContent = m; e.style.display = 'block'; document.getElementById('auth-err').style.display = 'none'; }
 function clearAuthMsg() { document.getElementById('auth-err').style.display = 'none'; document.getElementById('auth-ok').style.display = 'none'; }
 
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('l-user').value.trim();
   const p = document.getElementById('l-pass').value;
   if (!u || !p) { authErr('Remplissez tous les champs.'); return; }
-  const found = getUsers().find(x => x.username === u && x.password === p);
-  if (!found) { authErr('Identifiants incorrects.'); return; }
-  if (found.isBanned) { authErr('Ce compte a été banni du serveur.'); return; }
-  setSession(found.id); CU = found;
-  addLog('auth', `connexion au portail`);
-  launchApp();
+  showLoader('Connexion…');
+  try {
+    _cache.users = null;
+    const users = await getUsers();
+    const found = users.find(x => x.username === u && x.password === p);
+    hideLoader();
+    if (!found) { authErr('Identifiants incorrects.'); return; }
+    if (found.isBanned) { authErr('Ce compte a été banni du serveur.'); return; }
+    setSession(found.id); CU = found;
+    await addLog('auth', 'connexion au portail');
+    launchApp();
+  } catch(e) { hideLoader(); authErr('Erreur réseau. Réessaie.'); }
 }
-function doRegister() {
+
+async function doRegister() {
   const u = document.getElementById('r-user').value.trim();
   const nomrp = document.getElementById('r-nomrp').value.trim();
   const discord = document.getElementById('r-discord').value.trim();
@@ -1374,19 +1480,26 @@ function doRegister() {
   if (p !== p2) { authErr('Les mots de passe ne correspondent pas.'); return; }
   if (p.length < 6) { authErr('Mot de passe trop court (6 min.).'); return; }
   if (!/^[a-zA-Z0-9_-]{3,20}$/.test(u)) { authErr('Pseudo invalide (3-20 caractères, lettres/chiffres/_/-)'); return; }
-  const users = getUsers();
-  if (users.find(x => x.username === u)) { authErr('Ce pseudo est déjà utilisé.'); return; }
-  const newUser = { id: 'u' + Date.now(), username: u, password: p, role: 'player', nomrp, discord, steam, createdAt: new Date().toISOString(), isBanned: false };
-  users.push(newUser);
-  setUsers(users);
-  authOk('Compte créé ! Rôle Joueur attribué automatiquement. Connectez-vous.');
-  switchAuthTab('login');
-  document.getElementById('l-user').value = u;
-  addLogSystem(`Nouveau compte joueur créé : @${u}`);
+  showLoader('Création du compte…');
+  try {
+    _cache.users = null;
+    const users = await getUsers();
+    if (users.find(x => x.username === u)) { hideLoader(); authErr('Ce pseudo est déjà utilisé.'); return; }
+    const newUser = { id: 'u' + Date.now(), username: u, password: p, role: 'player', nomrp, discord, steam, createdAt: new Date().toISOString(), isBanned: false };
+    await fsSet('users', newUser.id, newUser);
+    _cache.users = null;
+    hideLoader();
+    authOk('Compte créé ! Rôle Joueur attribué automatiquement. Connectez-vous.');
+    switchAuthTab('login');
+    document.getElementById('l-user').value = u;
+    await addLogSystem('Nouveau compte joueur créé : @' + u);
+  } catch(e) { hideLoader(); authErr('Erreur réseau. Réessaie.'); }
 }
-function doLogout() {
-  addLog('auth', 'déconnexion du portail');
+
+async function doLogout() {
+  await addLog('auth', 'déconnexion du portail');
   setSession(null); CU = null;
+  invalidateCache('users','subs','demandes','logs');
   document.getElementById('app').classList.remove('visible');
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('l-user').value = '';
@@ -1465,12 +1578,6 @@ function makeFallbackAv(init, color) {
 function updateLogBadge() {
   // No persistent "unread" count — just live indicator for admin+
 }
-function updateDemBadge() {
-  const badge = document.getElementById('nav-badge-dem');
-  const pending = getDemandes().filter(d => d.userId === CU?.id && d.status === 'pending').length;
-  badge.style.display = pending > 0 ? '' : 'none';
-  badge.textContent = pending;
-}
 
 function startClock() {
   const el = document.getElementById('topbar-clock');
@@ -1479,13 +1586,12 @@ function startClock() {
 }
 
 // ══════════════════════════════════════════════════════
-//  DISCORD OAUTH
+//  DISCORD OAUTH — constantes (le handler est géré dans boot())
 // ══════════════════════════════════════════════════════
 const DISCORD_CLIENT_ID = '1493892658114859149';
 const DISCORD_REDIRECT   = window.location.origin + '/api/discord-callback';
+const OWNER_DISCORD_ID   = '661189164867256331';
 
-// Mapping rôles Discord → rôles site (IDs à remplir sur Vercel)
-// Ces valeurs sont injectées via l'URL de retour côté serveur Vercel
 function redirectDiscord() {
   const url = 'https://discord.com/api/oauth2/authorize' +
     '?client_id=' + DISCORD_CLIENT_ID +
@@ -1495,104 +1601,27 @@ function redirectDiscord() {
   window.location.href = url;
 }
 
-// Discord ID propriétaire — toujours founder, toutes permissions
-const OWNER_DISCORD_ID = '661189164867256331';
-
-// Gestion du retour Discord après auth
-(function handleDiscordAuth() {
-  const params = new URLSearchParams(window.location.search);
-  const authParam = params.get('discord_auth');
-  if (!authParam) return;
-
-  const data = Object.fromEntries(new URLSearchParams(authParam));
-  if (!data.id) return;
-
-  // Forcer zenith si c'est le propriétaire
-  if (data.id === OWNER_DISCORD_ID) data.role = 'zenith';
-
-  const users = getUsers();
-  let user = users.find(u => u.discordId === data.id);
-
-  if (!user) {
-    user = {
-      id:        'u' + Date.now(),
-      username:  data.username,
-      discordId: data.id,
-      avatar:    data.avatar || '',
-      role:      data.id === OWNER_DISCORD_ID ? 'zenith' : (data.role || 'player'),
-      nomrp:     data.username,
-      discord:   data.id,
-      steam:     '',
-      createdAt: new Date().toISOString(),
-      isBanned:  false,
-      password:  '',
-    };
-    users.push(user);
-    setUsers(users);
-    addLogSystem('Connexion Discord — nouveau compte créé : @' + data.username);
-  } else {
-    // Met à jour le rôle selon Discord, mais toujours founder pour le propriétaire
-    user.role   = data.id === OWNER_DISCORD_ID ? 'zenith' : (data.role || user.role);
-    user.avatar = data.avatar || user.avatar;
-    user.isBanned = data.id === OWNER_DISCORD_ID ? false : user.isBanned;
-    const idx = users.findIndex(u => u.id === user.id);
-    users[idx] = user;
-    setUsers(users);
-  }
-
-  if (user.isBanned) {
-    window.history.replaceState({}, '', '/');
-    alert('Ce compte Discord est banni du portail.');
-    return;
-  }
-
-  setSession(user.id);
-  CU = user;
-  window.history.replaceState({}, '', '/');
-  addLog('auth', 'connexion via Discord');
-  launchApp();
-})();
-
-// Auto-login classique
-(function() {
-  const sid = getSession();
-  if (sid) {
-    const users = getUsers();
-    const u = users.find(x => x.id === sid);
-    if (u && !u.isBanned) {
-      // Garantir founder si propriétaire même en auto-login
-      if (u.discordId === OWNER_DISCORD_ID && u.role !== 'zenith') {
-        u.role = 'zenith';
-        const idx = users.findIndex(x => x.id === u.id);
-        users[idx] = u;
-        setUsers(users);
-      }
-      CU = u;
-      launchApp();
-    }
-  }
-})();
-
 // ══════════════════════════════════════════════════════
-//  NAVIGATION
+//  NAVIGATION (async)
 // ══════════════════════════════════════════════════════
 const PAGE_LABELS = {
   catalogue: 'Catalogue', 'mes-demandes': 'Mes Demandes', profil: 'Mon Profil',
   panel: 'Panel Staff', logs: 'Journaux', roles: 'Rôles & Perms'
 };
-function goPage(id) {
+async function goPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
   const activePage = document.getElementById('page-' + id);
   if (activePage) { activePage.classList.add('active'); void activePage.offsetHeight; }
   document.getElementById('nav-' + id)?.classList.add('active');
   document.getElementById('bc-current').textContent = PAGE_LABELS[id] || id;
-  if (id === 'catalogue') renderCatalogue();
-  if (id === 'mes-demandes') renderMesDemandes();
-  if (id === 'profil') renderProfil();
-  if (id === 'panel') { renderStaffStats(); renderPanelSubs(); renderPanelDemandes(); renderPanelMembers(); }
-  if (id === 'logs') renderLogs();
-  if (id === 'roles') renderRoles();
+  invalidateCache('users','subs','demandes','logs');
+  if (id === 'catalogue') await renderCatalogue();
+  if (id === 'mes-demandes') await renderMesDemandes();
+  if (id === 'profil') await renderProfil();
+  if (id === 'panel') { await renderStaffStats(); await renderPanelSubs(); await renderPanelDemandes(); await renderPanelMembers(); }
+  if (id === 'logs') await renderLogs();
+  if (id === 'roles') await renderRoles();
 }
 function switchInnerTab(btn, id) {
   const container = btn.closest('.inner-tabs').parentElement;
@@ -1603,48 +1632,50 @@ function switchInnerTab(btn, id) {
 }
 
 // ══════════════════════════════════════════════════════
-//  CATALOGUE
+//  CATALOGUE (async)
 // ══════════════════════════════════════════════════════
-function renderCatalogue() {
+async function renderCatalogue() {
   const q = (document.getElementById('cat-search').value || '').toLowerCase();
   const sort = document.getElementById('cat-sort').value;
   const rang = document.getElementById('cat-rang').value;
   const type = document.getElementById('cat-type').value;
   const dispo = document.getElementById('cat-dispo').value;
-  let subs = getSubs().filter(s => s.active !== false);
+  const [allSubs, allDems] = await Promise.all([getSubs(), getDemandes()]);
+  let subs = allSubs.filter(s => s.active !== false);
   if (q) subs = subs.filter(s => s.nom.toLowerCase().includes(q) || s.createur.toLowerCase().includes(q) || (s.type||'').toLowerCase().includes(q));
   if (rang) subs = subs.filter(s => String(s.rang) === rang);
   if (type) subs = subs.filter(s => (s.type || '') === type);
-  if (dispo === 'libre') subs = subs.filter(s => takenSlots(s.id) < s.slots);
-  if (dispo === 'complet') subs = subs.filter(s => takenSlots(s.id) >= s.slots);
+  const takenMap = {};
+  allDems.filter(d => d.status === 'approved').forEach(d => { takenMap[d.subId] = (takenMap[d.subId] || 0) + 1; });
+  if (dispo === 'libre') subs = subs.filter(s => (takenMap[s.id]||0) < s.slots);
+  if (dispo === 'complet') subs = subs.filter(s => (takenMap[s.id]||0) >= s.slots);
   if (sort === 'rang') subs.sort((a, b) => String(a.rang).localeCompare(String(b.rang)));
-  else if (sort === 'slots') subs.sort((a, b) => (b.slots - takenSlots(b.id)) - (a.slots - takenSlots(a.id)));
+  else if (sort === 'slots') subs.sort((a, b) => (b.slots - (takenMap[b.id]||0)) - (a.slots - (takenMap[a.id]||0)));
   else subs.sort((a, b) => a.nom.localeCompare(b.nom));
-  // Bouton staff
   const staffBtn = document.getElementById('cat-staff-btn');
   if (staffBtn) staffBtn.style.display = CU && isStaff(CU) ? '' : 'none';
   const c = document.getElementById('catalogue-grid');
   if (!subs.length) { c.innerHTML = emptyState('⚡', 'Aucun sub-jutsu disponible pour le moment.'); return; }
-  // Grouper par type
   const grouped = {};
   subs.forEach(s => { const t = s.type || 'Non catégorisé'; if (!grouped[t]) grouped[t] = []; grouped[t].push(s); });
   let html = '';
   if (type || Object.keys(grouped).length === 1) {
-    html = `<div class="sub-grid">${subs.map(s => subCardHtml(s)).join('')}</div>`;
+    html = `<div class="sub-grid">${subs.map(s => subCardHtml(s, takenMap, allDems)).join('')}</div>`;
   } else {
     const typeIcons = {'Malédiction':'🔮','Renforcement':'💪','Manipulation':'🌀','Invocation':'👁','Défense':'🛡','Soin':'💚','Transformation':'✨','Technique Innée':'⚡','Autre':'🌑','Non catégorisé':'📂'};
     Object.entries(grouped).sort(([a],[b])=>a.localeCompare(b)).forEach(([t, list]) => {
       html += `<div class="sdiv"><span class="sdiv-label">${typeIcons[t]||'📂'} ${t} <span style="font-weight:400;color:var(--muted)">(${list.length})</span></span><div class="sdiv-line"></div></div>`;
-      html += `<div class="sub-grid" style="margin-bottom:8px">${list.map(s => subCardHtml(s)).join('')}</div>`;
+      html += `<div class="sub-grid" style="margin-bottom:8px">${list.map(s => subCardHtml(s, takenMap, allDems)).join('')}</div>`;
     });
   }
   c.innerHTML = html;
 }
-function subCardHtml(s) {
-  const taken = takenSlots(s.id), free = s.slots - taken;
+function subCardHtml(s, takenMap, allDems) {
+  const taken = takenMap ? (takenMap[s.id]||0) : 0;
+  const free = s.slots - taken;
   const dots = Array.from({ length: s.slots }, (_, i) => `<div class="slot-dot ${i < taken ? 'taken' : 'free'}"></div>`).join('');
-  const alreadyApproved = getDemandes().find(d => d.userId === CU?.id && d.subId === s.id && d.status === 'approved');
-  const pendingDem = getDemandes().find(d => d.userId === CU?.id && d.subId === s.id && d.status === 'pending');
+  const alreadyApproved = allDems?.find(d => d.userId === CU?.id && d.subId === s.id && d.status === 'approved');
+  const pendingDem = allDems?.find(d => d.userId === CU?.id && d.subId === s.id && d.status === 'pending');
   const typeIcons = {'Malédiction':'🔮','Renforcement':'💪','Manipulation':'🌀','Invocation':'👁','Défense':'🛡','Soin':'💚','Transformation':'✨','Technique Innée':'⚡','Autre':'🌑'};
   const typeIcon = s.type ? (typeIcons[s.type] || '📂') : '';
   return `<div class="sub-card">
@@ -1666,16 +1697,17 @@ function subCardHtml(s) {
     </div>
   </div>`;
 }
-function takenSlots(subId) {
-  return getDemandes().filter(d => d.subId === subId && d.status === 'approved').length;
+async function takenSlots(subId) {
+  const dems = await getDemandes();
+  return dems.filter(d => d.subId === subId && d.status === 'approved').length;
 }
 
 // ══════════════════════════════════════════════════════
-//  MES DEMANDES
+//  MES DEMANDES (async)
 // ══════════════════════════════════════════════════════
-function renderMesDemandes() {
-  const dems = getDemandes().filter(d => d.userId === CU.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const subs = getSubs();
+async function renderMesDemandes() {
+  const [allDems, subs] = await Promise.all([getDemandes(), getSubs()]);
+  const dems = allDems.filter(d => d.userId === CU.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const c = document.getElementById('mes-demandes-list');
   if (!dems.length) { c.innerHTML = emptyState('📋', 'Aucune demande. Consultez le catalogue pour en soumettre une.'); return; }
   c.innerHTML = dems.map(d => {
@@ -1690,13 +1722,13 @@ function renderMesDemandes() {
       <div>${statusBadge(d.status)}</div>
     </div>`;
   }).join('');
-  updateDemBadge();
+  await updateDemBadge();
 }
 
 // ══════════════════════════════════════════════════════
-//  PROFIL
+//  PROFIL (async)
 // ══════════════════════════════════════════════════════
-function renderProfil() {
+async function renderProfil() {
   const u = CU;
   const r = ROLES[u.role] || ROLES.player;
   const init = initials(u.nomrp || u.username);
@@ -1718,18 +1750,17 @@ function renderProfil() {
   document.getElementById('profil-steam').textContent = u.steam || 'Non renseigné';
   document.getElementById('profil-date').textContent = fmtDate(u.createdAt);
   document.getElementById('profil-role-badge').innerHTML = roleBadge(u.role);
-  // Hide password section for Discord-only accounts
   const isDiscordUser = !!u.discordId;
   ['profil-pass-section','profil-pass-box'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isDiscordUser ? 'none' : '';
   });
-  const dems = getDemandes().filter(d => d.userId === u.id && d.status === 'approved');
+  const [allDems, subs] = await Promise.all([getDemandes(), getSubs()]);
+  const dems = allDems.filter(d => d.userId === u.id && d.status === 'approved');
   document.getElementById('profil-count').textContent = dems.length;
-  const subs = getSubs();
   const c = document.getElementById('profil-subs-list');
   if (!dems.length) { c.innerHTML = emptyState('⚡', 'Aucun sub-jutsu maîtrisé pour l\'instant.'); return; }
-  c.innerHTML = `<div class="sub-grid">${dems.map(d => { const s = subs.find(x => x.id === d.subId) || { nom: 'Sub supprimé', rang: '?', createur: '?', desc: '', conditions: '', slots: 0 }; return subCardHtml(s); }).join('')}</div>`;
+  c.innerHTML = `<div class="sub-grid">${dems.map(d => { const s = subs.find(x => x.id === d.subId) || { nom: 'Sub supprimé', rang: '?', createur: '?', desc: '', conditions: '', slots: 0 }; return subCardHtml(s, {}, allDems); }).join('')}</div>`;
 }
 function openModalEditProfil() {
   document.getElementById('ep-nomrp').value = CU.nomrp || '';
@@ -1737,82 +1768,90 @@ function openModalEditProfil() {
   document.getElementById('ep-steam').value = CU.steam || '';
   openModal('modal-profil');
 }
-function saveEditProfil() {
+async function saveEditProfil() {
   const nomrp = document.getElementById('ep-nomrp').value.trim();
   const discord = document.getElementById('ep-discord').value.trim();
   const steam = document.getElementById('ep-steam').value.trim();
   if (!nomrp) { toast('Le nom RP est requis.', 'error'); return; }
-  const users = getUsers(), idx = users.findIndex(u => u.id === CU.id);
-  users[idx] = { ...users[idx], nomrp, discord, steam };
-  setUsers(users); CU = users[idx];
-  addLog('user', `a mis à jour son profil`);
-  closeModal('modal-profil'); renderProfil(); updateSidebar();
+  const updated = { ...CU, nomrp, discord, steam };
+  await fsUpdate('users', CU.id, { nomrp, discord, steam });
+  _cache.users = null;
+  CU = updated;
+  await addLog('user', 'a mis à jour son profil');
+  closeModal('modal-profil'); await renderProfil(); updateSidebar();
   toast('Profil mis à jour !', 'success');
 }
-function changePassword() {
+async function changePassword() {
   const p1 = document.getElementById('chg-pass1').value;
   const p2 = document.getElementById('chg-pass2').value;
   if (!p1 || !p2) { toast('Remplissez les deux champs.', 'error'); return; }
   if (p1 !== p2) { toast('Les mots de passe ne correspondent pas.', 'error'); return; }
   if (p1.length < 6) { toast('Mot de passe trop court.', 'error'); return; }
-  const users = getUsers(), idx = users.findIndex(u => u.id === CU.id);
-  users[idx].password = p1; setUsers(users); CU = users[idx];
+  await fsUpdate('users', CU.id, { password: p1 });
+  _cache.users = null;
+  CU = { ...CU, password: p1 };
   document.getElementById('chg-pass1').value = '';
   document.getElementById('chg-pass2').value = '';
-  addLog('user', `a changé son mot de passe`);
+  await addLog('user', 'a changé son mot de passe');
   toast('Mot de passe mis à jour !', 'success');
 }
 
 // ══════════════════════════════════════════════════════
-//  DEMANDE MODAL
+//  DEMANDE MODAL (async)
 // ══════════════════════════════════════════════════════
-function openModalDemande(preId) {
-  const subs = getSubs().filter(s => s.active !== false);
+async function openModalDemande(preId) {
+  const [subs, allDems] = await Promise.all([getSubs(), getDemandes()]);
+  const activeSubs = subs.filter(s => s.active !== false);
+  const takenMap = {};
+  allDems.filter(d => d.status === 'approved').forEach(d => { takenMap[d.subId] = (takenMap[d.subId]||0) + 1; });
   const sel = document.getElementById('dem-sub-select');
-  sel.innerHTML = '<option value="">— Choisir —</option>' + subs.map(s => {
-    const free = s.slots - takenSlots(s.id);
+  sel.innerHTML = '<option value="">— Choisir —</option>' + activeSubs.map(s => {
+    const free = s.slots - (takenMap[s.id]||0);
     return `<option value="${s.id}" ${free <= 0 ? 'disabled' : ''} ${s.id === preId ? 'selected' : ''}>${esc(s.nom)} — ${free} slot${free > 1 ? 's' : ''} libre${free > 1 ? 's' : ''}</option>`;
   }).join('');
   document.getElementById('dem-message').value = '';
   document.getElementById('dem-sub-info').style.display = 'none';
-  if (preId) updateDemSubInfo(preId);
+  if (preId) await updateDemSubInfo(preId);
   openModal('modal-demande');
 }
-function updateDemSubInfo(id) {
-  const s = getSubs().find(x => x.id === id);
+async function updateDemSubInfo(id) {
+  const subs = await getSubs();
+  const s = subs.find(x => x.id === id);
   const c = document.getElementById('dem-sub-info');
   if (!s) { c.style.display = 'none'; return; }
-  const taken = takenSlots(s.id);
+  const taken = await takenSlots(s.id);
   document.getElementById('dem-sub-info-content').innerHTML =
     `<div style="margin-bottom:5px"><b style="color:var(--gold)">${esc(s.nom)}</b> <span class="badge badge-rank" style="margin-left:6px">Rang ${esc(String(s.rang))}</span></div>` +
     (s.conditions ? `<div style="color:var(--muted2);font-size:11px;margin-bottom:4px">⚠ ${esc(s.conditions)}</div>` : '') +
     `<div style="font-size:11px;color:var(--muted)">${taken}/${s.slots} slot${s.slots > 1 ? 's' : ''} pris</div>`;
   c.style.display = 'block';
 }
-function saveDemande() {
+async function saveDemande() {
   const subId = document.getElementById('dem-sub-select').value;
   const msg = document.getElementById('dem-message').value.trim();
   if (!subId) { toast('Choisissez un sub-jutsu.', 'error'); return; }
-  const s = getSubs().find(x => x.id === subId);
+  const [subs, dems] = await Promise.all([getSubs(), getDemandes()]);
+  const s = subs.find(x => x.id === subId);
   if (!s) { toast('Sub introuvable.', 'error'); return; }
-  if (takenSlots(s.id) >= s.slots) { toast('Plus de slots disponibles.', 'error'); return; }
-  const dems = getDemandes();
+  const taken = dems.filter(d => d.subId === subId && d.status === 'approved').length;
+  if (taken >= s.slots) { toast('Plus de slots disponibles.', 'error'); return; }
   if (dems.find(d => d.userId === CU.id && d.subId === subId && d.status === 'pending')) { toast('Demande déjà en attente pour ce sub.', 'error'); return; }
   if (dems.find(d => d.userId === CU.id && d.subId === subId && d.status === 'approved')) { toast('Vous maîtrisez déjà ce sub-jutsu.', 'error'); return; }
-  dems.push({ id: 'd' + Date.now(), userId: CU.id, subId, message: msg, status: 'pending', createdAt: new Date().toISOString(), mjNote: '', treatedBy: '', treatedAt: '' });
-  setDemandes(dems);
-  addLog('demande', `a soumis une demande pour`, { sub: s.nom });
+  const newDem = { id: 'd' + Date.now(), userId: CU.id, subId, message: msg, status: 'pending', createdAt: new Date().toISOString(), mjNote: '', treatedBy: '', treatedAt: '' };
+  await fsSet('demandes', newDem.id, newDem);
+  _cache.demandes = null;
+  await addLog('demande', 'a soumis une demande pour', { sub: s.nom });
   closeModal('modal-demande');
   toast('Demande envoyée ! Un MJ la traitera.', 'success');
-  updateDemBadge();
-  if (document.getElementById('page-mes-demandes').classList.contains('active')) renderMesDemandes();
+  await updateDemBadge();
+  if (document.getElementById('page-mes-demandes').classList.contains('active')) await renderMesDemandes();
 }
 
 // ══════════════════════════════════════════════════════
-//  PANEL STAFF — STATS
+//  PANEL STAFF — STATS (async)
 // ══════════════════════════════════════════════════════
-function renderStaffStats() {
-  const subs = getSubs(), dems = getDemandes(), users = getUsers();
+async function renderStaffStats() {
+  const [subs, dems, users] = await Promise.all([getSubs(), getDemandes(), getUsers()]);
   const pending = dems.filter(d => d.status === 'pending').length;
   const approved = dems.filter(d => d.status === 'approved').length;
   const players = users.filter(u => u.role === 'player').length;
@@ -1844,13 +1883,13 @@ function renderStaffStats() {
     <div class="stat-card" style="--stat-color:var(--purple2)">
       <div class="stat-icon">📜</div>
       <div class="stat-label">Logs</div>
-      <div class="stat-val">${getLogs().length}</div>
+      <div class="stat-val">${(await getLogs()).length}</div>
       <div class="stat-sub">entrées enregistrées</div>
     </div>`;
 }
 
 // ══════════════════════════════════════════════════════
-//  PANEL STAFF — SUBS
+//  PANEL STAFF — SUBS (async)
 // ══════════════════════════════════════════════════════
 function openModalAddSub() {
   if (!hasPerm(CU, 'manage_subs')) { toast('Permission refusée.', 'error'); return; }
@@ -1862,9 +1901,10 @@ function openModalAddSub() {
   document.getElementById('sub-slots').value = '';
   openModal('modal-sub');
 }
-function openModalEditSub(id) {
+async function openModalEditSub(id) {
   if (!hasPerm(CU, 'manage_subs')) { toast('Permission refusée.', 'error'); return; }
-  const s = getSubs().find(x => x.id === id); if (!s) return;
+  const subs = await getSubs();
+  const s = subs.find(x => x.id === id); if (!s) return;
   editingSubId = id;
   document.getElementById('modal-sub-title').textContent = 'Modifier le Sub-Jutsu';
   document.getElementById('sub-nom').value = s.nom;
@@ -1876,7 +1916,7 @@ function openModalEditSub(id) {
   document.getElementById('sub-type').value = s.type || '';
   openModal('modal-sub');
 }
-function saveSub() {
+async function saveSub() {
   const nom = document.getElementById('sub-nom').value.trim();
   const createur = document.getElementById('sub-createur').value.trim();
   const rang = document.getElementById('sub-rang').value;
@@ -1886,39 +1926,42 @@ function saveSub() {
   const type = document.getElementById('sub-type').value;
   if (!nom || !createur) { toast('Nom et créateur requis.', 'error'); return; }
   if (slots < 1) { toast('Au moins 1 slot requis.', 'error'); return; }
-  const subs = getSubs();
   if (editingSubId) {
-    const i = subs.findIndex(s => s.id === editingSubId);
-    subs[i] = { ...subs[i], nom, createur, rang, slots, conditions, desc, type };
-    setSubs(subs);
-    addLog('sub', `a modifié le sub-jutsu`, { sub: nom });
+    await fsUpdate('subs', editingSubId, { nom, createur, rang, slots, conditions, desc, type });
+    await addLog('sub', 'a modifié le sub-jutsu', { sub: nom });
     toast('Sub-jutsu modifié.', 'success');
   } else {
-    subs.push({ id: 's' + Date.now(), nom, createur, rang, slots, conditions, desc, type, active: true, createdAt: new Date().toISOString() });
-    setSubs(subs);
-    addLog('sub', `a créé le sub-jutsu`, { sub: nom });
+    const newSub = { id: 's' + Date.now(), nom, createur, rang, slots, conditions, desc, type, active: true, createdAt: new Date().toISOString() };
+    await fsSet('subs', newSub.id, newSub);
+    await addLog('sub', 'a créé le sub-jutsu', { sub: nom });
     toast('Sub-jutsu ajouté.', 'success');
   }
-  closeModal('modal-sub'); renderPanelSubs(); renderStaffStats();
+  _cache.subs = null;
+  closeModal('modal-sub'); await renderPanelSubs(); await renderStaffStats();
 }
-function deleteSub(id) {
+async function deleteSub(id) {
   if (!hasPerm(CU, 'manage_subs')) { toast('Permission refusée.', 'error'); return; }
-  const s = getSubs().find(x => x.id === id);
+  const subs = await getSubs();
+  const s = subs.find(x => x.id === id);
   if (!confirm('Supprimer ce sub-jutsu ?')) return;
-  setSubs(getSubs().filter(s => s.id !== id));
-  addLog('sub', `a supprimé le sub-jutsu`, { sub: s?.nom });
-  renderPanelSubs(); renderStaffStats(); toast('Supprimé.', 'success');
+  await fsDelete('subs', id);
+  _cache.subs = null;
+  await addLog('sub', 'a supprimé le sub-jutsu', { sub: s?.nom });
+  await renderPanelSubs(); await renderStaffStats(); toast('Supprimé.', 'success');
 }
-function renderPanelSubs() {
+async function renderPanelSubs() {
   const q = (document.getElementById('ps-search').value || '').toLowerCase();
-  let subs = getSubs();
+  const [allSubs, allDems] = await Promise.all([getSubs(), getDemandes()]);
+  const takenMap = {};
+  allDems.filter(d => d.status === 'approved').forEach(d => { takenMap[d.subId] = (takenMap[d.subId]||0) + 1; });
+  let subs = allSubs;
   if (q) subs = subs.filter(s => s.nom.toLowerCase().includes(q) || s.createur.toLowerCase().includes(q));
   subs.sort((a, b) => a.nom.localeCompare(b.nom));
   const tbody = document.getElementById('ps-tbody');
   const canEdit = hasPerm(CU, 'manage_subs');
   if (!subs.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Aucun sub-jutsu.</td></tr>`; return; }
   tbody.innerHTML = subs.map(s => {
-    const taken = takenSlots(s.id), free = s.slots - taken;
+    const taken = takenMap[s.id]||0, free = s.slots - taken;
     return `<tr>
       <td style="font-weight:600;color:var(--gold)">${esc(s.nom)}</td>
       <td style="color:var(--muted2)">${esc(s.createur)}</td>
@@ -1937,14 +1980,14 @@ function renderPanelSubs() {
 }
 
 // ══════════════════════════════════════════════════════
-//  PANEL STAFF — DEMANDES
+//  PANEL STAFF — DEMANDES (async)
 // ══════════════════════════════════════════════════════
-function renderPanelDemandes() {
+async function renderPanelDemandes() {
   const f = document.getElementById('pd-filter').value;
-  let dems = getDemandes();
+  const [allDems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  let dems = allDems;
   if (f) dems = dems.filter(d => d.status === f);
   dems.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const subs = getSubs(), users = getUsers();
   const tbody = document.getElementById('pd-tbody');
   const canTreat = hasPerm(CU, 'approve_requests');
   if (!dems.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Aucune demande.</td></tr>`; return; }
@@ -1962,10 +2005,10 @@ function renderPanelDemandes() {
     </tr>`;
   }).join('');
 }
-function openMJRep(id) {
+async function openMJRep(id) {
   if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
-  const dems = getDemandes(), subs = getSubs(), users = getUsers();
-  const d = dems.find(x => x.id === id); if (!d) return;
+  const [allDems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const d = allDems.find(x => x.id === id); if (!d) return;
   const s = subs.find(x => x.id === d.subId) || { nom: '?', rang: '?' };
   const u = users.find(x => x.id === d.userId) || { nomrp: '?', username: '?' };
   editingDemId = id;
@@ -1978,20 +2021,23 @@ function openMJRep(id) {
   document.getElementById('mj-rep-note').value = '';
   openModal('modal-mj-rep');
 }
-function submitMJRep(status) {
+async function submitMJRep(status) {
   const note = document.getElementById('mj-rep-note').value.trim();
-  const dems = getDemandes();
-  const i = dems.findIndex(d => d.id === editingDemId); if (i === -1) return;
+  const [allDems, allSubs] = await Promise.all([getDemandes(), getSubs()]);
+  const d = allDems.find(x => x.id === editingDemId); if (!d) return;
   if (status === 'approved') {
-    const s = getSubs().find(x => x.id === dems[i].subId);
-    if (s && takenSlots(s.id) >= s.slots) { toast('Plus de slots disponibles !', 'error'); return; }
+    const s = allSubs.find(x => x.id === d.subId);
+    const taken = allDems.filter(x => x.subId === d.subId && x.status === 'approved').length;
+    if (s && taken >= s.slots) { toast('Plus de slots disponibles !', 'error'); return; }
   }
-  dems[i].status = status; dems[i].mjNote = note; dems[i].treatedAt = new Date().toISOString(); dems[i].treatedBy = CU.username;
-  setDemandes(dems);
-  const users = getUsers(), u = users.find(x => x.id === dems[i].userId);
-  const subs = getSubs(), s = subs.find(x => x.id === dems[i].subId);
-  addLog('demande', `a ${status === 'approved' ? 'approuvé' : 'refusé'} la demande de @${u?.username || '?'}`, { sub: s?.nom });
-  closeModal('modal-mj-rep'); renderPanelDemandes(); renderStaffStats();
+  const updates = { status, mjNote: note, treatedAt: new Date().toISOString(), treatedBy: CU.username };
+  await fsUpdate('demandes', editingDemId, updates);
+  _cache.demandes = null;
+  const users = await getUsers();
+  const u = users.find(x => x.id === d.userId);
+  const s = allSubs.find(x => x.id === d.subId);
+  await addLog('demande', `a ${status === 'approved' ? 'approuvé' : 'refusé'} la demande de @${u?.username || '?'}`, { sub: s?.nom });
+  closeModal('modal-mj-rep'); await renderPanelDemandes(); await renderStaffStats();
   toast(status === 'approved' ? 'Demande approuvée ✓' : 'Demande refusée.', status === 'approved' ? 'success' : 'error');
 }
 
@@ -2073,13 +2119,95 @@ function quickAssignRole(userId) {
 }
 
 // ══════════════════════════════════════════════════════
-//  LOGS
+//  PANEL STAFF — MEMBRES (async)
 // ══════════════════════════════════════════════════════
-function renderLogs() {
+async function renderPanelMembers() {
+  const q = (document.getElementById('pm-search').value || '').toLowerCase();
+  const [allUsers, allDems] = await Promise.all([getUsers(), getDemandes()]);
+  let users = allUsers;
+  if (q) users = users.filter(u => u.username.toLowerCase().includes(q) || (u.nomrp || '').toLowerCase().includes(q));
+  users.sort((a, b) => (ROLES[b.role]?.level || 0) - (ROLES[a.role]?.level || 0));
+  const tbody = document.getElementById('pm-tbody');
+  const canManage = hasPerm(CU, 'manage_users');
+  const canAssign = hasPerm(CU, 'assign_roles');
+  if (!users.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">Aucun membre.</td></tr>`; return; }
+  tbody.innerHTML = users.map(u => {
+    const subCount = allDems.filter(d => d.userId === u.id && d.status === 'approved').length;
+    const isSelf = u.id === CU.id;
+    const canAct = canManage && !isSelf && ROLES[u.role]?.level < ROLES[CU.role]?.level;
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:26px;height:26px;border-radius:50%;background:${ROLES[u.role]?.color || '#333'}22;border:1px solid ${ROLES[u.role]?.color || '#333'}44;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${ROLES[u.role]?.color || '#aaa'};flex-shrink:0">${initials(u.nomrp||u.username)}</div>
+          <div><div style="font-weight:600">@${esc(u.username)}</div>${u.isBanned ? '<span style="font-size:9px;color:var(--danger)">BANNI</span>' : ''}</div>
+        </div>
+      </td>
+      <td style="color:var(--muted2)">${esc(u.nomrp || '—')}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">${esc(u.discord || '—')}</td>
+      <td>${roleBadge(u.role)}</td>
+      <td style="font-size:11px;color:var(--muted)">${fmtDate(u.createdAt)}</td>
+      <td style="color:var(--muted2)">${subCount}</td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-xs" onclick="viewUser('${u.id}')">👁</button>
+          ${canAct && canAssign ? `<button class="btn btn-purple btn-xs" onclick="quickAssignRole('${u.id}')">Rôle</button>` : ''}
+          ${canAct && hasPerm(CU,'ban_users') ? `<button class="btn ${u.isBanned ? 'btn-success' : 'btn-danger'} btn-xs" onclick="toggleBan('${u.id}')">${u.isBanned ? 'Débannir' : 'Bannir'}</button>` : ''}
+          ${isSelf ? `<span style="font-size:10px;color:var(--muted)">Vous</span>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+async function viewUser(id) {
+  const [users, allDems, subsList] = await Promise.all([getUsers(), getDemandes(), getSubs()]);
+  const u = users.find(x => x.id === id); if (!u) return;
+  const r = ROLES[u.role] || ROLES.player;
+  const subs = allDems.filter(d => d.userId === id && d.status === 'approved');
+  document.getElementById('vu-title').textContent = 'Fiche — @' + u.username;
+  document.getElementById('vu-content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div style="width:48px;height:48px;border-radius:50%;background:${r.color}22;border:2px solid ${r.color}55;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:${r.color}">${initials(u.nomrp||u.username)}</div>
+      <div><div style="font-family:'Cinzel',serif;font-size:16px;color:var(--text)">${esc(u.nomrp||u.username)}</div><div style="font-size:11px;color:var(--muted)">@${esc(u.username)}</div><div style="margin-top:5px">${roleBadge(u.role)}</div></div>
+    </div>
+    <div class="profil-id-grid" style="margin-bottom:16px">
+      <div class="profil-field"><div class="profil-field-label">Discord</div><div class="profil-field-val">${esc(u.discord||'—')}</div></div>
+      <div class="profil-field"><div class="profil-field-label">Steam ID</div><div class="profil-field-val">${esc(u.steam||'—')}</div></div>
+      <div class="profil-field"><div class="profil-field-label">Inscrit le</div><div class="profil-field-val">${fmtDate(u.createdAt)}</div></div>
+      <div class="profil-field"><div class="profil-field-label">Statut</div><div class="profil-field-val" style="color:${u.isBanned?'var(--danger)':'var(--success)'}">${u.isBanned?'Banni':'Actif'}</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px">Sub-Jutsu maîtrisés (${subs.length})</div>
+    ${subs.length ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${subs.map(d=>{const s=subsList.find(x=>x.id===d.subId);return s?`<span class="badge badge-rank">⚡ ${esc(s.nom)}</span>`:''}).join('')}</div>` : '<p style="font-size:12px;color:var(--muted)">Aucun sub-jutsu appris.</p>'}`;
+  openModal('modal-view-user');
+}
+async function toggleBan(id) {
+  if (!hasPerm(CU, 'ban_users')) { toast('Permission refusée.', 'error'); return; }
+  const users = await getUsers();
+  const u = users.find(x => x.id === id); if (!u) return;
+  if (ROLES[u.role]?.level >= ROLES[CU.role]?.level) { toast('Vous ne pouvez pas bannir quelqu\'un de rang supérieur ou égal.', 'error'); return; }
+  const newBanned = !u.isBanned;
+  await fsUpdate('users', id, { isBanned: newBanned });
+  _cache.users = null;
+  await addLog('user', `a ${newBanned ? 'banni' : 'débanni'} @${u.username}`);
+  await renderPanelMembers();
+  toast(`@${u.username} ${newBanned ? 'banni' : 'débanni'}.`, newBanned ? 'warn' : 'success');
+}
+async function quickAssignRole(userId) {
+  const users = await getUsers();
+  const u = users.find(x => x.id === userId); if (!u) return;
+  document.getElementById('ar-user').innerHTML = `<option value="${u.id}">${esc(u.nomrp||u.username)} (@${esc(u.username)})</option>`;
+  document.getElementById('ar-role').value = u.role || 'player';
+  openModal('modal-assign-role');
+}
+
+// ══════════════════════════════════════════════════════
+//  LOGS (async)
+// ══════════════════════════════════════════════════════
+async function renderLogs() {
   const typeF = document.getElementById('log-type-filter').value;
   const roleF = document.getElementById('log-role-filter').value;
   const q = (document.getElementById('log-search').value || '').toLowerCase();
-  let logs = getLogs();
+  let logs = await getLogs();
+  logs = logs.sort((a,b) => b.ts.localeCompare(a.ts));
   if (typeF) logs = logs.filter(l => l.type === typeF);
   if (roleF) logs = logs.filter(l => l.actorRole === roleF);
   if (q) logs = logs.filter(l => l.actor.toLowerCase().includes(q) || l.action.toLowerCase().includes(q) || JSON.stringify(l.details).toLowerCase().includes(q));
@@ -2102,24 +2230,27 @@ function renderLogs() {
     </div>`;
   }).join('');
 }
-function clearLogs() {
+async function clearLogs() {
   if (!hasPerm(CU, 'clear_logs')) { toast('Permission refusée.', 'error'); return; }
   if (!confirm('Vider tous les journaux ?')) return;
-  setLogs([]);
-  addLog('system', 'a vidé les journaux d\'activité');
-  renderLogs();
+  const logs = await getLogs();
+  await Promise.all(logs.map(l => fsDelete('logs', l.id)));
+  _cache.logs = null;
+  await addLog('system', 'a vidé les journaux d\'activité');
+  await renderLogs();
   toast('Journaux vidés.', 'info');
 }
 
 // ══════════════════════════════════════════════════════
-//  ROLES PAGE
+//  ROLES PAGE (async)
 // ══════════════════════════════════════════════════════
-function renderRoles() {
+async function renderRoles() {
+  const [users] = await Promise.all([getUsers()]);
   const roleOrder = ['zenith', 'resp_rp', 'gerant_mj', 'cadre_mj', 'mj', 'player'];
   document.getElementById('roles-list').innerHTML = roleOrder.map(roleId => {
     const r = ROLES[roleId];
     const perms = ROLE_PERMS[roleId];
-    const count = getUsers().filter(u => u.role === roleId).length;
+    const count = users.filter(u => u.role === roleId).length;
     return `<div class="role-row">
       <div style="width:42px;height:42px;border-radius:10px;background:${r.color}18;border:1px solid ${r.color}44;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${r.icon}</div>
       <div class="role-info">
@@ -2135,8 +2266,6 @@ function renderRoles() {
     </div>`;
   }).join('');
 
-  // Attribution list
-  const users = getUsers();
   const canAssign = hasPerm(CU, 'assign_roles');
   document.getElementById('role-assign-list').innerHTML = users
     .filter(u => u.id !== CU.id && ROLES[u.role]?.level < ROLES[CU.role]?.level)
@@ -2165,9 +2294,10 @@ function saveRoleFromPage(uid) {
   if (!sel) return;
   applyRoleChange(uid, sel.value);
 }
-function openModalAssignRole() {
-  const users = getUsers().filter(u => u.id !== CU.id && ROLES[u.role]?.level < ROLES[CU.role]?.level);
-  document.getElementById('ar-user').innerHTML = users.map(u => `<option value="${u.id}">${esc(u.nomrp||u.username)} (@${esc(u.username)})</option>`).join('');
+async function openModalAssignRole() {
+  const users = await getUsers();
+  const filtered = users.filter(u => u.id !== CU.id && ROLES[u.role]?.level < ROLES[CU.role]?.level);
+  document.getElementById('ar-user').innerHTML = filtered.map(u => `<option value="${u.id}">${esc(u.nomrp||u.username)} (@${esc(u.username)})</option>`).join('');
   document.getElementById('ar-role').value = 'player';
   openModal('modal-assign-role');
 }
@@ -2177,16 +2307,94 @@ function assignRole() {
   applyRoleChange(uid, role);
   closeModal('modal-assign-role');
 }
-function applyRoleChange(uid, role) {
+async function applyRoleChange(uid, role) {
   if (!hasPerm(CU, 'assign_roles')) { toast('Permission refusée.', 'error'); return; }
   if (!ROLES[role]) { toast('Rôle invalide.', 'error'); return; }
   if (ROLES[role].level >= ROLES[CU.role].level) { toast('Vous ne pouvez pas attribuer un rôle supérieur ou égal au vôtre.', 'error'); return; }
-  const users = getUsers(), i = users.findIndex(u => u.id === uid); if (i === -1) return;
-  const oldRole = users[i].role;
-  users[i].role = role; setUsers(users);
-  addLog('role', `a attribué le rôle ${ROLES[role].label} à @${users[i].username}`, { from: oldRole, to: role });
-  renderRoles(); renderPanelMembers();
-  toast(`Rôle ${ROLES[role].label} attribué à @${users[i].username}.`, 'success');
+  const users = await getUsers();
+  const u = users.find(x => x.id === uid); if (!u) return;
+  const oldRole = u.role;
+  await fsUpdate('users', uid, { role });
+  _cache.users = null;
+  await addLog('role', `a attribué le rôle ${ROLES[role].label} à @${u.username}`, { from: oldRole, to: role });
+  await renderRoles(); await renderPanelMembers();
+  toast(`Rôle ${ROLES[role].label} attribué à @${u.username}.`, 'success');
+}
+
+// ══════════════════════════════════════════════════════
+//  DISCORD OAUTH (async)
+// ══════════════════════════════════════════════════════
+async function handleDiscordAuthAsync() {
+  const params = new URLSearchParams(window.location.search);
+  const authParam = params.get('discord_auth');
+  if (!authParam) return;
+
+  const data = Object.fromEntries(new URLSearchParams(authParam));
+  if (!data.id) return;
+
+  if (data.id === OWNER_DISCORD_ID) data.role = 'zenith';
+  showLoader('Connexion Discord…');
+  try {
+    _cache.users = null;
+    const users = await getUsers();
+    let user = users.find(u => u.discordId === data.id);
+
+    if (!user) {
+      user = {
+        id: 'u' + Date.now(),
+        username: data.username,
+        discordId: data.id,
+        avatar: data.avatar || '',
+        role: data.id === OWNER_DISCORD_ID ? 'zenith' : (data.role || 'player'),
+        nomrp: data.username,
+        discord: data.id,
+        steam: '',
+        createdAt: new Date().toISOString(),
+        isBanned: false,
+        password: '',
+      };
+      await fsSet('users', user.id, user);
+      _cache.users = null;
+      await addLogSystem('Connexion Discord — nouveau compte créé : @' + data.username);
+    } else {
+      const updates = {
+        role: data.id === OWNER_DISCORD_ID ? 'zenith' : (data.role || user.role),
+        avatar: data.avatar || user.avatar,
+        isBanned: data.id === OWNER_DISCORD_ID ? false : user.isBanned
+      };
+      await fsUpdate('users', user.id, updates);
+      user = { ...user, ...updates };
+      _cache.users = null;
+    }
+
+    if (user.isBanned) {
+      hideLoader();
+      window.history.replaceState({}, '', '/');
+      alert('Ce compte Discord est banni du portail.');
+      return;
+    }
+
+    setSession(user.id);
+    CU = user;
+    window.history.replaceState({}, '', '/');
+    await addLog('auth', 'connexion via Discord');
+    hideLoader();
+    launchApp();
+  } catch(e) {
+    hideLoader();
+    console.error('Discord auth error:', e);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  updateDemBadge async
+// ══════════════════════════════════════════════════════
+async function updateDemBadge() {
+  const badge = document.getElementById('nav-badge-dem');
+  const dems = await getDemandes();
+  const pending = dems.filter(d => d.userId === CU?.id && d.status === 'pending').length;
+  badge.style.display = pending > 0 ? '' : 'none';
+  badge.textContent = pending;
 }
 
 // ══════════════════════════════════════════════════════
@@ -2226,7 +2434,8 @@ function roleBadge(role) {
 }
 function emptyState(ico, txt) { return `<div class="empty-state"><div class="empty-state-icon">${ico}</div><p>${txt}</p></div>`; }
 
-// Enter key for Discord redirect (not needed but keep for completeness)
+// Lancer le handler Discord après le boot
+boot().then(() => handleDiscordAuthAsync());
 
 </script>
 </body>

@@ -1590,7 +1590,7 @@ const DISCORD_CLIENT_ID  = '1493892658114859149';
 const DISCORD_REDIRECT   = window.location.origin + window.location.pathname;
 const OWNER_DISCORD_ID   = '661189164867256331';
 const DISCORD_GUILD_ID   = '1456351988164858140';
-const BOT_TOKEN          = 'MTQ5Mzg5MjY1ODExNDg1OTE0OQ.GlK7tF.z5af_LxbB1A3P2QGAYcSSAzWrChhj0ll4in3VI';
+const WORKER_URL         = 'https://throbbing-math-1ea1.eithan0630.workers.dev';
 
 // Mapping rôles Discord → rôles portail (ordre important : du plus haut au plus bas)
 const DISCORD_ROLE_MAP = [
@@ -1604,10 +1604,11 @@ const DISCORD_ROLE_MAP = [
 async function getPortalRoleFromDiscord(discordUserId) {
   if (discordUserId === OWNER_DISCORD_ID) return 'zenith';
   try {
-    const res = await fetch(
-      `https://discord.com/api/v10/guilds/${DISCORD_GUILD_ID}/members/${discordUserId}`,
-      { headers: { Authorization: 'Bot ' + BOT_TOKEN } }
-    );
+    const res = await fetch(WORKER_URL + '/member-roles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: discordUserId, guildId: DISCORD_GUILD_ID })
+    });
     if (!res.ok) return null; // membre introuvable ou erreur
     const member = await res.json();
     const memberRoles = member.roles || [];

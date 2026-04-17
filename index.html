@@ -1360,7 +1360,7 @@ async function initFounder() {
   if (already) return;
   const sym = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   const username = 'fondateur';
-  const password = 'zenith67.Eithan2009';
+  const password = genRandom(sym, 6) + '-' + genRandom(sym.toUpperCase(), 4) + genRandom('!@#$%', 2) + genRandom(sym, 4);
   const secret = genRandom(sym.toUpperCase(), 4) + '-' + genRandom(sym, 4) + '-' + genRandom(sym.toUpperCase(), 4);
   const founder = {
     id: 'founder_init',
@@ -1375,10 +1375,6 @@ async function initFounder() {
   await fsSet('users', founder.id, founder);
   _cache.users = null;
   await setInitialized(true);
-  document.getElementById('fr-username').textContent = username;
-  document.getElementById('fr-password').textContent = password;
-  document.getElementById('fr-secret').textContent = secret;
-  document.getElementById('founder-reveal').classList.add('open');
   await addLogSystem('Système initialisé — compte Fondateur créé');
 }
 async function addLogSystem(msg) {

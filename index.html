@@ -2437,6 +2437,28 @@ function emptyState(ico, txt) { return `<div class="empty-state"><div class="emp
 // Lancer le handler Discord après le boot
 boot().then(() => handleDiscordAuthAsync());
 
+// ══════════════════════════════════════════════════════
+//  EXPOSE FONCTIONS GLOBALES (nécessaire avec type="module")
+// ══════════════════════════════════════════════════════
+Object.assign(window, {
+  redirectDiscord,
+  switchAuthTab, doLogin, doRegister, doLogout,
+  goPage, switchInnerTab,
+  openModal, closeModal,
+  openModalDemande, saveDemande, updateDemSubInfo,
+  openModalSub, saveSub, deleteSub, toggleSubActive,
+  openModalAssignRole, assignRole, saveRoleFromPage,
+  applyRoleChange,
+  saveEditProfil,
+  submitMJRep,
+  renderCatalogue, renderLogs, renderRoles,
+  closeFounderReveal,
+  clearLogs,
+  viewUserModal,
+  banUser, unbanUser,
+  openModalEditDem,
+});
+
 </script>
 </body>
 </html>

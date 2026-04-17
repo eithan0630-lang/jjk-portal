@@ -1587,15 +1587,15 @@ function startClock() {
 //  DISCORD OAUTH — constantes (le handler est géré dans boot())
 // ══════════════════════════════════════════════════════
 const DISCORD_CLIENT_ID = '1493892658114859149';
-const DISCORD_REDIRECT   = window.location.origin + '/api/discord-callback';
+const DISCORD_REDIRECT   = window.location.origin + window.location.pathname;
 const OWNER_DISCORD_ID   = '661189164867256331';
 
 function redirectDiscord() {
   const url = 'https://discord.com/api/oauth2/authorize' +
     '?client_id=' + DISCORD_CLIENT_ID +
     '&redirect_uri=' + encodeURIComponent(DISCORD_REDIRECT) +
-    '&response_type=code' +
-    '&scope=identify%20guilds.members.read';
+    '&response_type=token' +
+    '&scope=identify';
   window.location.href = url;
 }
 
@@ -2246,16 +2246,31 @@ async function applyRoleChange(uid, role) {
 //  DISCORD OAUTH (async)
 // ══════════════════════════════════════════════════════
 async function handleDiscordAuthAsync() {
-  const params = new URLSearchParams(window.location.search);
-  const authParam = params.get('discord_auth');
-  if (!authParam) return;
+  // Implicit grant renvoie le token dans le fragment #access_token=...
+  const hash = window.location.hash.substring(1);
+  if (!hash) return;
+  const params = new URLSearchParams(hash);
+  const accessToken = params.get('access_token');
+  if (!accessToken) return;
 
-  const data = Object.fromEntries(new URLSearchParams(authParam));
-  if (!data.id) return;
+  // Nettoyer l'URL immédiatement
+  window.history.replaceState({}, '', window.location.pathname);
 
-  if (data.id === OWNER_DISCORD_ID) data.role = 'zenith';
   showLoader('Connexion Discord…');
   try {
+    // Appel direct à l'API Discord pour récupérer le profil
+    const res = await fetch('https://discord.com/api/users/@me', {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    if (!res.ok) { hideLoader(); toast('Erreur Discord. Reconnecte-toi.', 'error'); return; }
+    const discordUser = await res.json();
+
+    const data = {
+      id: discordUser.id,
+      username: discordUser.username,
+      avatar: discordUser.avatar || '',
+    };
+
     _cache.users = null;
     const users = await getUsers();
     let user = users.find(u => u.discordId === data.id);
@@ -2265,8 +2280,8 @@ async function handleDiscordAuthAsync() {
         id: 'u' + Date.now(),
         username: data.username,
         discordId: data.id,
-        avatar: data.avatar || '',
-        role: data.id === OWNER_DISCORD_ID ? 'zenith' : (data.role || 'player'),
+        avatar: data.avatar,
+        role: data.id === OWNER_DISCORD_ID ? 'zenith' : 'player',
         nomrp: data.username,
         discord: data.id,
         steam: '',
@@ -2279,7 +2294,7 @@ async function handleDiscordAuthAsync() {
       await addLogSystem('Connexion Discord — nouveau compte créé : @' + data.username);
     } else {
       const updates = {
-        role: data.id === OWNER_DISCORD_ID ? 'zenith' : (data.role || user.role),
+        role: data.id === OWNER_DISCORD_ID ? 'zenith' : user.role,
         avatar: data.avatar || user.avatar,
         isBanned: data.id === OWNER_DISCORD_ID ? false : user.isBanned
       };
@@ -2290,20 +2305,19 @@ async function handleDiscordAuthAsync() {
 
     if (user.isBanned) {
       hideLoader();
-      window.history.replaceState({}, '', '/');
       alert('Ce compte Discord est banni du portail.');
       return;
     }
 
     setSession(user.id);
     CU = user;
-    window.history.replaceState({}, '', '/');
     await addLog('auth', 'connexion via Discord');
     hideLoader();
     launchApp();
   } catch(e) {
     hideLoader();
     console.error('Discord auth error:', e);
+    toast('Erreur de connexion Discord.', 'error');
   }
 }
 

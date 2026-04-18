@@ -409,6 +409,7 @@ tr:hover td{background:rgba(255,255,255,0.018)}
 .badge-approved{background:rgba(34,197,94,0.07);color:var(--success);border-color:rgba(34,197,94,0.18)}
 .badge-rejected{background:rgba(239,68,68,0.07);color:var(--danger);border-color:rgba(239,68,68,0.18)}
 .badge-rank{background:rgba(201,162,39,0.07);color:var(--gold);border-color:rgba(201,162,39,0.22)}
+.badge-purple{background:rgba(167,139,250,0.1);color:var(--purple2);border-color:rgba(167,139,250,0.25)}
 
 /* ══════════════════════════════════
    ROLE BADGES — polished
@@ -706,6 +707,90 @@ textarea.fi{resize:vertical;min-height:80px}
 .user-card:hover{border-color:var(--border2)}
 
 input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:pointer}
+
+/* ══════════════════════════════════
+   TICKET SYSTEM
+══════════════════════════════════ */
+.tkt-number{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--gold2);background:rgba(201,162,39,0.08);
+  border:1px solid rgba(201,162,39,0.2);border-radius:5px;
+  padding:2px 8px;letter-spacing:0.06em;
+}
+.tkt-priority{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1px solid}
+.tkt-priority.p-normal{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);color:#93c5fd}
+.tkt-priority.p-haute{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--warn2)}
+.tkt-priority.p-urgente{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--danger2);animation:prio-pulse 2s ease-in-out infinite}
+@keyframes prio-pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+
+.tkt-card{
+  background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;margin-bottom:10px;
+  transition:border-color 0.2s,transform 0.15s;cursor:pointer;
+  position:relative;overflow:hidden;
+}
+.tkt-card:hover{border-color:rgba(201,162,39,0.25);transform:translateX(2px)}
+.tkt-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:2px 0 0 2px;background:var(--tkt-color,var(--gold))}
+.tkt-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.tkt-card-title{font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px}
+.tkt-card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:10px;color:var(--muted2)}
+.tkt-card-badges{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.tkt-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.tkt-card-assign{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted2)}
+.tkt-card-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted)}
+.tkt-card-sla{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:1px 7px;border-radius:10px;border:1px solid}
+.tkt-card-sla.sla-ok{background:rgba(34,197,94,0.07);border-color:rgba(34,197,94,0.25);color:var(--success2)}
+.tkt-card-sla.sla-warn{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.25);color:var(--warn2)}
+.tkt-card-sla.sla-late{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.25);color:var(--danger2)}
+
+/* Ticket detail modal */
+.tkt-detail-hero{
+  background:linear-gradient(135deg,rgba(201,162,39,0.08),rgba(7,8,15,0.98));
+  border-bottom:1px solid var(--border2);padding:22px 24px;
+}
+.tkt-detail-num{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:8px}
+.tkt-detail-title{font-family:'Cinzel',serif;font-size:18px;color:var(--text);font-weight:700;margin-bottom:10px}
+.tkt-detail-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tkt-detail-body{padding:0 24px}
+.tkt-detail-section{padding:16px 0;border-bottom:1px solid var(--border)}
+.tkt-detail-section:last-child{border-bottom:none}
+.tkt-detail-label{font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--muted);margin-bottom:8px;font-weight:700}
+
+/* Timeline */
+.tkt-timeline{display:flex;flex-direction:column;gap:0}
+.tkt-tl-item{display:flex;gap:12px;position:relative;padding-bottom:14px}
+.tkt-tl-item:last-child{padding-bottom:0}
+.tkt-tl-item:not(:last-child)::before{content:'';position:absolute;left:10px;top:24px;bottom:0;width:1px;background:var(--border)}
+.tkt-tl-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;position:relative;z-index:1}
+.tkt-tl-content{flex:1;padding-top:1px}
+.tkt-tl-actor{font-size:11px;font-weight:700;color:var(--text)}
+.tkt-tl-action{font-size:11px;color:var(--muted2)}
+.tkt-tl-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px}
+
+/* Kanban columns */
+.tkt-kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+@media(max-width:800px){.tkt-kanban{grid-template-columns:1fr}}
+.tkt-col{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tkt-col-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tkt-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em}
+.tkt-col-count{background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:9px;padding:1px 7px;font-family:'Share Tech Mono',monospace;color:var(--muted2)}
+.tkt-col-body{padding:10px;min-height:80px}
+
+/* Filter bar for tickets */
+.tkt-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.tkt-view-toggle{display:flex;background:var(--bg2);border-radius:7px;padding:2px;gap:2px;border:1px solid var(--border)}
+.tkt-view-btn{padding:5px 10px;border-radius:5px;border:none;background:transparent;color:var(--muted);font-size:11px;cursor:pointer;transition:all 0.15s;font-family:'Rajdhani',sans-serif}
+.tkt-view-btn.active{background:linear-gradient(135deg,rgba(201,162,39,0.18),rgba(124,92,191,0.08));color:var(--gold)}
+
+/* Quick stats for tickets */
+.tkt-qs{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.tkt-qs-item{flex:1;min-width:100px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;text-align:center}
+.tkt-qs-val{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:var(--accent,var(--gold));line-height:1}
+.tkt-qs-label{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.12em;margin-top:4px}
+
+/* Assign badge */
+.tkt-assign-av{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
 
 .tag-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -1083,11 +1168,13 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
         <div class="sb-item active" id="nav-catalogue" onclick="goPage('catalogue')"><span class="ico">⚡</span>Catalogue</div>
         <div class="sb-item" id="nav-annonces" onclick="goPage('annonces')"><span class="ico">📣</span>Annonces<span class="sb-badge" id="nav-badge-annonces" style="display:none">0</span></div>
         <div class="sb-item" id="nav-classement" onclick="goPage('classement')"><span class="ico">🏆</span>Classement</div>
+        <div class="sb-item" id="nav-tickets" onclick="goPage('tickets')"><span class="ico">🎫</span>Mes Tickets<span class="sb-badge" id="nav-badge-tkt" style="display:none">0</span></div>
         <div class="sb-item" id="nav-mes-demandes" onclick="goPage('mes-demandes')"><span class="ico">📋</span>Mes Demandes<span class="sb-badge" id="nav-badge-dem" style="display:none">0</span></div>
         <div class="sb-item" id="nav-profil" onclick="goPage('profil')"><span class="ico">👤</span>Mon Profil</div>
 
         <div class="sb-section staff-only" style="display:none">Staff</div>
         <div class="sb-item staff-only" id="nav-panel" style="display:none" onclick="goPage('panel')"><span class="ico">🛡</span>Panel Staff</div>
+        <div class="sb-item staff-only" id="nav-all-tickets" style="display:none" onclick="goPage('all-tickets')"><span class="ico">🎫</span>Tickets<span class="sb-badge" id="nav-badge-all-tkt" style="display:none">0</span></div>
         <div class="sb-item staff-only" id="nav-stats" style="display:none" onclick="goPage('stats')"><span class="ico">📊</span>Statistiques</div>
         <div class="sb-item staff-only" id="nav-logs" style="display:none" onclick="goPage('logs')"><span class="ico">📜</span>Journaux<span class="sb-badge" id="nav-badge-logs" style="display:none">!</span></div>
         <div class="sb-item staff-only" id="nav-roles" style="display:none" onclick="goPage('roles')"><span class="ico">🎖</span>Rôles &amp; Perms</div>
@@ -1303,6 +1390,80 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
             <div class="card-section-header"><span class="card-section-title">🔥 Top 5 sub-jutsu les plus demandés</span></div>
             <div class="card-section-body" id="stats-top-subs"></div>
           </div>
+        </div>
+
+        <!-- MES TICKETS (joueur) -->
+        <div class="page" id="page-tickets">
+          <div class="page-header">
+            <div>
+              <div class="page-title"><span class="page-title-icon">🎫</span>Mes Tickets</div>
+              <div class="page-desc">Suivez vos demandes de sub-jutsu sous forme de tickets</div>
+            </div>
+            <button class="btn btn-primary" onclick="openModalDemande(null)">+ Nouveau ticket</button>
+          </div>
+          <!-- Quick stats -->
+          <div class="tkt-qs" id="my-tkt-qs"></div>
+          <!-- Filters -->
+          <div class="tkt-filters">
+            <div class="tkt-view-toggle">
+              <button class="tkt-view-btn active" id="tkt-btn-list" onclick="setTktView('list')">≡ Liste</button>
+              <button class="tkt-view-btn" id="tkt-btn-kanban" onclick="setTktView('kanban')">⊞ Kanban</button>
+            </div>
+            <select class="filter-sel" id="my-tkt-status" onchange="renderMyTickets()">
+              <option value="">Tous les statuts</option>
+              <option value="pending">⏳ En attente</option>
+              <option value="in_review">🔍 En révision</option>
+              <option value="approved">✅ Approuvé</option>
+              <option value="rejected">❌ Refusé</option>
+            </select>
+            <select class="filter-sel" id="my-tkt-priority" onchange="renderMyTickets()">
+              <option value="">Toutes priorités</option>
+              <option value="normale">🔵 Normale</option>
+              <option value="haute">🟡 Haute</option>
+              <option value="urgente">🔴 Urgente</option>
+            </select>
+          </div>
+          <div id="my-tickets-container"></div>
+        </div>
+
+        <!-- ALL TICKETS (staff) -->
+        <div class="page" id="page-all-tickets">
+          <div class="page-header">
+            <div>
+              <div class="page-title"><span class="page-title-icon">🎫</span>Gestion des Tickets</div>
+              <div class="page-desc">Vue staff — tous les tickets ouverts sur le portail</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" onclick="exportTicketsCSV()">📤 Exporter</button>
+            </div>
+          </div>
+          <div class="tkt-qs" id="all-tkt-qs"></div>
+          <div class="tkt-filters">
+            <div class="tkt-view-toggle">
+              <button class="tkt-view-btn active" id="atkt-btn-list" onclick="setAllTktView('list')">≡ Liste</button>
+              <button class="tkt-view-btn" id="atkt-btn-kanban" onclick="setAllTktView('kanban')">⊞ Kanban</button>
+            </div>
+            <div class="search-bar" style="flex:1;min-width:160px"><input type="text" id="atkt-search" placeholder="Rechercher un ticket…" oninput="renderAllTickets()"></div>
+            <select class="filter-sel" id="atkt-status" onchange="renderAllTickets()">
+              <option value="">Tous statuts</option>
+              <option value="pending">⏳ En attente</option>
+              <option value="in_review">🔍 En révision</option>
+              <option value="approved">✅ Approuvé</option>
+              <option value="rejected">❌ Refusé</option>
+            </select>
+            <select class="filter-sel" id="atkt-priority" onchange="renderAllTickets()">
+              <option value="">Toutes priorités</option>
+              <option value="urgente">🔴 Urgente</option>
+              <option value="haute">🟡 Haute</option>
+              <option value="normale">🔵 Normale</option>
+            </select>
+            <select class="filter-sel" id="atkt-assign" onchange="renderAllTickets()">
+              <option value="">Tous les MJ</option>
+              <option value="__unassigned__">Non assignés</option>
+              <option value="__me__">Assignés à moi</option>
+            </select>
+          </div>
+          <div id="all-tickets-container"></div>
         </div>
 
         <!-- MES DEMANDES -->
@@ -1718,6 +1879,88 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
   </div>
 </div>
 
+<!-- Modal Ticket Détail -->
+<div class="modal-overlay" id="modal-ticket-detail">
+  <div class="modal" style="max-width:680px;padding:0;overflow:hidden">
+    <div class="tkt-detail-hero" id="tkt-detail-hero">
+      <button class="modal-close" onclick="closeModal('modal-ticket-detail')" style="position:absolute;top:14px;right:14px">✕</button>
+      <div class="tkt-detail-num" id="tkt-detail-num">—</div>
+      <div class="tkt-detail-title" id="tkt-detail-title">—</div>
+      <div class="tkt-detail-badges" id="tkt-detail-badges"></div>
+    </div>
+    <div class="tkt-detail-body" style="max-height:66vh;overflow-y:auto;padding-bottom:8px">
+      <!-- Info grid -->
+      <div class="tkt-detail-section">
+        <div class="profil-id-grid" id="tkt-detail-info"></div>
+      </div>
+      <!-- Message joueur -->
+      <div class="tkt-detail-section" id="tkt-detail-msg-section">
+        <div class="tkt-detail-label">💬 Message du joueur</div>
+        <div id="tkt-detail-msg" style="font-size:12px;color:var(--muted2);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:12px"></div>
+      </div>
+      <!-- Note MJ -->
+      <div class="tkt-detail-section" id="tkt-detail-note-section" style="display:none">
+        <div class="tkt-detail-label">📝 Note du MJ</div>
+        <div id="tkt-detail-note" style="font-size:12px;color:var(--warn2);line-height:1.7;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:12px"></div>
+      </div>
+      <!-- Timeline -->
+      <div class="tkt-detail-section">
+        <div class="tkt-detail-label">📋 Historique du ticket</div>
+        <div class="tkt-timeline" id="tkt-detail-timeline"></div>
+      </div>
+      <!-- Discussion -->
+      <div class="tkt-detail-section">
+        <div class="tkt-detail-label">💬 Discussion</div>
+        <div class="comment-thread" id="tkt-comments-list" style="max-height:200px;overflow-y:auto"></div>
+        <div class="comment-input-row" style="margin-top:10px" id="tkt-comment-input">
+          <input class="fi" id="tkt-comment-text" type="text" placeholder="Écrire un message…" onkeydown="if(event.key==='Enter')addTktComment()">
+          <button class="btn btn-primary" onclick="addTktComment()">Envoyer</button>
+        </div>
+      </div>
+    </div>
+    <!-- Footer actions -->
+    <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px" id="tkt-detail-footer">
+      <div id="tkt-footer-left" style="display:flex;gap:8px;align-items:center"></div>
+      <div id="tkt-footer-right" style="display:flex;gap:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Traiter Ticket (staff) -->
+<div class="modal-overlay" id="modal-tkt-treat">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">Traiter le ticket</div>
+      <button class="modal-close" onclick="closeModal('modal-tkt-treat')">✕</button>
+    </div>
+    <div id="tkt-treat-info" style="margin-bottom:16px"></div>
+    <div class="fg">
+      <label class="fl">Priorité</label>
+      <select class="fi" id="tkt-treat-priority">
+        <option value="normale">🔵 Normale</option>
+        <option value="haute">🟡 Haute</option>
+        <option value="urgente">🔴 Urgente</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Statut</label>
+      <select class="fi" id="tkt-treat-status">
+        <option value="in_review">🔍 Passer en révision</option>
+        <option value="approved">✅ Approuver</option>
+        <option value="rejected">❌ Refuser</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Note MJ (optionnel)</label>
+      <textarea class="fi" id="tkt-treat-note" placeholder="Votre note pour le joueur…" style="min-height:80px"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-tkt-treat')">Annuler</button>
+      <button class="btn btn-primary" onclick="submitTktTreat()">Valider</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ FIREBASE SDK ══ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -2081,6 +2324,9 @@ function updateSidebar() {
   updateDemBadge();
   updateNotifBadge();
   updateAnnoncesBadge();
+  updateTktBadge();
+  // Show staff ticket nav
+  document.getElementById('nav-all-tickets').style.display = hasPerm(CU,'approve_requests') ? '' : 'none';
 }
 function makeFallbackAv(init, color) {
   const d = document.createElement('div');
@@ -2157,6 +2403,7 @@ function redirectDiscord() {
 const PAGE_LABELS = {
   dashboard: 'Tableau de bord', catalogue: 'Catalogue', annonces: 'Annonces',
   classement: 'Classement', 'mes-demandes': 'Mes Demandes', profil: 'Mon Profil',
+  tickets: 'Mes Tickets', 'all-tickets': 'Gestion des Tickets',
   panel: 'Panel Staff', stats: 'Statistiques', logs: 'Journaux', roles: 'Rôles & Perms', export: 'Export données'
 };
 async function goPage(id) {
@@ -2167,6 +2414,8 @@ async function goPage(id) {
   document.getElementById('nav-' + id)?.classList.add('active');
   document.getElementById('bc-current').textContent = PAGE_LABELS[id] || id;
   invalidateCache('users','subs','demandes','logs','annonces','notifs');
+  if (id === 'tickets') { await renderMyTickets(); await updateTktBadge(); }
+  if (id === 'all-tickets') { await renderAllTickets(); }
   if (id === 'dashboard') await renderDashboard();
   if (id === 'catalogue') await renderCatalogue();
   if (id === 'annonces') { await renderAnnonces(); localStorage.setItem('jjk_ann_seen', Date.now()); await updateAnnoncesBadge(); }
@@ -2745,14 +2994,30 @@ async function saveDemande() {
   if (taken >= s.slots) { toast('Plus de slots disponibles.', 'error'); return; }
   if (dems.find(d => d.userId === CU.id && d.subId === subId && d.status === 'pending')) { toast('Demande déjà en attente pour ce sub.', 'error'); return; }
   if (dems.find(d => d.userId === CU.id && d.subId === subId && d.status === 'approved')) { toast('Vous maîtrisez déjà ce sub-jutsu.', 'error'); return; }
-  const newDem = { id: 'd' + Date.now(), userId: CU.id, subId, message: msg, status: 'pending', createdAt: new Date().toISOString(), mjNote: '', treatedBy: '', treatedAt: '' };
+  // Générer un numéro de ticket unique
+  const allDemsForNum = await getDemandes();
+  const existingNums = allDemsForNum.map(d => d.ticketNum).filter(Boolean);
+  let ticketIndex = allDemsForNum.length + 1;
+  let ticketNum = `TKT-${String(ticketIndex).padStart(4,'0')}`;
+  while (existingNums.includes(ticketNum)) { ticketIndex++; ticketNum = `TKT-${String(ticketIndex).padStart(4,'0')}`; }
+
+  const now = new Date().toISOString();
+  const timeline = [{ ts: now, actor: CU.nomrp||CU.username, action: 'a ouvert ce ticket', icon: '🎫' }];
+  const newDem = {
+    id: 'd' + Date.now(), userId: CU.id, subId, message: msg,
+    status: 'pending', priority: 'normale', tags: [],
+    ticketNum, timeline,
+    createdAt: now, mjNote: '', treatedBy: '', treatedAt: '', assignedTo: ''
+  };
   await fsSet('demandes', newDem.id, newDem);
   _cache.demandes = null;
-  await addLog('demande', 'a soumis une demande pour', { sub: s.nom });
+  await addLog('demande', `a ouvert le ticket ${ticketNum} pour`, { sub: s.nom });
   closeModal('modal-demande');
-  toast('Demande envoyée ! Un MJ la traitera.', 'success');
+  toast(`🎫 Ticket ${ticketNum} créé ! Un MJ le traitera bientôt.`, 'success');
   await updateDemBadge();
+  await updateTktBadge();
   if (document.getElementById('page-mes-demandes').classList.contains('active')) await renderMesDemandes();
+  if (document.getElementById('page-tickets').classList.contains('active')) await renderMyTickets();
 }
 
 // ══════════════════════════════════════════════════════
@@ -2939,6 +3204,13 @@ async function submitMJRep(status) {
     if (s && taken >= s.slots) { toast('Plus de slots disponibles !', 'error'); return; }
   }
   const updates = { status, mjNote: note, treatedAt: new Date().toISOString(), treatedBy: CU.username };
+  // Ajouter un event de timeline
+  const dOld = allDems.find(x => x.id === editingDemId);
+  const tlOld = dOld?.timeline || [];
+  const icons2 = {approved:'✅',rejected:'❌'};
+  tlOld.push({ ts: new Date().toISOString(), actor: CU.username, action: status==='approved'?'a approuvé ce ticket':'a refusé ce ticket', icon: icons2[status]||'📋', note: note||undefined });
+  updates.timeline = tlOld;
+  if (!dOld?.assignedTo) updates.assignedTo = CU.username;
   await fsUpdate('demandes', editingDemId, updates);
   _cache.demandes = null;
   const users = await getUsers();
@@ -3615,6 +3887,516 @@ async function exportCSV(type) {
   toast(`Export ${type} téléchargé !`, 'success');
 }
 
+// ══════════════════════════════════════════════════════
+//  TICKET SYSTEM
+// ══════════════════════════════════════════════════════
+let _tktView = 'list';
+let _allTktView = 'list';
+let currentTktId = null;
+
+// Générer un numéro de ticket lisible
+async function genTicketNumber() {
+  const dems = await getDemandes();
+  const count = dems.filter(d => d.ticketNum).length + dems.filter(d => !d.ticketNum).length;
+  const num = String(count + 1).padStart(4, '0');
+  return `TKT-${num}`;
+}
+
+// Mapping statuts tickets (étend les statuts existants)
+const TKT_STATUS = {
+  pending:   { label: 'En attente',  cls: 'badge-pending',  icon: '⏳', color: 'var(--warn)' },
+  in_review: { label: 'En révision', cls: 'badge-purple',   icon: '🔍', color: 'var(--purple2)' },
+  approved:  { label: 'Approuvé',    cls: 'badge-approved', icon: '✅', color: 'var(--success)' },
+  rejected:  { label: 'Refusé',      cls: 'badge-rejected', icon: '❌', color: 'var(--danger)' },
+};
+const PRIORITY_DATA = {
+  normale: { label: 'Normale', cls: 'p-normal',  icon: '🔵' },
+  haute:   { label: 'Haute',   cls: 'p-haute',   icon: '🟡' },
+  urgente: { label: 'Urgente', cls: 'p-urgente', icon: '🔴' },
+};
+
+function tktStatusBadge(s) {
+  const d = TKT_STATUS[s] || TKT_STATUS.pending;
+  return `<span class="badge ${d.cls}">${d.icon} ${d.label}</span>`;
+}
+function tktPriorityBadge(p) {
+  const d = PRIORITY_DATA[p || 'normale'];
+  return `<span class="tkt-priority ${d.cls}">${d.icon} ${d.label}</span>`;
+}
+
+// SLA indicator (temps depuis création)
+function slaIndicator(createdAt, status) {
+  if (status === 'approved' || status === 'rejected') return '';
+  const hours = (Date.now() - new Date(createdAt).getTime()) / 3600000;
+  if (hours < 24) return `<span class="tkt-card-sla sla-ok">🟢 ${Math.round(hours)}h</span>`;
+  if (hours < 72) return `<span class="tkt-card-sla sla-warn">🟡 ${Math.round(hours)}h</span>`;
+  return `<span class="tkt-card-sla sla-late">🔴 ${Math.round(hours)}h</span>`;
+}
+
+function setTktView(v) {
+  _tktView = v;
+  document.getElementById('tkt-btn-list').classList.toggle('active', v === 'list');
+  document.getElementById('tkt-btn-kanban').classList.toggle('active', v === 'kanban');
+  renderMyTickets();
+}
+function setAllTktView(v) {
+  _allTktView = v;
+  document.getElementById('atkt-btn-list').classList.toggle('active', v === 'list');
+  document.getElementById('atkt-btn-kanban').classList.toggle('active', v === 'kanban');
+  renderAllTickets();
+}
+
+// ── render Mes Tickets ──────────────────────────────────
+async function renderMyTickets() {
+  const [allDems, subs] = await Promise.all([getDemandes(), getSubs()]);
+  let dems = allDems.filter(d => d.userId === CU.id);
+
+  const statusF = document.getElementById('my-tkt-status')?.value;
+  const prioF   = document.getElementById('my-tkt-priority')?.value;
+  if (statusF) dems = dems.filter(d => d.status === statusF);
+  if (prioF)   dems = dems.filter(d => (d.priority || 'normale') === prioF);
+  dems.sort((a,b) => {
+    const prioOrder = {urgente:3,haute:2,normale:1};
+    const pDiff = (prioOrder[b.priority||'normale']||1) - (prioOrder[a.priority||'normale']||1);
+    if (pDiff !== 0) return pDiff;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+
+  // Quick stats
+  const all = allDems.filter(d => d.userId === CU.id);
+  const qsEl = document.getElementById('my-tkt-qs');
+  if (qsEl) qsEl.innerHTML = [
+    {label:'Total', val:all.length, accent:'var(--gold)'},
+    {label:'En attente', val:all.filter(d=>d.status==='pending').length, accent:'var(--warn)'},
+    {label:'En révision', val:all.filter(d=>d.status==='in_review').length, accent:'var(--purple2)'},
+    {label:'Approuvés', val:all.filter(d=>d.status==='approved').length, accent:'var(--success)'},
+    {label:'Refusés', val:all.filter(d=>d.status==='rejected').length, accent:'var(--danger)'},
+  ].map(s=>`<div class="tkt-qs-item" style="--accent:${s.accent}"><div class="tkt-qs-val">${s.val}</div><div class="tkt-qs-label">${s.label}</div></div>`).join('');
+
+  const ctn = document.getElementById('my-tickets-container');
+  if (!ctn) return;
+  if (!dems.length) { ctn.innerHTML = emptyState('🎫','Aucun ticket. Faites une demande depuis le catalogue !'); return; }
+
+  if (_tktView === 'kanban') {
+    ctn.innerHTML = renderTktKanban(dems, subs, false);
+  } else {
+    ctn.innerHTML = `<div>${dems.map(d => tktCardHtml(d, subs, false)).join('')}</div>`;
+  }
+}
+
+// ── render All Tickets (staff) ──────────────────────────
+async function renderAllTickets() {
+  const [allDems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  let dems = [...allDems];
+
+  const q       = (document.getElementById('atkt-search')?.value || '').toLowerCase();
+  const statusF = document.getElementById('atkt-status')?.value;
+  const prioF   = document.getElementById('atkt-priority')?.value;
+  const assignF = document.getElementById('atkt-assign')?.value;
+
+  if (q) dems = dems.filter(d => {
+    const s = subs.find(x=>x.id===d.subId);
+    const u = users.find(x=>x.id===d.userId);
+    return (d.ticketNum||'').toLowerCase().includes(q)
+      || (s?.nom||'').toLowerCase().includes(q)
+      || (u?.username||'').toLowerCase().includes(q)
+      || (u?.nomrp||'').toLowerCase().includes(q);
+  });
+  if (statusF) dems = dems.filter(d => d.status === statusF);
+  if (prioF)   dems = dems.filter(d => (d.priority || 'normale') === prioF);
+  if (assignF === '__unassigned__') dems = dems.filter(d => !d.assignedTo);
+  if (assignF === '__me__') dems = dems.filter(d => d.assignedTo === CU.username);
+
+  dems.sort((a,b) => {
+    const prioOrder = {urgente:3,haute:2,normale:1};
+    const pDiff = (prioOrder[b.priority||'normale']||1) - (prioOrder[a.priority||'normale']||1);
+    if (pDiff !== 0) return pDiff;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+
+  // Quick stats (all tickets)
+  const qs = document.getElementById('all-tkt-qs');
+  if (qs) qs.innerHTML = [
+    {label:'Total', val:allDems.length, accent:'var(--gold)'},
+    {label:'En attente', val:allDems.filter(d=>d.status==='pending').length, accent:'var(--warn)'},
+    {label:'En révision', val:allDems.filter(d=>d.status==='in_review').length, accent:'var(--purple2)'},
+    {label:'Urgents', val:allDems.filter(d=>d.priority==='urgente'&&['pending','in_review'].includes(d.status)).length, accent:'var(--danger)'},
+    {label:'Non assignés', val:allDems.filter(d=>!d.assignedTo&&['pending','in_review'].includes(d.status)).length, accent:'var(--blue)'},
+  ].map(s=>`<div class="tkt-qs-item" style="--accent:${s.accent}"><div class="tkt-qs-val">${s.val}</div><div class="tkt-qs-label">${s.label}</div></div>`).join('');
+
+  // Update staff badge
+  const pendingUrgent = allDems.filter(d=>['pending','in_review'].includes(d.status)).length;
+  const badgeEl = document.getElementById('nav-badge-all-tkt');
+  if (badgeEl) { badgeEl.textContent = pendingUrgent; badgeEl.style.display = pendingUrgent > 0 ? '' : 'none'; }
+
+  const ctn = document.getElementById('all-tickets-container');
+  if (!ctn) return;
+  if (!dems.length) { ctn.innerHTML = emptyState('🎫','Aucun ticket correspondant.'); return; }
+
+  if (_allTktView === 'kanban') {
+    ctn.innerHTML = renderTktKanban(dems, subs, true, users);
+  } else {
+    ctn.innerHTML = `<div>${dems.map(d => tktCardHtml(d, subs, true, users)).join('')}</div>`;
+  }
+}
+
+// ── Kanban renderer ─────────────────────────────────────
+function renderTktKanban(dems, subs, isStaff, users) {
+  const cols = [
+    {id:'pending',   label:'En attente',  icon:'⏳', color:'var(--warn)'},
+    {id:'in_review', label:'En révision', icon:'🔍', color:'var(--purple2)'},
+    {id:'approved',  label:'Approuvé',    icon:'✅', color:'var(--success)'},
+  ];
+  return `<div class="tkt-kanban">${cols.map(col => {
+    const colDems = dems.filter(d => d.status === col.id);
+    return `<div class="tkt-col">
+      <div class="tkt-col-header" style="border-top:2px solid ${col.color}">
+        <span class="tkt-col-title" style="color:${col.color}">${col.icon} ${col.label}</span>
+        <span class="tkt-col-count">${colDems.length}</span>
+      </div>
+      <div class="tkt-col-body">
+        ${colDems.length ? colDems.map(d => tktCardMiniHtml(d, subs, isStaff, users)).join('') : `<div style="text-align:center;padding:16px;color:var(--muted);font-size:11px">Vide</div>`}
+      </div>
+    </div>`;
+  }).join('')}</div>
+  <div class="tkt-col" style="margin-bottom:18px">
+    <div class="tkt-col-header" style="border-top:2px solid var(--danger)">
+      <span class="tkt-col-title" style="color:var(--danger)">❌ Refusés</span>
+      <span class="tkt-col-count">${dems.filter(d=>d.status==='rejected').length}</span>
+    </div>
+    <div class="tkt-col-body" style="display:flex;flex-wrap:wrap;gap:8px">
+      ${dems.filter(d=>d.status==='rejected').map(d => tktCardMiniHtml(d, subs, isStaff, users)).join('') || `<div style="text-align:center;padding:16px;color:var(--muted);font-size:11px;width:100%">Aucun ticket refusé</div>`}
+    </div>
+  </div>`;
+}
+
+function tktCardMiniHtml(d, subs, isStaffView, users) {
+  const s = subs.find(x=>x.id===d.subId)||{nom:'?',rang:'?'};
+  const u = users?.find(x=>x.id===d.userId);
+  const num = d.ticketNum || '—';
+  const prio = PRIORITY_DATA[d.priority||'normale'];
+  const statusD = TKT_STATUS[d.status]||TKT_STATUS.pending;
+  return `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:border-color 0.15s" onclick="openTicketDetail('${d.id}')" onmouseover="this.style.borderColor='rgba(201,162,39,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <span class="tkt-number">${esc(num)}</span>
+      ${tktPriorityBadge(d.priority||'normale')}
+    </div>
+    <div style="font-weight:700;font-size:12px;color:var(--gold);margin-bottom:3px">${esc(s.nom)}</div>
+    ${isStaffView && u ? `<div style="font-size:10px;color:var(--muted2)">@${esc(u.username)}</div>` : ''}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px">
+      ${slaIndicator(d.createdAt, d.status)}
+      ${d.assignedTo ? `<span style="font-size:9px;color:var(--muted2)">👤 ${esc(d.assignedTo)}</span>` : '<span style="font-size:9px;color:var(--muted)">Non assigné</span>'}
+    </div>
+  </div>`;
+}
+
+function tktCardHtml(d, subs, isStaffView, users) {
+  const s = subs.find(x=>x.id===d.subId)||{nom:'?',rang:'?'};
+  const u = users?.find(x=>x.id===d.userId);
+  const num = d.ticketNum || '—';
+  const statusD = TKT_STATUS[d.status]||TKT_STATUS.pending;
+  const tagsHtml = (d.tags||[]).map(t=>`<span style="background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.2);border-radius:4px;padding:1px 6px;font-size:9px;color:var(--gold2)">#${esc(t)}</span>`).join('');
+  return `<div class="tkt-card" style="--tkt-color:${statusD.color}" onclick="openTicketDetail('${d.id}')">
+    <div class="tkt-card-top">
+      <div style="flex:1;min-width:0">
+        <div class="tkt-card-meta" style="margin-bottom:6px">
+          <span class="tkt-number">${esc(num)}</span>
+          ${tktPriorityBadge(d.priority||'normale')}
+          ${slaIndicator(d.createdAt, d.status)}
+          ${d.tags?.length ? tagsHtml : ''}
+        </div>
+        <div class="tkt-card-title">⚡ ${esc(s.nom)}</div>
+        ${isStaffView && u ? `<div style="font-size:11px;color:var(--muted2);margin-top:2px">Demandé par <b>${esc(u.nomrp||u.username)}</b> @${esc(u.username)}</div>` : ''}
+        ${d.message ? `<div style="font-size:11px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px">${esc(d.message)}</div>` : ''}
+      </div>
+      <div class="tkt-card-badges">
+        ${tktStatusBadge(d.status)}
+        <span class="badge badge-rank">Rang ${esc(String(s.rang))}</span>
+      </div>
+    </div>
+    <div class="tkt-card-foot">
+      <div class="tkt-card-assign">
+        ${d.assignedTo
+          ? `<div class="tkt-assign-av" style="background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);color:#60a5fa">${initials(d.assignedTo)}</div> Assigné à <b>${esc(d.assignedTo)}</b>`
+          : `<span style="color:var(--muted)">⬜ Non assigné</span>`}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${d.mjNote ? `<span style="font-size:10px;color:var(--warn2)">📝 Note MJ</span>` : ''}
+        <span class="tkt-card-time">📅 ${fmtDate(d.createdAt)}</span>
+        <span style="font-size:11px;color:var(--muted2)">💬 Voir</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Ouvrir le détail d'un ticket ─────────────────────────
+async function openTicketDetail(demId) {
+  currentTktId = demId;
+  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const d = dems.find(x=>x.id===demId); if (!d) return;
+  const s = subs.find(x=>x.id===d.subId)||{nom:'?',rang:'?'};
+  const u = users.find(x=>x.id===d.userId)||{username:'?',nomrp:'?'};
+  const statusD = TKT_STATUS[d.status]||TKT_STATUS.pending;
+
+  document.getElementById('tkt-detail-num').textContent = d.ticketNum || '—';
+  document.getElementById('tkt-detail-title').textContent = `⚡ ${s.nom}`;
+  document.getElementById('tkt-detail-hero').style.background = `linear-gradient(135deg,${statusD.color}10,rgba(7,8,15,0.98))`;
+
+  document.getElementById('tkt-detail-badges').innerHTML = `
+    ${tktStatusBadge(d.status)}
+    ${tktPriorityBadge(d.priority||'normale')}
+    <span class="badge badge-rank">Rang ${esc(String(s.rang))}</span>
+    ${slaIndicator(d.createdAt, d.status)}
+    ${(d.tags||[]).map(t=>`<span style="background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.2);border-radius:4px;padding:2px 8px;font-size:9px;color:var(--gold2)">#${esc(t)}</span>`).join('')}`;
+
+  document.getElementById('tkt-detail-info').innerHTML = `
+    <div class="profil-field"><div class="profil-field-label">Joueur</div><div class="profil-field-val">${esc(u.nomrp||u.username)} <span style="color:var(--muted)">@${esc(u.username)}</span></div></div>
+    <div class="profil-field"><div class="profil-field-label">Sub-Jutsu</div><div class="profil-field-val" style="color:var(--gold)">${esc(s.nom)}</div></div>
+    <div class="profil-field"><div class="profil-field-label">Ouvert le</div><div class="profil-field-val">${fmtDateTime(d.createdAt)}</div></div>
+    <div class="profil-field"><div class="profil-field-label">Assigné à</div><div class="profil-field-val">${d.assignedTo ? '👤 '+esc(d.assignedTo) : '<span style="color:var(--muted)">Non assigné</span>'}</div></div>
+    ${d.treatedAt ? `<div class="profil-field"><div class="profil-field-label">Traité le</div><div class="profil-field-val">${fmtDateTime(d.treatedAt)}</div></div>` : ''}
+    ${d.treatedBy ? `<div class="profil-field"><div class="profil-field-label">Traité par</div><div class="profil-field-val">@${esc(d.treatedBy)}</div></div>` : ''}`;
+
+  const msgSec = document.getElementById('tkt-detail-msg-section');
+  if (d.message) { msgSec.style.display=''; document.getElementById('tkt-detail-msg').textContent = d.message; }
+  else msgSec.style.display='none';
+
+  const noteSec = document.getElementById('tkt-detail-note-section');
+  if (d.mjNote) { noteSec.style.display=''; document.getElementById('tkt-detail-note').textContent = d.mjNote; }
+  else noteSec.style.display='none';
+
+  // Timeline
+  const timeline = (d.timeline || []);
+  // Ajouter event de création si pas de timeline
+  const tlEvents = timeline.length ? timeline : [{ ts: d.createdAt, actor: u.username, action: 'a ouvert ce ticket', icon: '🎫' }];
+  if (d.treatedAt && !timeline.find(e=>e.action?.includes('approuvé')||e.action?.includes('refusé'))) {
+    tlEvents.push({ ts: d.treatedAt, actor: d.treatedBy||'MJ', action: d.status==='approved'?'a approuvé ce ticket':'a refusé ce ticket', icon: d.status==='approved'?'✅':'❌' });
+  }
+  tlEvents.sort((a,b) => (a.ts||'').localeCompare(b.ts||''));
+  document.getElementById('tkt-detail-timeline').innerHTML = tlEvents.map(e => `
+    <div class="tkt-tl-item">
+      <div class="tkt-tl-dot">${e.icon||'📋'}</div>
+      <div class="tkt-tl-content">
+        <div><span class="tkt-tl-actor">${esc(e.actor||'?')}</span> <span class="tkt-tl-action">${esc(e.action||'')}</span></div>
+        <div class="tkt-tl-time">${fmtDateTime(e.ts)}</div>
+        ${e.note ? `<div style="font-size:11px;color:var(--warn2);margin-top:3px;padding:5px 8px;background:rgba(245,158,11,0.04);border-radius:5px">${esc(e.note)}</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  // Comments
+  await refreshTktComments();
+
+  // Footer actions
+  const footLeft  = document.getElementById('tkt-footer-left');
+  const footRight = document.getElementById('tkt-footer-right');
+  footLeft.innerHTML = '';
+  footRight.innerHTML = `<button class="btn btn-ghost" onclick="closeModal('modal-ticket-detail')">Fermer</button>`;
+
+  if (hasPerm(CU, 'approve_requests')) {
+    // Staff actions
+    if (['pending','in_review'].includes(d.status)) {
+      // Assign to self
+      if (d.assignedTo !== CU.username) {
+        footLeft.innerHTML += `<button class="btn btn-ghost btn-sm" onclick="assignTicketToSelf('${d.id}')">👤 M'assigner</button>`;
+      }
+      // Change priority
+      footLeft.innerHTML += `<select class="filter-sel" id="tkt-inline-prio" style="font-size:11px" onchange="changeTicketPriority('${d.id}',this.value)">
+        <option value="normale" ${(d.priority||'normale')==='normale'?'selected':''}>🔵 Normale</option>
+        <option value="haute" ${d.priority==='haute'?'selected':''}>🟡 Haute</option>
+        <option value="urgente" ${d.priority==='urgente'?'selected':''}>🔴 Urgente</option>
+      </select>`;
+      // Tag input
+      footLeft.innerHTML += `<button class="btn btn-ghost btn-sm" onclick="openTktTagModal('${d.id}')">🏷 Tags</button>`;
+    }
+    if (d.status !== 'approved' && d.status !== 'rejected') {
+      footRight.innerHTML = `
+        <button class="btn btn-ghost" onclick="closeModal('modal-ticket-detail')">Fermer</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-ticket-detail');openTktTreat('${d.id}')">Traiter</button>`;
+    }
+  }
+
+  openModal('modal-ticket-detail');
+}
+
+async function refreshTktComments() {
+  const comments = await getComments(currentTktId);
+  const c = document.getElementById('tkt-comments-list');
+  if (!c) return;
+  if (!comments.length) {
+    c.innerHTML = `<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">Aucun message. Commencez la discussion !</div>`;
+  } else {
+    c.innerHTML = comments.map(cm => {
+      const isMe = cm.authorId === CU.id;
+      const cmRole = ROLES[cm.authorRole]||ROLES.player;
+      return `<div class="comment-item">
+        <div class="comment-av" style="background:${cmRole.color}22;border-color:${cmRole.color}44;color:${cmRole.color}">${initials(cm.authorNom||cm.authorName||'?')}</div>
+        <div class="comment-bubble">
+          <div class="comment-author">${esc(cm.authorNom||cm.authorName||'?')} <span class="role-badge ${cmRole.cls}" style="font-size:8px">${cmRole.icon} ${cmRole.label}</span> <span class="comment-time">${fmtDateTime(cm.ts)}</span></div>
+          <div class="comment-text">${esc(cm.text)}</div>
+        </div>
+      </div>`;
+    }).join('');
+    c.scrollTop = c.scrollHeight;
+  }
+}
+
+async function addTktComment() {
+  const text = document.getElementById('tkt-comment-text').value.trim();
+  if (!text || !currentTktId) return;
+  const id = 'cmt' + Date.now();
+  await fsSet('comments', id, {
+    id, demId: currentTktId,
+    authorId: CU.id, authorName: CU.username, authorNom: CU.nomrp||CU.username, authorRole: CU.role,
+    text, ts: new Date().toISOString()
+  });
+  document.getElementById('tkt-comment-text').value = '';
+  await refreshTktComments();
+  // Notifier l'autre partie
+  const dems = await getDemandes();
+  const dem = dems.find(x=>x.id===currentTktId);
+  if (dem && dem.userId !== CU.id) {
+    await pushNotif(dem.userId, `💬 @${CU.username} a commenté votre ticket ${dem.ticketNum||''}.`, 'system');
+  }
+  if (dem && dem.userId === CU.id && dem.assignedTo && dem.assignedTo !== CU.username) {
+    const users = await getUsers();
+    const mj = users.find(x=>x.username===dem.assignedTo);
+    if (mj) await pushNotif(mj.id, `💬 Le joueur @${CU.username} a répondu sur le ticket ${dem.ticketNum||''}.`, 'system');
+  }
+}
+
+async function assignTicketToSelf(demId) {
+  await fsUpdate('demandes', demId, { assignedTo: CU.username });
+  _cache.demandes = null;
+  // Add timeline event
+  const d = await fsGetOne('demandes', demId);
+  const tl = d.timeline || [];
+  tl.push({ ts: new Date().toISOString(), actor: CU.username, action: 's\'est assigné ce ticket', icon: '👤' });
+  await fsUpdate('demandes', demId, { timeline: tl });
+  toast('Ticket assigné à vous.', 'success');
+  await openTicketDetail(demId);
+  await renderAllTickets();
+}
+
+async function changeTicketPriority(demId, prio) {
+  await fsUpdate('demandes', demId, { priority: prio });
+  _cache.demandes = null;
+  const d = await fsGetOne('demandes', demId);
+  const tl = d.timeline || [];
+  tl.push({ ts: new Date().toISOString(), actor: CU.username, action: `a changé la priorité en ${prio}`, icon: PRIORITY_DATA[prio]?.icon || '🔵' });
+  await fsUpdate('demandes', demId, { timeline: tl });
+  await pushNotif(d.userId, `${PRIORITY_DATA[prio]?.icon||'🔵'} La priorité de votre ticket ${d.ticketNum||''} a été changée en "${prio}".`, 'system');
+  toast(`Priorité passée à : ${prio}`, 'info');
+  await openTicketDetail(demId);
+}
+
+// Tags modal (simple prompt)
+async function openTktTagModal(demId) {
+  const d = await fsGetOne('demandes', demId);
+  const current = (d.tags||[]).join(', ');
+  const input = prompt('Tags (séparés par virgule) :', current);
+  if (input === null) return;
+  const tags = input.split(',').map(t=>t.trim().toLowerCase().replace(/[^a-z0-9\-]/g,'')).filter(Boolean);
+  await fsUpdate('demandes', demId, { tags });
+  _cache.demandes = null;
+  toast('Tags mis à jour.', 'success');
+  await openTicketDetail(demId);
+}
+
+// ── Traitement staff ────────────────────────────────────
+let currentTreatId = null;
+async function openTktTreat(demId) {
+  if (!hasPerm(CU,'approve_requests')) { toast('Permission refusée.','error'); return; }
+  currentTreatId = demId;
+  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const d = dems.find(x=>x.id===demId); if (!d) return;
+  const s = subs.find(x=>x.id===d.subId)||{nom:'?',rang:'?'};
+  const u = users.find(x=>x.id===d.userId)||{username:'?',nomrp:'?'};
+  document.getElementById('tkt-treat-info').innerHTML = `
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 15px">
+      <div style="margin-bottom:5px"><span class="tkt-number">${esc(d.ticketNum||'—')}</span></div>
+      <div style="font-weight:700;color:var(--gold);margin-bottom:3px">⚡ ${esc(s.nom)}</div>
+      <div style="font-size:11px;color:var(--muted2)">Demandé par <b>${esc(u.nomrp||u.username)}</b> @${esc(u.username)}</div>
+      ${d.message ? `<div style="font-size:11px;color:var(--muted);margin-top:8px;padding:7px 10px;background:var(--bg2);border-radius:5px">${esc(d.message)}</div>` : ''}
+    </div>`;
+  document.getElementById('tkt-treat-priority').value = d.priority || 'normale';
+  document.getElementById('tkt-treat-status').value = 'approved';
+  document.getElementById('tkt-treat-note').value = '';
+  openModal('modal-tkt-treat');
+}
+
+async function submitTktTreat() {
+  if (!currentTreatId) return;
+  const status   = document.getElementById('tkt-treat-status').value;
+  const note     = document.getElementById('tkt-treat-note').value.trim();
+  const priority = document.getElementById('tkt-treat-priority').value;
+  const [allDems, allSubs] = await Promise.all([getDemandes(), getSubs()]);
+  const d = allDems.find(x=>x.id===currentTreatId); if (!d) return;
+
+  if (status === 'approved') {
+    const s = allSubs.find(x=>x.id===d.subId);
+    const taken = allDems.filter(x=>x.subId===d.subId&&x.status==='approved').length;
+    if (s && taken >= s.slots) { toast('Plus de slots disponibles !','error'); return; }
+  }
+
+  const now = new Date().toISOString();
+  const tl = d.timeline || [];
+  const icons = {approved:'✅',rejected:'❌',in_review:'🔍'};
+  const actions = {approved:'a approuvé ce ticket',rejected:'a refusé ce ticket',in_review:'a mis ce ticket en révision'};
+  tl.push({ ts: now, actor: CU.username, action: actions[status]||status, icon: icons[status]||'📋', note: note||undefined });
+
+  await fsUpdate('demandes', currentTreatId, {
+    status, mjNote: note, priority,
+    treatedAt: now, treatedBy: CU.username,
+    assignedTo: d.assignedTo || CU.username,
+    timeline: tl
+  });
+  _cache.demandes = null;
+
+  const users = await getUsers();
+  const u = users.find(x=>x.id===d.userId);
+  const s = allSubs.find(x=>x.id===d.subId);
+  await addLog('demande', `a ${status==='approved'?'approuvé':status==='rejected'?'refusé':'mis en révision'} le ticket ${d.ticketNum||''} de @${u?.username||'?'}`, {sub:s?.nom});
+
+  if (u) {
+    const statusMsgs = {
+      approved: `✅ Votre ticket ${d.ticketNum||''} pour "${s?.nom||'?'}" a été approuvé !${note?' Note : '+note:''}`,
+      rejected: `❌ Votre ticket ${d.ticketNum||''} pour "${s?.nom||'?'}" a été refusé.${note?' Note : '+note:''}`,
+      in_review: `🔍 Votre ticket ${d.ticketNum||''} est passé en révision par @${CU.username}.`,
+    };
+    await pushNotif(u.id, statusMsgs[status], status==='approved'?'demande_approved':status==='rejected'?'demande_rejected':'system');
+  }
+
+  closeModal('modal-tkt-treat');
+  await renderAllTickets();
+  await renderStaffStats();
+  toast(status==='approved'?'Ticket approuvé ✓':status==='in_review'?'En révision':'Ticket refusé.', status==='approved'?'success':status==='in_review'?'info':'error');
+}
+
+// ── Ticket badge update ─────────────────────────────────
+async function updateTktBadge() {
+  const dems = await getDemandes();
+  const pending = dems.filter(d=>d.userId===CU?.id&&['pending','in_review'].includes(d.status)).length;
+  const b = document.getElementById('nav-badge-tkt');
+  if (b) { b.textContent = pending; b.style.display = pending > 0 ? '' : 'none'; }
+}
+
+// ── Export tickets CSV ──────────────────────────────────
+async function exportTicketsCSV() {
+  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const headers = ['Numéro','Joueur','Nom RP','Sub-Jutsu','Rang','Statut','Priorité','Assigné à','Ouvert le','Traité le','Tags','Note MJ'];
+  const rows = dems.map(d => {
+    const u = users.find(x=>x.id===d.userId)||{username:'?',nomrp:'?'};
+    const s = subs.find(x=>x.id===d.subId)||{nom:'?',rang:'?'};
+    return [d.ticketNum||'—',u.username,u.nomrp||'',s.nom,s.rang,d.status,d.priority||'normale',d.assignedTo||'',fmtDate(d.createdAt),d.treatedAt?fmtDate(d.treatedAt):'',(d.tags||[]).join(';'),d.mjNote||''];
+  });
+  const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='tickets.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Export tickets téléchargé !','success');
+}
+
 // Lancer le handler Discord après le boot
 boot().then(() => handleDiscordAuthAsync());
 
@@ -3658,8 +4440,10 @@ Object.assign(window, {
   openCommentsModal, addComment,
   // Export
   exportCSV,
-  // 🆕 Classement
-  renderClassement, switchLbTab,
+  // 🆕 Tickets
+  renderMyTickets, renderAllTickets, setTktView, setAllTktView,
+  openTicketDetail, openTktTreat, submitTktTreat, addTktComment,
+  assignTicketToSelf, changeTicketPriority, openTktTagModal, exportTicketsCSV,
   // 🆕 Stats
   renderStats,
   // 🆕 Recherche globale

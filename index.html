@@ -39,6 +39,8 @@
   --warn:      #f59e0b;
   --warn2:     #fcd34d;
   --sw: 220px;
+  --r-owner:    #ff2d55;
+  --r-superviseur: #ff6b35;
   --r-zenith:   #ff6b35;
   --r-resp-rp:  #f43f5e;
   --r-gerant-mj:#f59e0b;
@@ -420,6 +422,8 @@ tr:hover td{background:rgba(255,255,255,0.018)}
   letter-spacing:0.08em;text-transform:uppercase;border:1px solid;
 }
 .rb-zenith{background:rgba(255,107,53,0.1);color:var(--r-zenith);border-color:rgba(255,107,53,0.28)}
+.rb-owner{background:rgba(255,45,85,0.12);color:var(--r-owner);border-color:rgba(255,45,85,0.35)}
+.rb-superviseur{background:rgba(255,140,66,0.12);color:#ff8c42;border-color:rgba(255,140,66,0.35)}
 .rb-resp-rp{background:rgba(244,63,94,0.1);color:var(--r-resp-rp);border-color:rgba(244,63,94,0.28)}
 .rb-gerant-mj{background:rgba(245,158,11,0.1);color:var(--r-gerant-mj);border-color:rgba(245,158,11,0.28)}
 .rb-cadre-mj{background:rgba(167,139,250,0.1);color:var(--r-cadre-mj);border-color:rgba(167,139,250,0.22)}
@@ -1589,6 +1593,8 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
             </select>
             <select class="filter-sel" id="log-role-filter" onchange="renderLogs()">
               <option value="">Tous les rôles</option>
+              <option value="owner">Owner</option>
+              <option value="superviseur">Superviseur</option>
               <option value="zenith">zenith.</option>
               <option value="resp_rp">Responsable RP</option>
               <option value="gerant_mj">Gérant MJ</option>
@@ -2055,6 +2061,8 @@ function hideLoader() { const el = document.getElementById('fb-loader'); if (el)
 //  ROLE SYSTEM
 // ══════════════════════════════════════════════════════
 const ROLES = {
+  owner:       { label: 'Owner',            color: '#ff2d55', cls: 'rb-owner',       level: 8, icon: '👑' },
+  superviseur: { label: 'Superviseur',      color: '#ff8c42', cls: 'rb-superviseur', level: 7, icon: '🔱' },
   zenith:    { label: 'zenith.',          color: '#ff6b35', cls: 'rb-zenith',    level: 6, icon: '⚜' },
   resp_rp:   { label: 'Responsable RP',   color: '#f43f5e', cls: 'rb-resp-rp',   level: 5, icon: '👑' },
   gerant_mj: { label: 'Gérant MJ',        color: '#f59e0b', cls: 'rb-gerant-mj', level: 4, icon: '🌟' },
@@ -2072,6 +2080,8 @@ const PERMS = {
   'ban_users':        'Bannir des membres',
 };
 const ROLE_PERMS = {
+  owner:       ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
+  superviseur: ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
   zenith:    ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
   resp_rp:   ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs','ban_users'],
   gerant_mj: ['manage_subs','approve_requests','manage_users','assign_roles','view_logs','clear_logs'],
@@ -2084,7 +2094,7 @@ function hasPerm(user, perm) {
   return ROLE_PERMS[user.role]?.includes(perm) ?? false;
 }
 function isStaff(user) {
-  return user && ['zenith','resp_rp','gerant_mj','cadre_mj','mj'].includes(user.role);
+  return user && ['owner','superviseur','zenith','resp_rp','gerant_mj','cadre_mj','mj'].includes(user.role);
 }
 
 // ══════════════════════════════════════════════════════
@@ -2319,7 +2329,7 @@ function updateSidebar() {
   document.getElementById('nav-roles').style.display = (hasPerm(CU,'assign_roles') || hasPerm(CU,'view_logs')) ? '' : 'none';
   document.getElementById('nav-export').style.display = hasPerm(CU,'view_logs') ? '' : 'none';
   document.getElementById('nav-stats').style.display = hasPerm(CU,'view_logs') ? '' : 'none';
-  document.querySelectorAll('.founder-only').forEach(el => el.style.display = CU.role === 'zenith' ? '' : 'none');
+  document.querySelectorAll('.founder-only').forEach(el => el.style.display = ['owner','superviseur','zenith'].includes(CU.role) ? '' : 'none');
   updateLogBadge();
   updateDemBadge();
   updateNotifBadge();
@@ -2358,6 +2368,8 @@ const WORKER_URL         = 'https://throbbing-math-1ea1.eithan0630.workers.dev';
 
 // Mapping rôles Discord → rôles portail (ordre important : du plus haut au plus bas)
 const DISCORD_ROLE_MAP = [
+  { discordId: '1456723508406124598', portalRole: 'owner'      },
+  { discordId: '1456723387681472653', portalRole: 'superviseur'},
   { discordId: '1456723322350866697', portalRole: 'resp_rp'   },
   { discordId: '1456722617183768637', portalRole: 'gerant_mj' },
   { discordId: '1456722291483345090', portalRole: 'cadre_mj'  },
@@ -3356,7 +3368,7 @@ async function clearLogs() {
 // ══════════════════════════════════════════════════════
 async function renderRoles() {
   const [users] = await Promise.all([getUsers()]);
-  const roleOrder = ['zenith', 'resp_rp', 'gerant_mj', 'cadre_mj', 'mj', 'player'];
+  const roleOrder = ['owner', 'superviseur', 'zenith', 'resp_rp', 'gerant_mj', 'cadre_mj', 'mj', 'player'];
   document.getElementById('roles-list').innerHTML = roleOrder.map(roleId => {
     const r = ROLES[roleId];
     const perms = ROLE_PERMS[roleId];

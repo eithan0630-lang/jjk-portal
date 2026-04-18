@@ -730,6 +730,132 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
 .auth-tabs{display:flex;margin-bottom:28px;background:var(--bg2);border-radius:9px;padding:3px;gap:3px}
 .auth-tab{flex:1;padding:9px;text-align:center;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;color:var(--muted);background:transparent;border:none;border-radius:7px;transition:all 0.2s;font-family:'Rajdhani',sans-serif}
 .auth-tab.active{background:linear-gradient(135deg,rgba(201,162,39,0.18),rgba(124,92,191,0.08));color:var(--gold)}
+
+/* ══════════════════════════════════
+   DASHBOARD
+══════════════════════════════════ */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:22px}
+.dash-stat{
+  background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));
+  border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;
+  transition:border-color 0.2s,transform 0.2s;
+}
+.dash-stat:hover{border-color:rgba(255,255,255,0.12);transform:translateY(-2px)}
+.dash-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent,var(--gold)),transparent);opacity:0.6}
+.dash-stat-icon{font-size:22px;margin-bottom:10px;display:block}
+.dash-stat-val{font-family:'Cinzel',serif;font-size:28px;font-weight:700;color:var(--accent,var(--gold));line-height:1;margin-bottom:4px}
+.dash-stat-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.16em}
+.dash-stat-trend{font-size:10px;color:var(--muted);margin-top:6px}
+.dash-recent{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+@media(max-width:700px){.dash-recent{grid-template-columns:1fr}}
+.dash-section-title{font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.dash-section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.dash-activity-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);font-size:11px}
+.dash-activity-item:last-child{border-bottom:none}
+.dash-activity-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dash-activity-text{flex:1;color:var(--muted2)}
+.dash-activity-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap}
+.dash-welcome{
+  background:linear-gradient(135deg,rgba(201,162,39,0.07),rgba(124,92,191,0.05));
+  border:1px solid rgba(201,162,39,0.15);border-radius:var(--radius);
+  padding:20px 24px;margin-bottom:22px;position:relative;overflow:hidden;
+}
+.dash-welcome::after{content:'術';position:absolute;right:-10px;top:-10px;font-family:'Noto Serif JP',serif;font-size:80px;color:rgba(255,255,255,0.025);pointer-events:none;user-select:none}
+.dash-welcome-name{font-family:'Cinzel',serif;font-size:17px;color:var(--gold);font-weight:700;margin-bottom:4px}
+.dash-welcome-sub{font-size:12px;color:var(--muted2)}
+.dash-top-subs{display:flex;flex-wrap:wrap;gap:7px}
+.dash-top-sub-pill{padding:4px 12px;border-radius:20px;background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.2);font-size:10px;color:var(--gold2);font-weight:600}
+
+/* ══════════════════════════════════
+   ANNONCES
+══════════════════════════════════ */
+.annonce-card{
+  background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));
+  border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;
+  position:relative;overflow:hidden;transition:border-color 0.2s;
+}
+.annonce-card:hover{border-color:var(--border2)}
+.annonce-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--annonce-color,var(--gold));border-radius:2px 0 0 2px}
+.annonce-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.annonce-title{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.03em}
+.annonce-meta{font-size:10px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.annonce-body{font-size:12px;color:var(--muted2);line-height:1.7;white-space:pre-wrap}
+.annonce-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1px solid}
+.annonce-badge.urgente{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--danger2)}
+.annonce-badge.info{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);color:#93c5fd}
+.annonce-badge.event{background:rgba(201,162,39,0.1);border-color:rgba(201,162,39,0.3);color:var(--gold2)}
+.annonce-badge.maintenance{background:rgba(124,92,191,0.1);border-color:rgba(124,92,191,0.3);color:var(--purple3)}
+.annonce-pinned{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:var(--gold);background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.2);border-radius:4px;padding:2px 7px;letter-spacing:0.08em;text-transform:uppercase}
+
+/* ══════════════════════════════════
+   NOTIFICATIONS
+══════════════════════════════════ */
+.notif-bell{
+  position:relative;cursor:pointer;width:30px;height:30px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:8px;transition:background 0.15s;font-size:15px;
+}
+.notif-bell:hover{background:rgba(255,255,255,0.05)}
+.notif-count{
+  position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;
+  background:var(--danger);color:#fff;font-size:8px;font-weight:700;
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  padding:0 3px;border:2px solid var(--bg1);box-shadow:0 0 8px rgba(239,68,68,0.5);
+  display:none;
+}
+.notif-dropdown{
+  position:fixed;top:50px;right:18px;width:340px;max-height:420px;
+  background:linear-gradient(145deg,rgba(11,13,24,0.99),rgba(7,8,15,0.99));
+  border:1px solid var(--border2);border-radius:14px;z-index:9000;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.02);
+  overflow:hidden;display:none;
+}
+.notif-dropdown.open{display:block;animation:modal-in 0.2s ease}
+.notif-dropdown-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.notif-dropdown-title{font-family:'Cinzel',serif;font-size:12px;color:var(--gold);font-weight:700;letter-spacing:0.06em}
+.notif-mark-all{font-size:10px;color:var(--muted);cursor:pointer;transition:color 0.15s;background:none;border:none;font-family:'Rajdhani',sans-serif;letter-spacing:0.06em}
+.notif-mark-all:hover{color:var(--text)}
+.notif-list{max-height:320px;overflow-y:auto}
+.notif-item{
+  display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background 0.15s;
+}
+.notif-item:hover{background:rgba(255,255,255,0.02)}
+.notif-item:last-child{border-bottom:none}
+.notif-item.unread{background:rgba(201,162,39,0.03)}
+.notif-item.unread::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:70%;background:var(--gold);border-radius:0 2px 2px 0}
+.notif-item{position:relative}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.notif-content{flex:1;min-width:0}
+.notif-text{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:3px}
+.notif-time{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace}
+.notif-empty{padding:30px;text-align:center;color:var(--muted);font-size:12px}
+
+/* ══════════════════════════════════
+   COMMENTAIRES SUR DEMANDES
+══════════════════════════════════ */
+.comment-thread{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+.comment-item{display:flex;gap:10px;margin-bottom:10px}
+.comment-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;border:1px solid rgba(255,255,255,0.1)}
+.comment-bubble{flex:1;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:8px;padding:9px 12px}
+.comment-author{font-size:10px;font-weight:700;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.comment-text{font-size:12px;color:var(--muted2);line-height:1.6}
+.comment-time{font-size:9px;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-left:auto}
+.comment-input-row{display:flex;gap:8px;margin-top:10px}
+.comment-input-row .fi{flex:1;padding:8px 12px;font-size:12px}
+
+/* ══════════════════════════════════
+   EXPORT CSV
+══════════════════════════════════ */
+.export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:18px}
+.export-card{
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;cursor:pointer;transition:all 0.2s;
+}
+.export-card:hover{border-color:rgba(201,162,39,0.25);background:rgba(201,162,39,0.03);transform:translateY(-2px)}
+.export-card-icon{font-size:24px;margin-bottom:10px}
+.export-card-title{font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px}
+.export-card-desc{font-size:11px;color:var(--muted2)}
 </style>
 </head>
 <body>
@@ -824,7 +950,9 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
 
       <div class="sb-nav">
         <div class="sb-section">Général</div>
+        <div class="sb-item" id="nav-dashboard" onclick="goPage('dashboard')"><span class="ico">🏠</span>Tableau de bord</div>
         <div class="sb-item active" id="nav-catalogue" onclick="goPage('catalogue')"><span class="ico">⚡</span>Catalogue</div>
+        <div class="sb-item" id="nav-annonces" onclick="goPage('annonces')"><span class="ico">📣</span>Annonces<span class="sb-badge" id="nav-badge-annonces" style="display:none">0</span></div>
         <div class="sb-item" id="nav-mes-demandes" onclick="goPage('mes-demandes')"><span class="ico">📋</span>Mes Demandes<span class="sb-badge" id="nav-badge-dem" style="display:none">0</span></div>
         <div class="sb-item" id="nav-profil" onclick="goPage('profil')"><span class="ico">👤</span>Mon Profil</div>
 
@@ -832,6 +960,7 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
         <div class="sb-item staff-only" id="nav-panel" style="display:none" onclick="goPage('panel')"><span class="ico">🛡</span>Panel Staff</div>
         <div class="sb-item staff-only" id="nav-logs" style="display:none" onclick="goPage('logs')"><span class="ico">📜</span>Journaux<span class="sb-badge" id="nav-badge-logs" style="display:none">!</span></div>
         <div class="sb-item staff-only" id="nav-roles" style="display:none" onclick="goPage('roles')"><span class="ico">🎖</span>Rôles &amp; Perms</div>
+        <div class="sb-item staff-only" id="nav-export" style="display:none" onclick="goPage('export')"><span class="ico">📤</span>Export données</div>
       </div>
 
       <div class="sb-user">
@@ -859,11 +988,70 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
         </div>
         <div class="topbar-right">
           <span class="topbar-time" id="topbar-clock"></span>
+          <div class="notif-bell" id="notif-bell" onclick="toggleNotifDropdown()" title="Notifications">
+            🔔
+            <span class="notif-count" id="notif-count"></span>
+          </div>
           <div class="topbar-dot" title="Système actif"></div>
+        </div>
+        <!-- Notification Dropdown -->
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-dropdown-header">
+            <span class="notif-dropdown-title">Notifications</span>
+            <button class="notif-mark-all" onclick="markAllNotifRead()">Tout marquer comme lu</button>
+          </div>
+          <div class="notif-list" id="notif-list"></div>
         </div>
       </div>
 
       <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="page" id="page-dashboard">
+          <div class="page-header">
+            <div>
+              <div class="page-title"><span class="page-title-icon">🏠</span>Tableau de bord</div>
+              <div class="page-desc">Vue d'ensemble de votre activité sur le portail</div>
+            </div>
+          </div>
+          <div class="dash-welcome" id="dash-welcome"></div>
+          <div class="dash-grid" id="dash-stats"></div>
+          <div class="dash-recent">
+            <div class="card-section">
+              <div class="card-section-header"><span class="card-section-title">📋 Mes dernières demandes</span></div>
+              <div class="card-section-body" id="dash-mes-dems"></div>
+            </div>
+            <div class="card-section">
+              <div class="card-section-header"><span class="card-section-title">📣 Dernières annonces</span></div>
+              <div class="card-section-body" id="dash-annonces-preview"></div>
+            </div>
+          </div>
+          <div class="card-section" id="dash-top-subs-card">
+            <div class="card-section-header"><span class="card-section-title">⚡ Sub-Jutsu les plus demandés</span></div>
+            <div class="card-section-body"><div id="dash-top-subs"></div></div>
+          </div>
+        </div>
+
+        <!-- ANNONCES -->
+        <div class="page" id="page-annonces">
+          <div class="page-header">
+            <div>
+              <div class="page-title"><span class="page-title-icon">📣</span>Annonces</div>
+              <div class="page-desc">Communications officielles du staff</div>
+            </div>
+            <button class="btn btn-primary staff-only" id="btn-add-annonce" style="display:none" onclick="openModalAnnonce()">+ Nouvelle annonce</button>
+          </div>
+          <div class="filter-row">
+            <select class="filter-sel" id="ann-filter-type" onchange="renderAnnonces()">
+              <option value="">Tous les types</option>
+              <option value="info">ℹ Info</option>
+              <option value="event">⭐ Événement</option>
+              <option value="urgente">🚨 Urgente</option>
+              <option value="maintenance">🔧 Maintenance</option>
+            </select>
+          </div>
+          <div id="annonces-list"></div>
+        </div>
 
         <!-- CATALOGUE -->
         <div class="page active" id="page-catalogue">
@@ -1064,6 +1252,39 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
           <div id="role-assign-list"></div>
         </div>
 
+        <!-- EXPORT -->
+        <div class="page" id="page-export">
+          <div class="page-header">
+            <div>
+              <div class="page-title"><span class="page-title-icon">📤</span>Export des données</div>
+              <div class="page-desc">Téléchargez les données du portail en CSV</div>
+            </div>
+          </div>
+          <div class="alert alert-info">Les exports génèrent un fichier CSV téléchargeable directement. Les données sensibles (mots de passe) sont exclues.</div>
+          <div class="export-grid">
+            <div class="export-card" onclick="exportCSV('membres')">
+              <div class="export-card-icon">👥</div>
+              <div class="export-card-title">Membres</div>
+              <div class="export-card-desc">Liste de tous les membres avec leurs rôles, noms RP, Discord et Steam ID</div>
+            </div>
+            <div class="export-card" onclick="exportCSV('subjutsu')">
+              <div class="export-card-icon">⚡</div>
+              <div class="export-card-title">Sub-Jutsu</div>
+              <div class="export-card-desc">Catalogue complet : noms, rangs, types, slots et disponibilités</div>
+            </div>
+            <div class="export-card" onclick="exportCSV('demandes')">
+              <div class="export-card-icon">📋</div>
+              <div class="export-card-title">Demandes</div>
+              <div class="export-card-desc">Historique de toutes les demandes : joueurs, statuts, MJ traitants</div>
+            </div>
+            <div class="export-card" onclick="exportCSV('logs')">
+              <div class="export-card-icon">📜</div>
+              <div class="export-card-title">Journaux</div>
+              <div class="export-card-desc">Export des logs d'activité avec horodatages et acteurs</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1200,6 +1421,52 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
   </div>
 </div>
 
+<!-- Modal Annonce -->
+<div class="modal-overlay" id="modal-annonce">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-annonce-title">Nouvelle Annonce</div>
+      <button class="modal-close" onclick="closeModal('modal-annonce')">✕</button>
+    </div>
+    <div class="fg"><label class="fl">Titre *</label><input class="fi" id="ann-titre" type="text" placeholder="Titre de l'annonce…"></div>
+    <div class="form-row">
+      <div class="fg"><label class="fl">Type *</label>
+        <select class="fi" id="ann-type">
+          <option value="info">ℹ Info</option>
+          <option value="event">⭐ Événement</option>
+          <option value="urgente">🚨 Urgente</option>
+          <option value="maintenance">🔧 Maintenance</option>
+        </select>
+      </div>
+      <div class="fg" style="display:flex;align-items:center;gap:10px;padding-top:18px">
+        <input type="checkbox" id="ann-epingler">
+        <label for="ann-epingler" style="font-size:12px;color:var(--muted2);cursor:pointer">📌 Épingler</label>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Contenu *</label><textarea class="fi" id="ann-contenu" placeholder="Contenu de l'annonce…" style="min-height:120px"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-annonce')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveAnnonce()">Publier</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Commentaires Demande -->
+<div class="modal-overlay" id="modal-comments">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div class="modal-title" id="comments-modal-title">Discussion — Demande</div>
+      <button class="modal-close" onclick="closeModal('modal-comments')">✕</button>
+    </div>
+    <div id="comments-dem-info" style="margin-bottom:16px"></div>
+    <div class="comment-thread" id="comments-list"></div>
+    <div class="comment-input-row" id="comments-input-row" style="margin-top:14px">
+      <input class="fi" id="comment-text" type="text" placeholder="Écrire un message…" onkeydown="if(event.key==='Enter')addComment()">
+      <button class="btn btn-primary" onclick="addComment()">Envoyer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ FIREBASE SDK ══ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -1228,7 +1495,7 @@ const db  = getFirestore(app);
 // ══════════════════════════════════════════════════════
 //  CACHE LOCAL (évite les lectures répétées)
 // ══════════════════════════════════════════════════════
-const _cache = { users: null, subs: null, demandes: null, logs: null };
+const _cache = { users: null, subs: null, demandes: null, logs: null, annonces: null, notifs: null };
 const _session = { userId: null };
 
 // ── Helpers Firestore ──────────────────────────────────
@@ -1509,7 +1776,7 @@ function launchApp() {
   document.getElementById('app').classList.add('visible');
   updateSidebar();
   startClock();
-  requestAnimationFrame(() => goPage('catalogue'));
+  requestAnimationFrame(() => goPage('dashboard'));
 }
 function updateSidebar() {
   const r = ROLES[CU.role] || ROLES.player;
@@ -1556,9 +1823,12 @@ function updateSidebar() {
   document.getElementById('nav-panel').style.display = (hasPerm(CU,'manage_subs')||hasPerm(CU,'approve_requests')) ? '' : 'none';
   document.getElementById('nav-logs').style.display = hasPerm(CU,'view_logs') ? '' : 'none';
   document.getElementById('nav-roles').style.display = (hasPerm(CU,'assign_roles') || hasPerm(CU,'view_logs')) ? '' : 'none';
+  document.getElementById('nav-export').style.display = hasPerm(CU,'view_logs') ? '' : 'none';
   document.querySelectorAll('.founder-only').forEach(el => el.style.display = CU.role === 'zenith' ? '' : 'none');
   updateLogBadge();
   updateDemBadge();
+  updateNotifBadge();
+  updateAnnoncesBadge();
 }
 function makeFallbackAv(init, color) {
   const d = document.createElement('div');
@@ -1633,8 +1903,9 @@ function redirectDiscord() {
 //  NAVIGATION (async)
 // ══════════════════════════════════════════════════════
 const PAGE_LABELS = {
-  catalogue: 'Catalogue', 'mes-demandes': 'Mes Demandes', profil: 'Mon Profil',
-  panel: 'Panel Staff', logs: 'Journaux', roles: 'Rôles & Perms'
+  dashboard: 'Tableau de bord', catalogue: 'Catalogue', annonces: 'Annonces',
+  'mes-demandes': 'Mes Demandes', profil: 'Mon Profil',
+  panel: 'Panel Staff', logs: 'Journaux', roles: 'Rôles & Perms', export: 'Export données'
 };
 async function goPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1643,13 +1914,16 @@ async function goPage(id) {
   if (activePage) { activePage.classList.add('active'); void activePage.offsetHeight; }
   document.getElementById('nav-' + id)?.classList.add('active');
   document.getElementById('bc-current').textContent = PAGE_LABELS[id] || id;
-  invalidateCache('users','subs','demandes','logs');
+  invalidateCache('users','subs','demandes','logs','annonces','notifs');
+  if (id === 'dashboard') await renderDashboard();
   if (id === 'catalogue') await renderCatalogue();
+  if (id === 'annonces') { await renderAnnonces(); localStorage.setItem('jjk_ann_seen', Date.now()); await updateAnnoncesBadge(); }
   if (id === 'mes-demandes') await renderMesDemandes();
   if (id === 'profil') await renderProfil();
   if (id === 'panel') { await renderStaffStats(); await renderPanelSubs(); await renderPanelDemandes(); await renderPanelMembers(); }
   if (id === 'logs') await renderLogs();
   if (id === 'roles') await renderRoles();
+  if (id === 'export') {} // page statique
 }
 function switchInnerTab(btn, id) {
   const container = btn.closest('.inner-tabs').parentElement;
@@ -1747,7 +2021,10 @@ async function renderMesDemandes() {
         ${d.mjNote ? `<div style="font-size:11px;color:var(--muted2);margin-top:4px;font-style:italic">💬 ${esc(d.mjNote)}</div>` : ''}
         ${d.treatedBy ? `<div style="font-size:10px;color:var(--muted);margin-top:3px">Par @${esc(d.treatedBy)}</div>` : ''}
       </div>
-      <div>${statusBadge(d.status)}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${statusBadge(d.status)}
+        <button class="btn btn-ghost btn-sm" onclick="openCommentsModal('${d.id}')" title="Discussion">💬</button>
+      </div>
     </div>`;
   }).join('');
   await updateDemBadge();
@@ -2029,7 +2306,7 @@ async function renderPanelDemandes() {
       <td style="font-size:11px;color:var(--muted);white-space:nowrap">${fmtDate(d.createdAt)}</td>
       <td>${statusBadge(d.status)}</td>
       <td style="font-size:11px;color:var(--muted)">${d.treatedBy ? '@'+esc(d.treatedBy) : '—'}</td>
-      <td>${canTreat && d.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="openMJRep('${d.id}')">Traiter</button>` : `<span style="font-size:10px;color:var(--muted)">—</span>`}</td>
+      <td>${canTreat && d.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="openMJRep('${d.id}')">Traiter</button>` : `<span style="font-size:10px;color:var(--muted)">—</span>`} <button class="btn btn-ghost btn-sm" onclick="openCommentsModal('${d.id}')" title="Discussion">💬</button></td>
     </tr>`;
   }).join('');
 }
@@ -2065,6 +2342,13 @@ async function submitMJRep(status) {
   const u = users.find(x => x.id === d.userId);
   const s = allSubs.find(x => x.id === d.subId);
   await addLog('demande', `a ${status === 'approved' ? 'approuvé' : 'refusé'} la demande de @${u?.username || '?'}`, { sub: s?.nom });
+  // 🔔 Notifier le joueur
+  if (u) {
+    const msg = status === 'approved'
+      ? `✅ Votre demande pour "${s?.nom || 'un sub-jutsu'}" a été approuvée !${note ? ' Note : ' + note : ''}`
+      : `❌ Votre demande pour "${s?.nom || 'un sub-jutsu'}" a été refusée.${note ? ' Note : ' + note : ''}`;
+    await pushNotif(u.id, msg, status === 'approved' ? 'demande_approved' : 'demande_rejected');
+  }
   closeModal('modal-mj-rep'); await renderPanelDemandes(); await renderStaffStats();
   toast(status === 'approved' ? 'Demande approuvée ✓' : 'Demande refusée.', status === 'approved' ? 'success' : 'error');
 }
@@ -2407,6 +2691,327 @@ function roleBadge(role) {
 }
 function emptyState(ico, txt) { return `<div class="empty-state"><div class="empty-state-icon">${ico}</div><p>${txt}</p></div>`; }
 
+// ══════════════════════════════════════════════════════
+//  DASHBOARD (async)
+// ══════════════════════════════════════════════════════
+async function renderDashboard() {
+  const [subs, dems, users, annonces] = await Promise.all([getSubs(), getDemandes(), getUsers(), getAnnonces()]);
+  const r = ROLES[CU.role] || ROLES.player;
+  const myDems = dems.filter(d => d.userId === CU.id);
+  const myApproved = myDems.filter(d => d.status === 'approved');
+  const myPending = myDems.filter(d => d.status === 'pending');
+  const takenMap = {};
+  dems.filter(d => d.status === 'approved').forEach(d => { takenMap[d.subId] = (takenMap[d.subId]||0) + 1; });
+
+  // Welcome
+  document.getElementById('dash-welcome').innerHTML = `
+    <div class="dash-welcome-name">Bienvenue, ${esc(CU.nomrp || CU.username)} ${r.icon}</div>
+    <div class="dash-welcome-sub">${roleBadge(CU.role)} &nbsp;·&nbsp; Connecté depuis ce navigateur &nbsp;·&nbsp; ${fmtDate(new Date().toISOString())}</div>`;
+
+  // Stats personnelles
+  const activeSubs = subs.filter(s => s.active !== false);
+  const subsLibres = activeSubs.filter(s => (takenMap[s.id]||0) < s.slots).length;
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="dash-stat" style="--accent:var(--gold)"><span class="dash-stat-icon">⚡</span><div class="dash-stat-val">${myApproved.length}</div><div class="dash-stat-label">Sub-Jutsu maîtrisés</div></div>
+    <div class="dash-stat" style="--accent:var(--warn)"><span class="dash-stat-icon">⏳</span><div class="dash-stat-val">${myPending.length}</div><div class="dash-stat-label">Demandes en attente</div></div>
+    <div class="dash-stat" style="--accent:var(--blue)"><span class="dash-stat-icon">📚</span><div class="dash-stat-val">${activeSubs.length}</div><div class="dash-stat-label">Sub-Jutsu disponibles</div></div>
+    <div class="dash-stat" style="--accent:var(--success)"><span class="dash-stat-icon">✅</span><div class="dash-stat-val">${subsLibres}</div><div class="dash-stat-label">Slots libres</div></div>
+    ${isStaff(CU) ? `<div class="dash-stat" style="--accent:var(--danger)"><span class="dash-stat-icon">🛡</span><div class="dash-stat-val">${dems.filter(d=>d.status==='pending').length}</div><div class="dash-stat-label">Demandes à traiter</div></div>` : ''}
+    ${isStaff(CU) ? `<div class="dash-stat" style="--accent:var(--purple2)"><span class="dash-stat-icon">👥</span><div class="dash-stat-val">${users.length}</div><div class="dash-stat-label">Membres inscrits</div></div>` : ''}`;
+
+  // Dernières demandes
+  const lastDems = myDems.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,4);
+  document.getElementById('dash-mes-dems').innerHTML = lastDems.length
+    ? lastDems.map(d => { const s = subs.find(x=>x.id===d.subId)||{nom:'?',rang:'?'}; return `<div class="dash-activity-item"><div class="dash-activity-dot" style="background:${d.status==='approved'?'var(--success)':d.status==='pending'?'var(--warn)':'var(--danger)'}"></div><div class="dash-activity-text">${esc(s.nom)}</div><div class="dash-activity-time">${statusBadge(d.status)}</div></div>`; }).join('')
+    : `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Aucune demande</div>`;
+
+  // Aperçu annonces
+  const lastAnn = annonces.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||(b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,3);
+  document.getElementById('dash-annonces-preview').innerHTML = lastAnn.length
+    ? lastAnn.map(a => `<div class="dash-activity-item"><div class="dash-activity-dot" style="background:${annonceColor(a.type)}"></div><div class="dash-activity-text">${esc(a.titre)}</div><div class="dash-activity-time">${fmtDate(a.createdAt)}</div></div>`).join('')
+    : `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Aucune annonce</div>`;
+
+  // Top sub-jutsu
+  const topSubs = activeSubs.map(s => ({s, taken: takenMap[s.id]||0})).sort((a,b)=>b.taken-a.taken).slice(0,8);
+  document.getElementById('dash-top-subs').innerHTML = topSubs.length
+    ? `<div class="dash-top-subs">${topSubs.map(({s,taken}) => `<div class="dash-top-sub-pill">⚡ ${esc(s.nom)} <span style="color:var(--muted);font-weight:400">${taken}/${s.slots}</span></div>`).join('')}</div>`
+    : emptyState('⚡','Aucun sub-jutsu pour le moment.');
+}
+
+// ══════════════════════════════════════════════════════
+//  ANNONCES (async)
+// ══════════════════════════════════════════════════════
+const getAnnonces = async () => { if (!_cache.annonces) _cache.annonces = await fsGetAll('annonces'); return _cache.annonces; };
+const ANNONCE_TYPE_LABELS = { info:'ℹ Info', event:'⭐ Événement', urgente:'🚨 Urgente', maintenance:'🔧 Maintenance' };
+function annonceColor(type) {
+  return {info:'#3b82f6',event:'#c9a227',urgente:'#ef4444',maintenance:'#a78bfa'}[type] || '#6b7280';
+}
+let editingAnnonceId = null;
+
+async function renderAnnonces() {
+  const typeF = document.getElementById('ann-filter-type')?.value || '';
+  let ann = await getAnnonces();
+  ann = ann.sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || (b.createdAt||'').localeCompare(a.createdAt||''));
+  if (typeF) ann = ann.filter(a => a.type === typeF);
+  const c = document.getElementById('annonces-list');
+  const staff = isStaff(CU);
+  document.getElementById('btn-add-annonce').style.display = hasPerm(CU,'manage_subs') ? '' : 'none';
+  if (!ann.length) { c.innerHTML = emptyState('📣','Aucune annonce pour le moment.'); return; }
+  c.innerHTML = ann.map(a => {
+    const color = annonceColor(a.type);
+    const users = [];
+    return `<div class="annonce-card" style="--annonce-color:${color}">
+      <div class="annonce-header">
+        <div>
+          ${a.pinned ? `<span class="annonce-pinned">📌 Épinglé</span> ` : ''}
+          <div class="annonce-title">${esc(a.titre)}</div>
+          <div class="annonce-meta">
+            <span class="annonce-badge ${a.type}">${ANNONCE_TYPE_LABELS[a.type]||a.type}</span>
+            <span>Par @${esc(a.author||'staff')}</span>
+            <span>${fmtDateTime(a.createdAt)}</span>
+          </div>
+        </div>
+        ${hasPerm(CU,'manage_subs') ? `<div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="openModalEditAnnonce('${a.id}')">✏</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAnnonce('${a.id}')">🗑</button>
+        </div>` : ''}
+      </div>
+      <div class="annonce-body">${esc(a.contenu)}</div>
+    </div>`;
+  }).join('');
+  await updateAnnoncesBadge();
+}
+
+function openModalAnnonce() {
+  editingAnnonceId = null;
+  document.getElementById('modal-annonce-title').textContent = 'Nouvelle Annonce';
+  document.getElementById('ann-titre').value = '';
+  document.getElementById('ann-contenu').value = '';
+  document.getElementById('ann-type').value = 'info';
+  document.getElementById('ann-epingler').checked = false;
+  openModal('modal-annonce');
+}
+async function openModalEditAnnonce(id) {
+  const ann = await getAnnonces();
+  const a = ann.find(x => x.id === id); if (!a) return;
+  editingAnnonceId = id;
+  document.getElementById('modal-annonce-title').textContent = 'Modifier l\'annonce';
+  document.getElementById('ann-titre').value = a.titre;
+  document.getElementById('ann-contenu').value = a.contenu;
+  document.getElementById('ann-type').value = a.type;
+  document.getElementById('ann-epingler').checked = a.pinned || false;
+  openModal('modal-annonce');
+}
+async function saveAnnonce() {
+  const titre = document.getElementById('ann-titre').value.trim();
+  const contenu = document.getElementById('ann-contenu').value.trim();
+  const type = document.getElementById('ann-type').value;
+  const pinned = document.getElementById('ann-epingler').checked;
+  if (!titre || !contenu) { toast('Titre et contenu requis.', 'error'); return; }
+  if (editingAnnonceId) {
+    await fsUpdate('annonces', editingAnnonceId, { titre, contenu, type, pinned, updatedAt: new Date().toISOString() });
+    toast('Annonce modifiée.', 'success');
+  } else {
+    const id = 'ann' + Date.now();
+    await fsSet('annonces', id, { id, titre, contenu, type, pinned, author: CU.username, createdAt: new Date().toISOString() });
+    toast('Annonce publiée !', 'success');
+    await addLog('system', 'a publié une annonce : ' + titre);
+  }
+  _cache.annonces = null;
+  closeModal('modal-annonce');
+  await renderAnnonces();
+  await updateAnnoncesBadge();
+}
+async function deleteAnnonce(id) {
+  if (!confirm('Supprimer cette annonce ?')) return;
+  await fsDelete('annonces', id);
+  _cache.annonces = null;
+  await addLog('system', 'a supprimé une annonce');
+  await renderAnnonces();
+  toast('Annonce supprimée.', 'info');
+}
+async function updateAnnoncesBadge() {
+  const badge = document.getElementById('nav-badge-annonces');
+  if (!badge) return;
+  const ann = await getAnnonces();
+  const lastSeen = parseInt(localStorage.getItem('jjk_ann_seen') || '0');
+  const unseen = ann.filter(a => new Date(a.createdAt).getTime() > lastSeen).length;
+  badge.style.display = unseen > 0 ? '' : 'none';
+  badge.textContent = unseen;
+}
+
+// ══════════════════════════════════════════════════════
+//  NOTIFICATIONS (async)
+// ══════════════════════════════════════════════════════
+const getNotifications = async () => { if (!_cache.notifs) _cache.notifs = await fsGetAll('notifications'); return _cache.notifs; };
+
+async function updateNotifBadge() {
+  const all = await getNotifications();
+  const mine = all.filter(n => n.userId === CU?.id && !n.read);
+  const badge = document.getElementById('notif-count');
+  if (!badge) return;
+  if (mine.length > 0) { badge.style.display = 'flex'; badge.textContent = mine.length > 9 ? '9+' : mine.length; }
+  else { badge.style.display = 'none'; }
+}
+
+async function renderNotifDropdown() {
+  const all = await getNotifications();
+  const mine = all.filter(n => n.userId === CU?.id).sort((a,b) => b.ts.localeCompare(a.ts)).slice(0, 20);
+  const c = document.getElementById('notif-list');
+  if (!mine.length) { c.innerHTML = `<div class="notif-empty">🔕 Aucune notification</div>`; return; }
+  const NOTIF_COLORS = { demande_approved: 'var(--success)', demande_rejected: 'var(--danger)', annonce: 'var(--gold)', system: 'var(--blue)' };
+  c.innerHTML = mine.map(n => `<div class="notif-item ${n.read?'':'unread'}" onclick="markNotifRead('${n.id}')">
+    <div class="notif-dot" style="background:${NOTIF_COLORS[n.type]||'var(--muted)'}"></div>
+    <div class="notif-content">
+      <div class="notif-text">${esc(n.message)}</div>
+      <div class="notif-time">${fmtDateTime(n.ts)}</div>
+    </div>
+  </div>`).join('');
+}
+
+function toggleNotifDropdown() {
+  const d = document.getElementById('notif-dropdown');
+  const open = d.classList.toggle('open');
+  if (open) { renderNotifDropdown(); }
+}
+
+document.addEventListener('click', e => {
+  const bell = document.getElementById('notif-bell');
+  const dropdown = document.getElementById('notif-dropdown');
+  if (bell && dropdown && !bell.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
+
+async function markNotifRead(id) {
+  await fsUpdate('notifications', id, { read: true });
+  _cache.notifs = null;
+  await updateNotifBadge();
+  await renderNotifDropdown();
+}
+
+async function markAllNotifRead() {
+  const all = await getNotifications();
+  const mine = all.filter(n => n.userId === CU?.id && !n.read);
+  await Promise.all(mine.map(n => fsUpdate('notifications', n.id, { read: true })));
+  _cache.notifs = null;
+  await updateNotifBadge();
+  await renderNotifDropdown();
+  toast('Toutes les notifications marquées comme lues.', 'success');
+}
+
+async function pushNotif(userId, message, type = 'system') {
+  const id = 'notif' + Date.now() + Math.random().toString(36).slice(2,5);
+  await fsSet('notifications', id, { id, userId, message, type, read: false, ts: new Date().toISOString() });
+  _cache.notifs = null;
+}
+
+// ══════════════════════════════════════════════════════
+//  COMMENTAIRES SUR DEMANDES
+// ══════════════════════════════════════════════════════
+let currentCommentsDemId = null;
+const getComments = async (demId) => {
+  const snap = await getDocs(collection(db, 'comments'));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.demId === demId).sort((a,b) => a.ts.localeCompare(b.ts));
+};
+
+async function openCommentsModal(demId) {
+  currentCommentsDemId = demId;
+  const [dems, subs] = await Promise.all([getDemandes(), getSubs()]);
+  const d = dems.find(x => x.id === demId);
+  const s = subs.find(x => x.id === d?.subId) || { nom: '?', rang: '?' };
+  document.getElementById('comments-modal-title').textContent = `Discussion — ${s.nom}`;
+  document.getElementById('comments-dem-info').innerHTML = d ? `
+    <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:12px;display:flex;align-items:center;justify-content:space-between">
+      <span><b style="color:var(--gold)">${esc(s.nom)}</b> <span class="badge badge-rank">Rang ${esc(String(s.rang))}</span></span>
+      ${statusBadge(d.status)}
+    </div>` : '';
+  await refreshComments();
+  openModal('modal-comments');
+}
+
+async function refreshComments() {
+  const comments = await getComments(currentCommentsDemId);
+  const c = document.getElementById('comments-list');
+  const r = ROLES[CU.role] || ROLES.player;
+  if (!comments.length) {
+    c.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Aucun message. Soyez le premier à commenter !</div>`;
+  } else {
+    c.innerHTML = comments.map(cm => {
+      const isMe = cm.authorId === CU.id;
+      const cmRole = ROLES[cm.authorRole] || ROLES.player;
+      return `<div class="comment-item">
+        <div class="comment-av" style="background:${cmRole.color}22;border-color:${cmRole.color}44;color:${cmRole.color}">${initials(cm.authorNom||cm.authorName||'?')}</div>
+        <div class="comment-bubble ${isMe ? 'style="border-color:rgba(201,162,39,0.2)"' : ''}">
+          <div class="comment-author">${esc(cm.authorNom||cm.authorName||'?')} <span class="role-badge ${cmRole.cls}" style="font-size:8px">${cmRole.icon} ${cmRole.label}</span> <span class="comment-time">${fmtDateTime(cm.ts)}</span></div>
+          <div class="comment-text">${esc(cm.text)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+async function addComment() {
+  const text = document.getElementById('comment-text').value.trim();
+  if (!text) return;
+  const id = 'cmt' + Date.now();
+  await fsSet('comments', id, {
+    id, demId: currentCommentsDemId,
+    authorId: CU.id, authorName: CU.username, authorNom: CU.nomrp || CU.username, authorRole: CU.role,
+    text, ts: new Date().toISOString()
+  });
+  document.getElementById('comment-text').value = '';
+  await refreshComments();
+  // Notifier l'autre partie
+  const dems = await getDemandes();
+  const dem = dems.find(x => x.id === currentCommentsDemId);
+  if (dem && dem.userId !== CU.id) {
+    await pushNotif(dem.userId, `@${CU.username} a commenté votre demande.`, 'system');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  EXPORT CSV
+// ══════════════════════════════════════════════════════
+async function exportCSV(type) {
+  let rows = [], filename = '', headers = [];
+  if (type === 'membres') {
+    const users = await getUsers();
+    headers = ['Username','Nom RP','Rôle','Discord ID','Steam ID','Inscrit le','Banni'];
+    rows = users.map(u => [u.username, u.nomrp||'', u.role, u.discord||u.discordId||'', u.steam||'', fmtDate(u.createdAt), u.isBanned?'Oui':'Non']);
+    filename = 'membres.csv';
+  } else if (type === 'subjutsu') {
+    const subs = await getSubs();
+    const dems = await getDemandes();
+    const takenMap = {};
+    dems.filter(d=>d.status==='approved').forEach(d => { takenMap[d.subId]=(takenMap[d.subId]||0)+1; });
+    headers = ['Nom','Créateur','Rang','Type','Slots total','Slots pris','Description','Conditions'];
+    rows = subs.map(s => [s.nom, s.createur, s.rang, s.type||'', s.slots, takenMap[s.id]||0, s.desc||'', s.conditions||'']);
+    filename = 'subjutsu.csv';
+  } else if (type === 'demandes') {
+    const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+    headers = ['Joueur','Nom RP','Sub-Jutsu','Rang','Statut','Date demande','Traité le','Traité par','Note MJ'];
+    rows = dems.map(d => {
+      const u = users.find(x=>x.id===d.userId)||{username:'?',nomrp:'?'};
+      const s = subs.find(x=>x.id===d.subId)||{nom:'?',rang:'?'};
+      return [u.username, u.nomrp||'', s.nom, s.rang, d.status, fmtDate(d.createdAt), d.treatedAt?fmtDate(d.treatedAt):'', d.treatedBy||'', d.mjNote||''];
+    });
+    filename = 'demandes.csv';
+  } else if (type === 'logs') {
+    const logs = await getLogs();
+    headers = ['Date','Acteur','Rôle','Type','Action'];
+    rows = logs.sort((a,b)=>b.ts.localeCompare(a.ts)).map(l => [fmtDateTime(l.ts), l.actor, l.actorRole, l.type, l.action]);
+    filename = 'logs.csv';
+  }
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  await addLog('system', `a exporté les données : ${type}`);
+  toast(`Export ${type} téléchargé !`, 'success');
+}
+
 // Lancer le handler Discord après le boot
 boot().then(() => handleDiscordAuthAsync());
 
@@ -2440,6 +3045,16 @@ Object.assign(window, {
   renderRoles,
   // Fondateur
   closeFounderReveal,
+  // 🆕 Dashboard
+  renderDashboard,
+  // 🆕 Annonces
+  renderAnnonces, openModalAnnonce, openModalEditAnnonce, saveAnnonce, deleteAnnonce,
+  // 🆕 Notifications
+  toggleNotifDropdown, markAllNotifRead, markNotifRead,
+  // 🆕 Commentaires
+  openCommentsModal, addComment,
+  // 🆕 Export
+  exportCSV,
 });
 
 </script>

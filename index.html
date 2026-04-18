@@ -1420,6 +1420,7 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
               <option value="in_review">🔍 En révision</option>
               <option value="approved">✅ Approuvé</option>
               <option value="rejected">❌ Refusé</option>
+              <option value="revoked">🚫 Révoqué</option>
             </select>
             <select class="filter-sel" id="my-tkt-priority" onchange="renderMyTickets()">
               <option value="">Toutes priorités</option>
@@ -1455,6 +1456,7 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
               <option value="in_review">🔍 En révision</option>
               <option value="approved">✅ Approuvé</option>
               <option value="rejected">❌ Refusé</option>
+              <option value="revoked">🚫 Révoqué</option>
             </select>
             <select class="filter-sel" id="atkt-priority" onchange="renderAllTickets()">
               <option value="">Toutes priorités</option>
@@ -1551,6 +1553,7 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
                 <option value="pending">En attente</option>
                 <option value="approved">Approuvées</option>
                 <option value="rejected">Refusées</option>
+                <option value="revoked">🚫 Révoquées</option>
               </select>
             </div>
             <div class="tbl-wrap">
@@ -3585,6 +3588,7 @@ function initials(name) { return (name || '?').split(' ').map(w => w[0]).join(''
 function statusBadge(s) {
   if (s === 'pending') return '<span class="badge badge-pending">⏳ En attente</span>';
   if (s === 'approved') return '<span class="badge badge-approved">✓ Approuvée</span>';
+  if (s === 'revoked') return '<span class="badge badge-rejected">🚫 Révoquée</span>';
   return '<span class="badge badge-rejected">✗ Refusée</span>';
 }
 function roleBadge(role) {
@@ -3935,6 +3939,7 @@ const TKT_STATUS = {
   in_review: { label: 'En révision', cls: 'badge-purple',   icon: '🔍', color: 'var(--purple2)' },
   approved:  { label: 'Approuvé',    cls: 'badge-approved', icon: '✅', color: 'var(--success)' },
   rejected:  { label: 'Refusé',      cls: 'badge-rejected', icon: '❌', color: 'var(--danger)' },
+  revoked:   { label: 'Révoqué',     cls: 'badge-rejected', icon: '🚫', color: 'var(--danger)' },
 };
 const PRIORITY_DATA = {
   normale: { label: 'Normale', cls: 'p-normal',  icon: '🔵' },
@@ -4235,10 +4240,33 @@ async function openTicketDetail(demId) {
       // Tag input
       footLeft.innerHTML += `<button class="btn btn-ghost btn-sm" onclick="openTktTagModal('${d.id}')">🏷 Tags</button>`;
     }
+    // Note interne staff (toujours visible)
+    footLeft.innerHTML += `<button class="btn btn-ghost btn-sm" onclick="openTktInternalNote('${d.id}')" title="Note interne staff">📝 Note interne</button>`;
+
     if (d.status !== 'approved' && d.status !== 'rejected') {
       footRight.innerHTML = `
         <button class="btn btn-ghost" onclick="closeModal('modal-ticket-detail')">Fermer</button>
         <button class="btn btn-primary" onclick="closeModal('modal-ticket-detail');openTktTreat('${d.id}')">Traiter</button>`;
+    }
+
+    // Ticket approuvé → bouton Révoquer le sub
+    if (d.status === 'approved') {
+      footLeft.innerHTML += `<button class="btn btn-danger btn-sm" onclick="revokeSubJutsu('${d.id}')" title="Retirer le sub-jutsu à ce joueur">🚫 Révoquer sub</button>`;
+      footRight.innerHTML = `
+        <button class="btn btn-ghost" onclick="closeModal('modal-ticket-detail')">Fermer</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--warn)" onclick="reopenTicket('${d.id}')">🔄 Rouvrir</button>`;
+    }
+
+    // Ticket rejeté → bouton Rouvrir
+    if (d.status === 'rejected') {
+      footRight.innerHTML = `
+        <button class="btn btn-ghost" onclick="closeModal('modal-ticket-detail')">Fermer</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--warn)" onclick="reopenTicket('${d.id}')">🔄 Rouvrir</button>`;
+    }
+
+    // Supprimer ticket (staff niveau suffisant)
+    if (hasPerm(CU, 'manage_users')) {
+      footLeft.innerHTML += `<button class="btn btn-ghost btn-sm" style="color:var(--danger);opacity:0.7" onclick="deleteTicket('${d.id}')" title="Supprimer définitivement">🗑</button>`;
     }
   }
 
@@ -4407,6 +4435,74 @@ async function updateTktBadge() {
   if (b) { b.textContent = pending; b.style.display = pending > 0 ? '' : 'none'; }
 }
 
+// ── Révoquer un sub-jutsu approuvé ─────────────────────
+async function revokeSubJutsu(demId) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const d = dems.find(x => x.id === demId); if (!d) return;
+  const s = subs.find(x => x.id === d.subId) || { nom: '?' };
+  const u = users.find(x => x.id === d.userId) || { username: '?', nomrp: '?' };
+  const reason = prompt(`Raison de la révocation du sub-jutsu "${s.nom}" pour ${u.nomrp || u.username} :`);
+  if (reason === null) return;
+  const now = new Date().toISOString();
+  const tl = d.timeline || [];
+  tl.push({ ts: now, actor: CU.username, action: `a révoqué ce sub-jutsu${reason ? ' — ' + reason : ''}`, icon: '🚫', note: reason || undefined });
+  await fsUpdate('demandes', demId, { status: 'revoked', revokedAt: now, revokedBy: CU.username, revokeReason: reason || '', timeline: tl });
+  _cache.demandes = null;
+  await addLog('demande', `a révoqué le sub-jutsu "${s.nom}" de @${u.username}${reason ? ' ('+reason+')' : ''}`, { sub: s.nom });
+  await pushNotif(d.userId, `🚫 Votre sub-jutsu "${s.nom}" a été révoqué par @${CU.username}.${reason ? ' Raison : ' + reason : ''}`, 'demande_rejected');
+  closeModal('modal-ticket-detail');
+  await renderAllTickets();
+  await renderPanelDemandes();
+  toast(`Sub-jutsu "${s.nom}" révoqué.`, 'error');
+}
+
+// ── Rouvrir un ticket refusé ou révoqué ────────────────
+async function reopenTicket(demId) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const d = await fsGetOne('demandes', demId); if (!d) return;
+  const now = new Date().toISOString();
+  const tl = d.timeline || [];
+  tl.push({ ts: now, actor: CU.username, action: 'a rouvert ce ticket', icon: '🔄' });
+  await fsUpdate('demandes', demId, { status: 'pending', reopenedAt: now, reopenedBy: CU.username, treatedAt: null, treatedBy: null, timeline: tl });
+  _cache.demandes = null;
+  const users = await getUsers();
+  const u = users.find(x => x.id === d.userId);
+  if (u) await pushNotif(u.id, `🔄 Votre ticket ${d.ticketNum || ''} a été rouvert par @${CU.username}.`, 'system');
+  await addLog('demande', `a rouvert le ticket ${d.ticketNum || ''} de @${u?.username || '?'}`, {});
+  closeModal('modal-ticket-detail');
+  await renderAllTickets();
+  await renderPanelDemandes();
+  toast('Ticket rouvert.', 'info');
+}
+
+// ── Supprimer définitivement un ticket ─────────────────
+async function deleteTicket(demId) {
+  if (!hasPerm(CU, 'manage_users')) { toast('Permission refusée.', 'error'); return; }
+  if (!confirm('Supprimer définitivement ce ticket ? Cette action est irréversible.')) return;
+  const d = await fsGetOne('demandes', demId);
+  await fsDelete('demandes', demId);
+  _cache.demandes = null;
+  await addLog('demande', `a supprimé le ticket ${d?.ticketNum || demId}`, {});
+  closeModal('modal-ticket-detail');
+  await renderAllTickets();
+  await renderPanelDemandes();
+  toast('Ticket supprimé.', 'info');
+}
+
+// ── Note interne staff ─────────────────────────────────
+async function openTktInternalNote(demId) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const d = await fsGetOne('demandes', demId);
+  const current = d.internalNote || '';
+  const note = prompt('Note interne staff (non visible par le joueur) :', current);
+  if (note === null) return;
+  await fsUpdate('demandes', demId, { internalNote: note });
+  _cache.demandes = null;
+  toast('Note interne enregistrée.', 'success');
+  await openTicketDetail(demId);
+}
+
 // ── Export tickets CSV ──────────────────────────────────
 async function exportTicketsCSV() {
   const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
@@ -4471,6 +4567,7 @@ Object.assign(window, {
   renderMyTickets, renderAllTickets, setTktView, setAllTktView,
   openTicketDetail, openTktTreat, submitTktTreat, addTktComment,
   assignTicketToSelf, changeTicketPriority, openTktTagModal, exportTicketsCSV,
+  revokeSubJutsu, reopenTicket, deleteTicket, openTktInternalNote,
   // 🆕 Stats
   renderStats,
   // 🆕 Recherche globale

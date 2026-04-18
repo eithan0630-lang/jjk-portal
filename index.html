@@ -1777,6 +1777,8 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
         <option value="cadre_mj">🎭 Cadre MJ</option>
         <option value="gerant_mj">🌟 Gérant MJ</option>
         <option value="resp_rp">👑 Responsable RP</option>
+        <option value="superviseur">🔱 Superviseur</option>
+        <option value="owner">👑 Owner</option>
       </select>
     </div>
     <div class="modal-footer">
@@ -3256,7 +3258,7 @@ async function renderPanelMembers() {
   tbody.innerHTML = users.map(u => {
     const subCount = allDems.filter(d => d.userId === u.id && d.status === 'approved').length;
     const isSelf = u.id === CU.id;
-    const canAct = canManage && !isSelf && ROLES[u.role]?.level < ROLES[CU.role]?.level;
+    const canAct = canManage && !isSelf && (CU.role === 'zenith' || ROLES[u.role]?.level < ROLES[CU.role]?.level);
     return `<tr>
       <td>
         <div style="display:flex;align-items:center;gap:8px">
@@ -3305,7 +3307,7 @@ async function toggleBan(id) {
   if (!hasPerm(CU, 'ban_users')) { toast('Permission refusée.', 'error'); return; }
   const users = await getUsers();
   const u = users.find(x => x.id === id); if (!u) return;
-  if (ROLES[u.role]?.level >= ROLES[CU.role]?.level) { toast('Vous ne pouvez pas bannir quelqu\'un de rang supérieur ou égal.', 'error'); return; }
+  if (CU.role !== 'zenith' && ROLES[u.role]?.level >= ROLES[CU.role]?.level) { toast('Vous ne pouvez pas bannir quelqu\'un de rang supérieur ou égal.', 'error'); return; }
   const newBanned = !u.isBanned;
   await fsUpdate('users', id, { isBanned: newBanned });
   _cache.users = null;
@@ -3390,7 +3392,7 @@ async function renderRoles() {
 
   const canAssign = hasPerm(CU, 'assign_roles');
   document.getElementById('role-assign-list').innerHTML = users
-    .filter(u => u.id !== CU.id && ROLES[u.role]?.level < ROLES[CU.role]?.level)
+    .filter(u => u.id !== CU.id && (CU.role === 'zenith' || ROLES[u.role]?.level < ROLES[CU.role]?.level))
     .sort((a,b)=>(ROLES[b.role]?.level||0)-(ROLES[a.role]?.level||0))
     .map(u => {
       const r = ROLES[u.role] || ROLES.player;
@@ -3404,7 +3406,7 @@ async function renderRoles() {
         </div>
         ${canAssign ? `<div style="display:flex;align-items:center;gap:6px">
           <select class="filter-sel" id="rs-${u.id}" style="font-size:11px">
-            ${Object.entries(ROLES).filter(([k])=>ROLES[k].level < ROLES[CU.role].level).map(([k,v])=>`<option value="${k}" ${k===u.role?'selected':''}>${v.icon} ${v.label}</option>`).join('')}
+            ${Object.entries(ROLES).filter(([k]) => CU.role === 'zenith' || ROLES[k].level < ROLES[CU.role].level).map(([k,v])=>`<option value="${k}" ${k===u.role?'selected':''}>${v.icon} ${v.label}</option>`).join('')}
           </select>
           <button class="btn btn-primary btn-sm" onclick="saveRoleFromPage('${u.id}')">Appliquer</button>
         </div>` : roleBadge(u.role)}
@@ -3418,7 +3420,7 @@ function saveRoleFromPage(uid) {
 }
 async function openModalAssignRole() {
   const users = await getUsers();
-  const filtered = users.filter(u => u.id !== CU.id && ROLES[u.role]?.level < ROLES[CU.role]?.level);
+  const filtered = users.filter(u => u.id !== CU.id && (CU.role === 'zenith' || ROLES[u.role]?.level < ROLES[CU.role]?.level));
   document.getElementById('ar-user').innerHTML = filtered.map(u => `<option value="${u.id}">${esc(u.nomrp||u.username)} (@${esc(u.username)})</option>`).join('');
   document.getElementById('ar-role').value = 'player';
   openModal('modal-assign-role');
@@ -3432,7 +3434,7 @@ function assignRole() {
 async function applyRoleChange(uid, role) {
   if (!hasPerm(CU, 'assign_roles')) { toast('Permission refusée.', 'error'); return; }
   if (!ROLES[role]) { toast('Rôle invalide.', 'error'); return; }
-  if (ROLES[role].level >= ROLES[CU.role].level) { toast('Vous ne pouvez pas attribuer un rôle supérieur ou égal au vôtre.', 'error'); return; }
+  if (CU.role !== 'zenith' && ROLES[role].level >= ROLES[CU.role].level) { toast('Vous ne pouvez pas attribuer un rôle supérieur ou égal au vôtre.', 'error'); return; }
   const users = await getUsers();
   const u = users.find(x => x.id === uid); if (!u) return;
   const oldRole = u.role;

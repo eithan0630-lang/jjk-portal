@@ -1663,15 +1663,8 @@ tr:hover td { background: rgba(201,162,39,0.02); }
 /* ── Modal overlay ── */
 .modal-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
 
-/* ── Sub-card cover image zoom on hover ── */
-.sub-card-v3:hover .sub-card-cover img { transform: scale(1.06); }
-.sub-card-cover { border-radius: 14px 14px 0 0; }
-
-/* ── Sub detail modal wider for video ── */
-#modal-sub-detail .modal { max-width: 660px; }
-
-/* ── Image preview in modal-sub ── */
-#sub-image-preview-wrap { border-radius: 9px; overflow: hidden; }
+/* ── Profil av ring ── */
+.profil-av { box-shadow: 0 0 24px rgba(201,162,39,0.2); }
 </style>
 </head>
 <body>
@@ -2303,34 +2296,6 @@ tr:hover td { background: rgba(201,162,39,0.02); }
     </div>
     <div class="fg"><label class="fl">Conditions d'apprentissage</label><textarea class="fi" id="sub-conditions" placeholder="Conditions requises…"></textarea></div>
     <div class="fg"><label class="fl">Description publique</label><textarea class="fi" id="sub-desc" placeholder="Description visible par les joueurs…"></textarea></div>
-
-    <!-- ── Médias & identité visuelle ── -->
-    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,39,0.25),transparent);margin:4px 0 18px"></div>
-    <div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:0.22em;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-      <span>🎴</span> Médias &amp; Identité visuelle
-      <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(201,162,39,0.15),transparent)"></div>
-    </div>
-
-    <div class="fg">
-      <label class="fl">🖼 URL Image de couverture</label>
-      <input class="fi" id="sub-image" type="url" placeholder="https://i.imgur.com/… ou lien Discord CDN">
-      <div style="font-size:10px;color:var(--muted);margin-top:5px">S'affiche sur la card et dans la modal. Imgur, Discord CDN, etc.</div>
-    </div>
-    <div id="sub-image-preview-wrap" style="display:none;margin-bottom:14px">
-      <img id="sub-image-preview" src="" alt="Aperçu" style="width:100%;max-height:160px;object-fit:cover;border-radius:9px;border:1px solid var(--border2);display:block">
-    </div>
-
-    <div class="fg">
-      <label class="fl">▶ Lien YouTube (vidéo de démonstration)</label>
-      <input class="fi" id="sub-youtube" type="url" placeholder="https://www.youtube.com/watch?v=… ou youtu.be/…">
-      <div style="font-size:10px;color:var(--muted);margin-top:5px">Intégré directement dans la modal de détail du sub-jutsu.</div>
-    </div>
-
-    <div class="fg">
-      <label class="fl">漢 Kanji du sub-jutsu <span style="font-weight:400;color:var(--muted)">(facultatif — 1 à 4 caractères)</span></label>
-      <input class="fi" id="sub-kanji" type="text" maxlength="4" placeholder="術 · 呪 · 滅…" style="font-family:'Noto Serif JP',serif;font-size:22px;letter-spacing:0.2em;text-align:center">
-    </div>
-
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-sub')">Annuler</button>
       <button class="btn btn-primary" onclick="saveSub()">Sauvegarder</button>
@@ -3177,23 +3142,8 @@ function subCardV3Html(s, takenMap, allDems, favs) {
   const pendingDem = allDems?.find(d => d.userId===CU?.id && d.subId===s.id && d.status==='pending');
   const isFav = favs?.includes(s.id);
   const progressColor = pct >= 100 ? 'var(--danger)' : pct >= 70 ? 'var(--warn)' : 'var(--success)';
-
-  // Image de couverture
-  const imgHtml = s.imageUrl ? `
-    <div class="sub-card-cover" style="position:relative;overflow:hidden;height:110px;margin:-0px">
-      <img src="${esc(s.imageUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1)" onerror="this.parentElement.style.display='none'">
-      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,8,15,0) 30%,rgba(7,8,15,0.85) 100%)"></div>
-      ${s.kanji ? `<div style="position:absolute;right:10px;bottom:6px;font-family:'Noto Serif JP',serif;font-size:38px;color:rgba(255,255,255,0.18);line-height:1;pointer-events:none;user-select:none;text-shadow:0 2px 16px rgba(0,0,0,0.8)">${esc(s.kanji)}</div>` : ''}
-      ${s.youtubeUrl ? `<div style="position:absolute;left:10px;bottom:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:3px 8px;font-size:9px;color:#fff;letter-spacing:0.08em;display:flex;align-items:center;gap:5px">▶ Vidéo</div>` : ''}
-    </div>` : (s.kanji ? `
-    <div style="position:relative;overflow:hidden">
-      <div class="sub-card-v3-accent"></div>
-      <div style="position:absolute;right:14px;top:8px;font-family:'Noto Serif JP',serif;font-size:52px;color:${color};opacity:0.08;line-height:1;pointer-events:none;user-select:none">${esc(s.kanji)}</div>
-    </div>` : '<div class="sub-card-v3-accent"></div>');
-
   return `<div class="sub-card-v3" onclick="openSubDetail('${s.id}')" style="--card-color:${color}">
-    ${imgHtml}
-    ${!s.imageUrl && !s.kanji ? '' : (s.imageUrl ? '' : '')}
+    <div class="sub-card-v3-accent"></div>
     <div class="sub-card-v3-body">
       <div class="sub-card-v3-top">
         <div style="flex:1;min-width:0">
@@ -3263,81 +3213,22 @@ async function openSubDetail(subId) {
   const alreadyApproved = allDems.find(d => d.userId===CU?.id && d.subId===subId && d.status==='approved');
   const pendingDem = allDems.find(d => d.userId===CU?.id && d.subId===subId && d.status==='pending');
   const progressColor = pct >= 100 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#22c55e';
-
-  // ── Hero — image de couverture ou gradient coloré ──
-  const hero = document.getElementById('sd-hero');
-  if (s.imageUrl) {
-    hero.style.cssText = `background:linear-gradient(180deg,rgba(7,8,15,0) 0%,rgba(7,8,15,0.96) 80%),url(${s.imageUrl}) center/cover no-repeat;border-bottom:1px solid ${color}22;position:relative;padding:120px 24px 22px;min-height:180px`;
-  } else {
-    hero.style.cssText = `background:linear-gradient(135deg,${color}14,rgba(7,8,15,0.98));border-bottom:1px solid ${color}22;position:relative`;
-    hero.style.padding = '24px';
-    hero.style.minHeight = '';
-  }
-  hero.setAttribute('data-kanji', s.kanji || '術');
-
-  // Kanji watermark dans le hero (si pas d'image, ou en overlay léger)
-  let kanjiEl = document.getElementById('sd-kanji-watermark');
-  if (!kanjiEl) {
-    kanjiEl = document.createElement('div');
-    kanjiEl.id = 'sd-kanji-watermark';
-    kanjiEl.style.cssText = 'position:absolute;pointer-events:none;user-select:none;font-family:"Noto Serif JP",serif;font-weight:700;line-height:1;transition:all 0.3s';
-    hero.appendChild(kanjiEl);
-  }
-  if (s.kanji) {
-    kanjiEl.textContent = s.kanji;
-    if (s.imageUrl) {
-      kanjiEl.style.cssText = 'position:absolute;right:18px;bottom:14px;font-family:"Noto Serif JP",serif;font-weight:700;font-size:64px;color:rgba(255,255,255,0.22);pointer-events:none;user-select:none;line-height:1;text-shadow:0 4px 32px rgba(0,0,0,0.8)';
-    } else {
-      kanjiEl.style.cssText = `position:absolute;right:-10px;top:-10px;font-family:"Noto Serif JP",serif;font-weight:700;font-size:96px;color:${color};opacity:0.07;pointer-events:none;user-select:none;line-height:1`;
-    }
-  } else { kanjiEl.textContent = ''; }
-
+  // Hero
+  document.getElementById('sd-hero').style.background = `linear-gradient(135deg,${color}12,rgba(7,8,15,0.98))`;
+  document.getElementById('sd-hero').style.borderBottom = `1px solid ${color}22`;
   document.getElementById('sd-type-pill').innerHTML = `${icon} ${esc(s.type||'Non catégorisé')}`;
   document.getElementById('sd-type-pill').style.cssText = `background:${color}15;border-color:${color}44;color:${color};display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border:1px solid;margin-bottom:12px`;
   document.getElementById('sd-name').textContent = s.nom;
-  document.getElementById('sd-name').style.color = s.imageUrl ? '#fff' : color;
-  document.getElementById('sd-name').style.textShadow = s.imageUrl ? '0 2px 12px rgba(0,0,0,0.8)' : `0 0 40px ${color}66`;
+  document.getElementById('sd-name').style.color = color;
   document.getElementById('sd-creator').textContent = 'Créé par ' + s.createur + ' · Rang ' + s.rang;
-  document.getElementById('sd-creator').style.color = s.imageUrl ? 'rgba(255,255,255,0.7)' : 'var(--muted2)';
   document.getElementById('sd-desc').textContent = s.desc || 'Aucune description disponible.';
   const condSec = document.getElementById('sd-cond-section');
   if (s.conditions) { condSec.style.display=''; document.getElementById('sd-cond').textContent = s.conditions; } else { condSec.style.display='none'; }
-
-  // ── Section vidéo YouTube ──
-  let videoSec = document.getElementById('sd-video-section');
-  if (!videoSec) {
-    videoSec = document.createElement('div');
-    videoSec.id = 'sd-video-section';
-    videoSec.className = 'sub-detail-section';
-    // Insérer avant la section slots
-    const slotsSec = document.getElementById('sd-cond-section').nextElementSibling;
-    slotsSec.parentNode.insertBefore(videoSec, slotsSec);
-  }
-  if (s.youtubeUrl) {
-    const ytId = extractYoutubeId(s.youtubeUrl);
-    if (ytId) {
-      videoSec.style.display = '';
-      videoSec.innerHTML = `
-        <div class="sub-detail-label">▶ Démonstration</div>
-        <div style="position:relative;width:100%;padding-bottom:56.25%;border-radius:10px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,0.06)">
-          <iframe
-            src="https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1&color=white"
-            style="position:absolute;inset:0;width:100%;height:100%;border:none"
-            allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"
-            allowfullscreen
-            loading="lazy"
-            title="Démonstration : ${esc(s.nom)}">
-          </iframe>
-        </div>`;
-    } else { videoSec.style.display = 'none'; }
-  } else { videoSec.style.display = 'none'; }
-
-  // ── Slots ──
+  // Slots
   const dots = Array.from({length:s.slots},(_,i)=>`<div style="width:10px;height:10px;border-radius:50%;background:${i<taken?color:'rgba(255,255,255,0.08)'};${i<taken?'box-shadow:0 0 6px '+color+'88':''};display:inline-block;margin-right:4px"></div>`).join('');
   document.getElementById('sd-slots-bar').innerHTML = dots;
   document.getElementById('sd-slots-text').innerHTML = `<span style="color:${progressColor};font-weight:600">${taken}/${s.slots} slot${s.slots>1?'s':''} pris</span> · <span style="color:var(--muted)">${free>0?free+' libre'+(free>1?'s':''):'Aucun slot disponible'}</span>`;
-
-  // ── Footer ──
+  // Footer
   const footer = document.getElementById('sd-footer');
   footer.innerHTML = `<button class="btn btn-ghost" onclick="closeModal('modal-sub-detail')">Fermer</button>`;
   if (!alreadyApproved && !pendingDem && free > 0) {
@@ -3348,20 +3239,6 @@ async function openSubDetail(subId) {
     footer.innerHTML += `<span style="color:var(--warn);font-weight:700;padding:8px 16px">⏳ Demande en cours</span>`;
   }
   openModal('modal-sub-detail');
-}
-
-// Extrait l'ID YouTube depuis différents formats d'URL
-function extractYoutubeId(url) {
-  if (!url) return null;
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
-    /youtube\.com\/.*[?&]v=([a-zA-Z0-9_-]{11})/
-  ];
-  for (const p of patterns) {
-    const m = url.match(p);
-    if (m) return m[1];
-  }
-  return null;
 }
 
 // ══════════════════════════════════════════════════════
@@ -3830,11 +3707,6 @@ async function openModalEditSub(id) {
   document.getElementById('sub-conditions').value = s.conditions || '';
   document.getElementById('sub-desc').value = s.desc || '';
   document.getElementById('sub-type').value = s.type || '';
-  // Nouveaux champs médias
-  document.getElementById('sub-image').value = s.imageUrl || '';
-  document.getElementById('sub-youtube').value = s.youtubeUrl || '';
-  document.getElementById('sub-kanji').value = s.kanji || '';
-  _previewSubImage(s.imageUrl || '');
   openModal('modal-sub');
 }
 async function saveSub() {
@@ -3845,17 +3717,14 @@ async function saveSub() {
   const conditions = document.getElementById('sub-conditions').value.trim();
   const desc = document.getElementById('sub-desc').value.trim();
   const type = document.getElementById('sub-type').value;
-  const imageUrl = document.getElementById('sub-image').value.trim();
-  const youtubeUrl = document.getElementById('sub-youtube').value.trim();
-  const kanji = document.getElementById('sub-kanji').value.trim();
   if (!nom || !createur) { toast('Nom et créateur requis.', 'error'); return; }
   if (slots < 1) { toast('Au moins 1 slot requis.', 'error'); return; }
   if (editingSubId) {
-    await fsUpdate('subs', editingSubId, { nom, createur, rang, slots, conditions, desc, type, imageUrl, youtubeUrl, kanji });
+    await fsUpdate('subs', editingSubId, { nom, createur, rang, slots, conditions, desc, type });
     await addLog('sub', 'a modifié le sub-jutsu', { sub: nom });
     toast('Sub-jutsu modifié.', 'success');
   } else {
-    const newSub = { id: 's' + Date.now(), nom, createur, rang, slots, conditions, desc, type, imageUrl, youtubeUrl, kanji, active: true, createdAt: new Date().toISOString() };
+    const newSub = { id: 's' + Date.now(), nom, createur, rang, slots, conditions, desc, type, active: true, createdAt: new Date().toISOString() };
     await fsSet('subs', newSub.id, newSub);
     await addLog('sub', 'a créé le sub-jutsu', { sub: nom });
     toast('Sub-jutsu ajouté.', 'success');
@@ -5240,39 +5109,6 @@ async function exportTicketsCSV() {
   URL.revokeObjectURL(url);
   toast('Export tickets téléchargé !','success');
 }
-
-// ── Image preview helper ─────────────────────────────
-function _previewSubImage(url) {
-  const wrap = document.getElementById('sub-image-preview-wrap');
-  const img  = document.getElementById('sub-image-preview');
-  if (url) {
-    img.src = url;
-    img.onload  = () => { wrap.style.display = 'block'; };
-    img.onerror = () => { wrap.style.display = 'none'; };
-  } else { wrap.style.display = 'none'; }
-}
-// Live preview as you type
-document.getElementById('sub-image')?.addEventListener('input', e => _previewSubImage(e.target.value.trim()));
-
-// ── Reset new fields on openModalAddSub ──────────────
-const _origOpenModalAddSub = window.openModalAddSub;
-function openModalAddSub() {
-  editingSubId = null;
-  document.getElementById('modal-sub-title').textContent = 'Ajouter un Sub-Jutsu';
-  document.getElementById('sub-nom').value = '';
-  document.getElementById('sub-createur').value = '';
-  document.getElementById('sub-rang').value = '4';
-  document.getElementById('sub-slots').value = '';
-  document.getElementById('sub-conditions').value = '';
-  document.getElementById('sub-desc').value = '';
-  document.getElementById('sub-type').value = '';
-  document.getElementById('sub-image').value = '';
-  document.getElementById('sub-youtube').value = '';
-  document.getElementById('sub-kanji').value = '';
-  _previewSubImage('');
-  openModal('modal-sub');
-}
-Object.assign(window, { openModalAddSub, openSubDetail, extractYoutubeId, saveSub, openModalEditSub: window.openModalEditSub });
 
 // Lancer le handler Discord après le boot
 boot().then(() => handleDiscordAuthAsync());

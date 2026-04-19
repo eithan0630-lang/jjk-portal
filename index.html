@@ -1975,6 +1975,429 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
   </div>
 </div>
 
+<!-- ══ CURSED FEATURES ══ -->
+<canvas id="curse-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9998;"></canvas>
+
+<!-- Domain Expansion Overlay -->
+<div id="domain-expansion" style="display:none;position:fixed;inset:0;z-index:99999;overflow:hidden;background:#000">
+  <canvas id="de-canvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+  <div id="de-text" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1">
+    <div style="font-family:'Noto Serif JP',serif;font-size:clamp(24px,5vw,72px);color:#fff;text-align:center;letter-spacing:0.15em;text-shadow:0 0 60px rgba(124,92,191,1),0 0 120px rgba(201,162,39,0.8);animation:de-title 0.5s ease-out both">
+      領域展開
+    </div>
+    <div style="font-family:'Cinzel',serif;font-size:clamp(14px,2.5vw,32px);color:var(--gold);margin-top:12px;letter-spacing:0.3em;text-shadow:0 0 40px rgba(201,162,39,0.9);animation:de-title 0.5s 0.3s ease-out both;opacity:0">
+      DOMAIN EXPANSION
+    </div>
+    <div id="de-subtitle" style="font-family:'Rajdhani',sans-serif;font-size:clamp(12px,1.8vw,20px);color:rgba(255,255,255,0.6);margin-top:24px;letter-spacing:0.2em;animation:de-title 0.5s 0.6s ease-out both;opacity:0"></div>
+  </div>
+</div>
+
+<style>
+@keyframes de-title{from{opacity:0;transform:scale(0.7) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* ── Cursed Energy Bar ── */
+.cursed-energy-bar-wrap{margin:18px 0;padding:14px 16px;background:rgba(124,92,191,0.06);border:1px solid rgba(124,92,191,0.18);border-radius:10px}
+.cursed-energy-label{font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:var(--purple3);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.cursed-energy-track{height:8px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:visible;position:relative}
+.cursed-energy-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--purple),var(--gold2),var(--purple2));background-size:200% 100%;animation:energy-flow 3s linear infinite,energy-glow 2s ease-in-out infinite alternate;position:relative;transition:width 1.5s cubic-bezier(0.22,1,0.36,1)}
+.cursed-energy-fill::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:var(--gold2);box-shadow:0 0 12px var(--gold),0 0 24px var(--purple2);animation:orb-pulse 1.2s ease-in-out infinite}
+@keyframes energy-flow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes energy-glow{from{box-shadow:0 0 6px rgba(124,92,191,0.4)}to{box-shadow:0 0 16px rgba(201,162,39,0.7),0 0 32px rgba(124,92,191,0.5)}}
+@keyframes orb-pulse{0%,100%{transform:translateY(-50%) scale(1);opacity:1}50%{transform:translateY(-50%) scale(1.4);opacity:0.7}}
+.cursed-tier-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.1em;border:1px solid}
+
+/* ── Typing cursor blink ── */
+.typing-cursor{display:inline-block;width:2px;height:1em;background:var(--gold);margin-left:2px;vertical-align:middle;animation:blink 0.8s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── Konami hint (bottom-left) ── */
+#konami-hint{position:fixed;bottom:12px;left:12px;z-index:100;font-size:9px;color:rgba(255,255,255,0.08);letter-spacing:0.1em;pointer-events:none;transition:color 0.5s}
+#konami-hint.glow{color:rgba(201,162,39,0.4)}
+
+/* ── Sound toggle ── */
+#sound-toggle{position:fixed;bottom:26px;left:26px;z-index:200;background:rgba(11,13,24,0.9);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--muted);transition:all 0.2s}
+#sound-toggle:hover{border-color:rgba(201,162,39,0.3);color:var(--gold)}
+
+/* ── Rage mode (konami) ── */
+body.domain-active .jjk-bg::before{animation:domain-bg 1s ease-out forwards}
+@keyframes domain-bg{to{background:radial-gradient(ellipse 100% 100% at 50% 50%,rgba(124,92,191,0.4) 0%,rgba(201,162,39,0.15) 50%,transparent 100%)}}
+</style>
+
+<button id="sound-toggle" title="Sons" onclick="toggleSound()">🔇</button>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CURSED FEATURES — standalone (no module needed)
+// ══════════════════════════════════════════════════════
+
+// ── Sound FX ──────────────────────────────────────────
+let soundEnabled = false;
+let _ac = null;
+function getAC() { if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)(); return _ac; }
+
+function playTone(freq, type='sine', dur=0.12, vol=0.08, delay=0) {
+  if (!soundEnabled) return;
+  try {
+    const ac = getAC();
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = type; o.frequency.value = freq;
+    const t = ac.currentTime + delay;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.start(t); o.stop(t + dur + 0.05);
+  } catch {}
+}
+
+function sfxSuccess() { playTone(523, 'sine', 0.1, 0.07); playTone(659, 'sine', 0.12, 0.06, 0.1); playTone(784, 'sine', 0.15, 0.05, 0.2); }
+function sfxError()   { playTone(220, 'sawtooth', 0.18, 0.08); playTone(180, 'sawtooth', 0.14, 0.06, 0.1); }
+function sfxInfo()    { playTone(440, 'sine', 0.1, 0.05); playTone(550, 'sine', 0.1, 0.04, 0.08); }
+function sfxDomain()  { [80,100,120,160,200,260,340,440,540,660,800,1000].forEach((f,i) => playTone(f,'sawtooth',0.3,0.06,i*0.07)); }
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('sound-toggle').textContent = soundEnabled ? '🔊' : '🔇';
+  if (soundEnabled) { try { getAC().resume(); } catch {} sfxInfo(); }
+}
+
+// Patch toast to play sounds
+const _origToastCreate = window._toastHook;
+document.addEventListener('toast-fired', e => {
+  const t = e.detail?.type;
+  if (t === 'success') sfxSuccess();
+  else if (t === 'error') sfxError();
+  else sfxInfo();
+});
+
+// ── Cursor Particles ───────────────────────────────────
+const curseCanvas = document.getElementById('curse-canvas');
+const cctx = curseCanvas.getContext('2d');
+let cW, cH;
+const particles = [];
+let mx = -999, my = -999;
+
+function resizeCurse() {
+  cW = curseCanvas.width = window.innerWidth;
+  cH = curseCanvas.height = window.innerHeight;
+}
+resizeCurse();
+window.addEventListener('resize', resizeCurse);
+
+const CURSE_COLORS = ['rgba(124,92,191,', 'rgba(201,162,39,', 'rgba(167,139,250,', 'rgba(232,184,75,', 'rgba(239,68,68,'];
+
+class CurseParticle {
+  constructor(x, y) {
+    this.x = x + (Math.random() - 0.5) * 8;
+    this.y = y + (Math.random() - 0.5) * 8;
+    this.vx = (Math.random() - 0.5) * 1.5;
+    this.vy = (Math.random() - 0.5) * 1.5 - 0.8;
+    this.life = 1;
+    this.decay = 0.025 + Math.random() * 0.025;
+    this.r = 1.5 + Math.random() * 2.5;
+    this.color = CURSE_COLORS[Math.floor(Math.random() * CURSE_COLORS.length)];
+    this.rot = Math.random() * Math.PI * 2;
+    this.rotV = (Math.random() - 0.5) * 0.15;
+    this.isKanji = Math.random() < 0.04;
+    this.kanji = ['呪','術','力','咒','霊'][Math.floor(Math.random()*5)];
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy -= 0.02;
+    this.vx *= 0.97;
+    this.rot += this.rotV;
+    this.life -= this.decay;
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.life);
+    if (this.isKanji) {
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rot);
+      ctx.font = `${8 + this.r * 2}px 'Noto Serif JP',serif`;
+      ctx.fillStyle = this.color + (this.life * 0.9) + ')';
+      ctx.fillText(this.kanji, -6, 6);
+    } else {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r * this.life, 0, Math.PI * 2);
+      ctx.fillStyle = this.color + (this.life * 0.85) + ')';
+      ctx.fill();
+      // Glow
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = this.color + '0.6)';
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+let lastSpawn = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+function animateCurse(ts) {
+  cctx.clearRect(0, 0, cW, cH);
+  if (ts - lastSpawn > 30 && mx > 0) {
+    particles.push(new CurseParticle(mx, my));
+    if (particles.length > 120) particles.splice(0, 1);
+    lastSpawn = ts;
+  }
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].draw(cctx);
+    if (particles[i].life <= 0) particles.splice(i, 1);
+  }
+  requestAnimationFrame(animateCurse);
+}
+requestAnimationFrame(animateCurse);
+
+// ── Konami Code → Domain Expansion ────────────────────
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIdx = 0;
+const konamiHint = document.getElementById('konami-hint');
+
+const DOMAINS = [
+  { name: '無為転変', sub: 'IDLE TRANSFIGURATION' },
+  { name: '蒼', sub: 'BLUE — LAPSE: BLUE' },
+  { name: '赫', sub: 'RED — REVERSAL: RED' },
+  { name: '虚式「茈」', sub: 'HOLLOW PURPLE' },
+  { name: '幽冥冥途闇霊祀', sub: 'CHIMERA SHADOW GARDEN' },
+  { name: '蕩蕩滅相', sub: 'DEADLY SENTENCING' },
+];
+
+document.addEventListener('keydown', e => {
+  if (e.key === KONAMI[konamiIdx]) {
+    konamiIdx++;
+    if (konamiHint) { konamiHint.classList.add('glow'); setTimeout(() => konamiHint?.classList.remove('glow'), 500); }
+    if (konamiIdx === KONAMI.length) {
+      konamiIdx = 0;
+      triggerDomainExpansion();
+    }
+  } else { konamiIdx = 0; }
+});
+
+function triggerDomainExpansion() {
+  if (soundEnabled) sfxDomain();
+  const overlay = document.getElementById('domain-expansion');
+  const deCanvas = document.getElementById('de-canvas');
+  const domain = DOMAINS[Math.floor(Math.random() * DOMAINS.length)];
+  document.getElementById('de-subtitle').textContent = domain.sub;
+  overlay.querySelector('[style*="領域展開"]').nextElementSibling.nextElementSibling;
+  // Set domain name
+  const sub = document.getElementById('de-subtitle');
+  sub.previousElementSibling.textContent = domain.name;
+
+  overlay.style.display = 'block';
+  overlay.style.animation = 'none';
+
+  // Draw Domain canvas
+  const dc = deCanvas.getContext('2d');
+  deCanvas.width = window.innerWidth;
+  deCanvas.height = window.innerHeight;
+  let frame = 0;
+  const domainParticles = [];
+
+  for (let i = 0; i < 200; i++) {
+    domainParticles.push({
+      x: Math.random() * deCanvas.width,
+      y: Math.random() * deCanvas.height,
+      r: Math.random() * 3,
+      vx: (Math.random() - 0.5) * 4,
+      vy: (Math.random() - 0.5) * 4,
+      life: Math.random(),
+      color: Math.random() < 0.5 ? `rgba(124,92,191,` : `rgba(201,162,39,`
+    });
+  }
+
+  function drawDomain() {
+    if (frame > 180) {
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 1s';
+      setTimeout(() => { overlay.style.display = 'none'; overlay.style.opacity = '1'; overlay.style.transition = ''; }, 1000);
+      return;
+    }
+    frame++;
+    dc.fillStyle = 'rgba(0,0,0,0.15)';
+    dc.fillRect(0, 0, deCanvas.width, deCanvas.height);
+
+    // Expanding circles
+    const progress = frame / 180;
+    for (let ring = 0; ring < 5; ring++) {
+      const ringProgress = Math.max(0, (progress - ring * 0.1));
+      if (ringProgress <= 0) continue;
+      const radius = ringProgress * Math.max(deCanvas.width, deCanvas.height) * 0.8;
+      dc.beginPath();
+      dc.arc(deCanvas.width/2, deCanvas.height/2, radius, 0, Math.PI*2);
+      dc.strokeStyle = `rgba(${ring%2?'201,162,39':'124,92,191'},${Math.max(0, 0.3 - ringProgress * 0.3)})`;
+      dc.lineWidth = 2;
+      dc.stroke();
+    }
+
+    // Radial lines
+    for (let i = 0; i < 24; i++) {
+      const angle = (i / 24) * Math.PI * 2 + frame * 0.02;
+      const len = progress * Math.max(deCanvas.width, deCanvas.height);
+      dc.beginPath();
+      dc.moveTo(deCanvas.width/2, deCanvas.height/2);
+      dc.lineTo(deCanvas.width/2 + Math.cos(angle)*len, deCanvas.height/2 + Math.sin(angle)*len);
+      dc.strokeStyle = `rgba(201,162,39,${0.04 + Math.sin(frame*0.1 + i)*0.02})`;
+      dc.lineWidth = 1;
+      dc.stroke();
+    }
+
+    // Particles
+    domainParticles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.life -= 0.008;
+      if (p.life <= 0) { p.x = Math.random()*deCanvas.width; p.y = Math.random()*deCanvas.height; p.life = 1; }
+      dc.beginPath();
+      dc.arc(p.x, p.y, p.r * p.life, 0, Math.PI*2);
+      dc.fillStyle = p.color + (p.life * 0.8) + ')';
+      dc.fill();
+    });
+
+    // Central kanji
+    const kanjiSize = Math.min(300, 50 + progress * 250);
+    dc.save();
+    dc.translate(deCanvas.width/2, deCanvas.height/2);
+    dc.rotate(frame * 0.01);
+    dc.font = `700 ${kanjiSize}px 'Noto Serif JP',serif`;
+    dc.textAlign = 'center';
+    dc.textBaseline = 'middle';
+    dc.fillStyle = `rgba(255,255,255,${Math.min(0.06, progress * 0.08)})`;
+    dc.fillText('呪', 0, 0);
+    dc.restore();
+
+    requestAnimationFrame(drawDomain);
+  }
+  requestAnimationFrame(drawDomain);
+}
+
+// Click domain = close it too
+document.getElementById('domain-expansion').addEventListener('click', () => {
+  document.getElementById('domain-expansion').style.display = 'none';
+});
+
+// ── Auth screen typing effect ──────────────────────────
+function runTypingEffect() {
+  const h1 = document.querySelector('.auth-logo h1');
+  if (!h1 || h1.dataset.typed) return;
+  h1.dataset.typed = '1';
+  const text = h1.textContent;
+  h1.textContent = '';
+  const cursor = document.createElement('span');
+  cursor.className = 'typing-cursor';
+  h1.appendChild(cursor);
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i < text.length) {
+      h1.insertBefore(document.createTextNode(text[i++]), cursor);
+    } else {
+      clearInterval(iv);
+      setTimeout(() => cursor.style.display = 'none', 2000);
+    }
+  }, 80);
+}
+
+// Run when auth screen is visible
+const authObserver = new MutationObserver(() => {
+  const auth = document.getElementById('auth-screen');
+  if (auth && getComputedStyle(auth).display !== 'none') {
+    setTimeout(runTypingEffect, 400);
+  }
+});
+authObserver.observe(document.body, { childList: true, subtree: true, attributes: true });
+setTimeout(runTypingEffect, 600);
+
+// ── Cursed Energy Bar in Profil ────────────────────────
+function injectCursedEnergyBar() {
+  // Inject after profil-hero if not already present
+  const hero = document.querySelector('.profil-hero');
+  if (!hero || document.getElementById('cursed-energy-section')) return;
+
+  const section = document.createElement('div');
+  section.id = 'cursed-energy-section';
+  section.className = 'cursed-energy-bar-wrap';
+
+  const tier = getCursedTier();
+  const pct = tier.pct;
+
+  section.innerHTML = `
+    <div class="cursed-energy-label">
+      <span>⚡ Énergie Maudite</span>
+      <span class="cursed-tier-badge" style="background:${tier.bg};border-color:${tier.color};color:${tier.color}">${tier.icon} ${tier.name}</span>
+    </div>
+    <div class="cursed-energy-track">
+      <div class="cursed-energy-fill" id="ce-fill" style="width:0%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--muted);letter-spacing:0.08em">
+      <span>Rang 4</span><span>Semi-Spécial</span><span>Spécial</span>
+    </div>
+  `;
+
+  hero.insertAdjacentElement('afterend', section);
+  setTimeout(() => {
+    const fill = document.getElementById('ce-fill');
+    if (fill) fill.style.width = pct + '%';
+  }, 300);
+}
+
+function getCursedTier() {
+  // Determine tier based on user's approved sub-jutsu count
+  const tiers = [
+    { min: 0,  name: 'Novice',       icon: '🌱', color: '#6b7280', bg: 'rgba(107,114,128,0.1)', pct: 5  },
+    { min: 1,  name: 'Initié',       icon: '⚡', color: '#22c55e', bg: 'rgba(34,197,94,0.1)',   pct: 22 },
+    { min: 2,  name: 'Exorciste',    icon: '🔥', color: '#60a5fa', bg: 'rgba(96,165,250,0.1)',  pct: 40 },
+    { min: 3,  name: 'Grade 1',      icon: '💫', color: '#a78bfa', bg: 'rgba(167,139,250,0.1)', pct: 58 },
+    { min: 5,  name: 'Semi-Spécial', icon: '🌙', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',  pct: 76 },
+    { min: 7,  name: 'Spécial',      icon: '👁',  color: '#ff2d55', bg: 'rgba(255,45,85,0.1)',   pct: 92 },
+    { min: 10, name: 'Maudit',       icon: '☯️', color: '#c084fc', bg: 'rgba(192,132,252,0.1)', pct: 100 },
+  ];
+  // Try to compute from actual data if available
+  try {
+    const dems = window._lastDemandes || [];
+    const cu = window._lastCU;
+    if (cu && dems.length) {
+      const count = dems.filter(d => d.userId === cu.id && d.status === 'approved').length;
+      let t = tiers[0];
+      for (const tier of tiers) { if (count >= tier.min) t = tier; }
+      return t;
+    }
+  } catch {}
+  return tiers[1];
+}
+
+// Hook into profile render to inject the bar
+const _origMutObs = new MutationObserver(() => {
+  if (document.getElementById('page-profil')?.classList.contains('active')) {
+    setTimeout(injectCursedEnergyBar, 150);
+  }
+});
+_origMutObs.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+// ── Patch toast to fire sound event ───────────────────
+// We'll intercept toasts by watching DOM
+const toastContainer = document.getElementById('toast');
+if (toastContainer) {
+  new MutationObserver(muts => {
+    for (const m of muts) {
+      for (const n of m.addedNodes) {
+        if (n.classList?.contains('toast-item')) {
+          const type = n.classList.contains('t-success') ? 'success'
+                     : n.classList.contains('t-error') ? 'error' : 'info';
+          if (type === 'success') sfxSuccess();
+          else if (type === 'error') sfxError();
+          else sfxInfo();
+        }
+      }
+    }
+  }).observe(toastContainer, { childList: true });
+}
+
+// ── Konami hint text ──────────────────────────────────
+if (konamiHint) konamiHint.textContent = '↑↑↓↓←→←→BA';
+</script>
+
 <!-- ══ FIREBASE SDK ══ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -4521,7 +4944,12 @@ async function exportTicketsCSV() {
 }
 
 // Lancer le handler Discord après le boot
-boot().then(() => handleDiscordAuthAsync());
+boot().then(() => {
+  handleDiscordAuthAsync();
+  // Expose state for cursed features
+  setInterval(() => { window._lastCU = CU; }, 2000);
+  getDemandes().then(d => { window._lastDemandes = d; });
+});
 
 // ══════════════════════════════════════════════════════
 //  EXPOSE FONCTIONS GLOBALES (nécessaire avec type="module")

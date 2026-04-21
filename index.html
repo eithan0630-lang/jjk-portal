@@ -752,15 +752,58 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
 /* Ticket detail modal */
 .tkt-detail-hero{
   background:linear-gradient(135deg,rgba(201,162,39,0.08),rgba(7,8,15,0.98));
-  border-bottom:1px solid var(--border2);padding:22px 24px;
+  border-bottom:1px solid var(--border2);padding:26px 30px;
 }
-.tkt-detail-num{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:8px}
-.tkt-detail-title{font-family:'Cinzel',serif;font-size:18px;color:var(--text);font-weight:700;margin-bottom:10px}
+.tkt-detail-num{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--gold);margin-bottom:10px}
+.tkt-detail-title{font-family:'Cinzel',serif;font-size:22px;color:var(--text);font-weight:700;margin-bottom:12px}
 .tkt-detail-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tkt-detail-body{padding:0 24px}
-.tkt-detail-section{padding:16px 0;border-bottom:1px solid var(--border)}
+.tkt-detail-body{padding:0 30px}
+.tkt-detail-section{padding:20px 0;border-bottom:1px solid var(--border)}
 .tkt-detail-section:last-child{border-bottom:none}
-.tkt-detail-label{font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--muted);margin-bottom:8px;font-weight:700}
+.tkt-detail-label{font-size:10px;text-transform:uppercase;letter-spacing:0.16em;color:var(--muted);margin-bottom:10px;font-weight:700}
+
+/* MJ reply to RP entry */
+.rp-mj-reply{
+  margin-top:10px;padding:12px 14px;
+  background:linear-gradient(135deg,rgba(201,162,39,0.06),rgba(7,8,15,0.98));
+  border:1px solid rgba(201,162,39,0.2);
+  border-left:3px solid var(--gold);
+  border-radius:8px;
+}
+.rp-mj-reply-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.rp-mj-reply-badge{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 9px;
+  border-radius:20px;font-size:9px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;background:rgba(201,162,39,0.12);
+  border:1px solid rgba(201,162,39,0.35);color:var(--gold3);
+}
+.rp-mj-reply-body{font-family:'Zen Antique Soft',serif;font-size:13px;color:var(--text2);line-height:1.85;white-space:pre-wrap}
+.rp-mj-reply-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto}
+
+/* MJ reply form inline */
+.rp-reply-form{
+  margin-top:10px;padding:12px;
+  background:rgba(201,162,39,0.03);
+  border:1px dashed rgba(201,162,39,0.2);
+  border-radius:8px;
+}
+
+/* File upload drop zone */
+.file-drop-zone{
+  border:1px dashed rgba(124,92,191,0.3);border-radius:8px;
+  padding:14px;text-align:center;cursor:pointer;
+  background:rgba(124,92,191,0.03);
+  transition:all 0.2s;position:relative;
+}
+.file-drop-zone:hover,.file-drop-zone.drag-over{
+  border-color:rgba(124,92,191,0.6);background:rgba(124,92,191,0.07);
+}
+.file-drop-zone input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.file-drop-label{font-size:12px;color:var(--muted2);pointer-events:none}
+.file-drop-label span{color:var(--purple2);font-weight:600}
+.file-drop-label .drop-icon{font-size:22px;display:block;margin-bottom:5px}
 
 /* Timeline */
 .tkt-timeline{display:flex;flex-direction:column;gap:0}
@@ -2458,8 +2501,15 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(124,92,191,0.15),transparent)"></div>
     </div>
     <div class="fg">
-      <label class="fl">🖼 URL d'image(s) <span style="font-weight:400;color:var(--muted)">(une par ligne)</span></label>
-      <textarea class="fi" id="dem-images" placeholder="https://i.imgur.com/…&#10;https://cdn.discordapp.com/…" style="min-height:60px;font-family:'Share Tech Mono',monospace;font-size:11px" oninput="previewDemImages()"></textarea>
+      <label class="fl">🖼 Images <span style="font-weight:400;color:var(--muted)">(depuis votre appareil)</span></label>
+      <div class="file-drop-zone" id="dem-drop-zone">
+        <input type="file" id="dem-images-file" accept="image/*" multiple onchange="handleDemImageFiles(this.files)">
+        <div class="file-drop-label">
+          <span class="drop-icon">🖼</span>
+          <span>Cliquez ou glissez vos images ici</span><br>
+          <small style="font-size:10px;color:var(--muted)">PNG, JPG, GIF, WebP — max 2 Mo chacune</small>
+        </div>
+      </div>
     </div>
     <div id="dem-images-preview" class="tkt-media-preview" style="margin-bottom:10px"></div>
     <div class="fg">
@@ -2635,14 +2685,14 @@ tr:hover td { background: rgba(201,162,39,0.02); }
 
 <!-- Modal Ticket Détail -->
 <div class="modal-overlay" id="modal-ticket-detail">
-  <div class="modal" style="max-width:720px;padding:0;overflow:hidden">
+  <div class="modal" style="max-width:900px;padding:0;overflow:hidden">
     <div class="tkt-detail-hero" id="tkt-detail-hero">
       <button class="modal-close" onclick="closeModal('modal-ticket-detail')" style="position:absolute;top:14px;right:14px">✕</button>
       <div class="tkt-detail-num" id="tkt-detail-num">—</div>
       <div class="tkt-detail-title" id="tkt-detail-title">—</div>
       <div class="tkt-detail-badges" id="tkt-detail-badges"></div>
     </div>
-    <div class="tkt-detail-body" style="max-height:72vh;overflow-y:auto;padding-bottom:8px">
+    <div class="tkt-detail-body" style="max-height:78vh;overflow-y:auto;padding-bottom:8px">
       <!-- Info grid -->
       <div class="tkt-detail-section">
         <div class="profil-id-grid" id="tkt-detail-info"></div>
@@ -2650,7 +2700,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <!-- Message joueur -->
       <div class="tkt-detail-section" id="tkt-detail-msg-section">
         <div class="tkt-detail-label">💬 Message du joueur</div>
-        <div id="tkt-detail-msg" style="font-size:12px;color:var(--muted2);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:12px"></div>
+        <div id="tkt-detail-msg" style="font-size:14px;color:var(--muted2);line-height:1.8;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:14px"></div>
         <!-- Images du joueur -->
         <div id="tkt-detail-images" class="tkt-media-preview"></div>
         <!-- Liens du joueur -->
@@ -2659,22 +2709,22 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <!-- Note MJ -->
       <div class="tkt-detail-section" id="tkt-detail-note-section" style="display:none">
         <div class="tkt-detail-label">📝 Note du MJ</div>
-        <div id="tkt-detail-note" style="font-size:12px;color:var(--warn2);line-height:1.7;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:12px"></div>
+        <div id="tkt-detail-note" style="font-size:14px;color:var(--warn2);line-height:1.8;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:14px"></div>
       </div>
       <!-- ══ SUIVI RP ══ -->
       <div class="tkt-detail-section" id="tkt-rp-section">
         <div class="tkt-detail-label" style="display:flex;align-items:center;justify-content:space-between">
           <span>⛩ Suivi RP — Narrations &amp; Événements</span>
-          <button id="tkt-rp-add-btn" class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--purple2)" onclick="toggleRpForm()">＋ Ajouter</button>
+          <button id="tkt-rp-add-btn" class="btn btn-ghost btn-sm" style="font-size:11px;color:var(--purple2)" onclick="toggleRpForm()">＋ Ajouter une entrée</button>
         </div>
         <!-- Liste des entrées RP -->
-        <div id="tkt-rp-list" style="margin-top:12px"></div>
-        <!-- Formulaire d'ajout -->
-        <div id="tkt-rp-form" class="rp-add-form" style="display:none;margin-top:10px">
+        <div id="tkt-rp-list" style="margin-top:14px"></div>
+        <!-- Formulaire d'ajout joueur -->
+        <div id="tkt-rp-form" class="rp-add-form" style="display:none;margin-top:12px">
           <div class="rp-form-row">
             <div>
-              <label class="fl" style="font-size:9px;margin-bottom:5px">Type</label>
-              <select class="fi" id="rp-type" style="font-size:11px">
+              <label class="fl" style="font-size:10px;margin-bottom:5px">Type</label>
+              <select class="fi" id="rp-type" style="font-size:12px">
                 <option value="narration">📜 Narration</option>
                 <option value="event">⭐ Événement</option>
                 <option value="combat">⚔ Combat</option>
@@ -2683,26 +2733,33 @@ tr:hover td { background: rgba(201,162,39,0.02); }
               </select>
             </div>
             <div>
-              <label class="fl" style="font-size:9px;margin-bottom:5px">Personnage / Auteur</label>
-              <input class="fi" id="rp-author" type="text" placeholder="Nom RP ou @auteur…" style="font-size:11px">
+              <label class="fl" style="font-size:10px;margin-bottom:5px">Personnage / Auteur</label>
+              <input class="fi" id="rp-author" type="text" placeholder="Nom RP ou @auteur…" style="font-size:12px">
             </div>
           </div>
-          <div style="margin-bottom:10px">
-            <label class="fl" style="font-size:9px;margin-bottom:5px">Narration / Contenu RP *</label>
-            <textarea class="rp-textarea" id="rp-content" placeholder="Rédigez votre narration, les actions de votre personnage, le contexte…&#10;&#10;Ex : Dans les ruelles sombres de Shibuya, l'énergie maudite de [Personnage] se manifeste pour la première fois…"></textarea>
-          </div>
-          <div style="margin-bottom:10px">
-            <label class="fl" style="font-size:9px;margin-bottom:5px">🖼 Image(s) <span style="font-weight:400;color:var(--muted)">(URL, une par ligne)</span></label>
-            <textarea class="fi" id="rp-images" placeholder="https://i.imgur.com/…" style="min-height:48px;font-size:10px;font-family:'Share Tech Mono',monospace" oninput="previewRpImages()"></textarea>
-          </div>
-          <div id="rp-images-preview" class="tkt-media-preview" style="margin-bottom:10px"></div>
           <div style="margin-bottom:12px">
-            <label class="fl" style="font-size:9px;margin-bottom:5px">🔗 Lien(s) <span style="font-weight:400;color:var(--muted)">(label | url, un par ligne)</span></label>
-            <textarea class="fi" id="rp-links" placeholder="Fiche Google Doc | https://docs.google.com/…" style="min-height:40px;font-size:10px;font-family:'Share Tech Mono',monospace"></textarea>
+            <label class="fl" style="font-size:10px;margin-bottom:6px">Narration / Contenu RP *</label>
+            <textarea class="rp-textarea" id="rp-content" placeholder="Rédigez votre narration, les actions de votre personnage, le contexte…&#10;&#10;Ex : Dans les ruelles sombres de Shibuya, l'énergie maudite de [Personnage] se manifeste pour la première fois…" style="min-height:130px;font-size:14px"></textarea>
+          </div>
+          <div style="margin-bottom:12px">
+            <label class="fl" style="font-size:10px;margin-bottom:6px">🖼 Images <span style="font-weight:400;color:var(--muted)">(depuis votre appareil)</span></label>
+            <div class="file-drop-zone" id="rp-drop-zone">
+              <input type="file" id="rp-images-file" accept="image/*" multiple onchange="handleRpImageFiles(this.files)">
+              <div class="file-drop-label">
+                <span class="drop-icon">🖼</span>
+                <span>Cliquez ou glissez vos images ici</span><br>
+                <small style="font-size:10px;color:var(--muted)">PNG, JPG, GIF, WebP — max 2 Mo chacune</small>
+              </div>
+            </div>
+            <div id="rp-images-preview" class="tkt-media-preview" style="margin-top:8px"></div>
+          </div>
+          <div style="margin-bottom:14px">
+            <label class="fl" style="font-size:10px;margin-bottom:6px">🔗 Lien(s) <span style="font-weight:400;color:var(--muted)">(label | url, un par ligne)</span></label>
+            <textarea class="fi" id="rp-links" placeholder="Fiche Google Doc | https://docs.google.com/…" style="min-height:44px;font-size:11px;font-family:'Share Tech Mono',monospace"></textarea>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-end">
             <button class="btn btn-ghost btn-sm" onclick="toggleRpForm(false)">Annuler</button>
-            <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;border:none;padding:6px 16px;border-radius:7px;font-weight:700;font-size:11px;cursor:pointer" onclick="submitRpEntry()">✦ Publier l'entrée RP</button>
+            <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;border:none;padding:7px 18px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer" onclick="submitRpEntry()">✦ Publier l'entrée RP</button>
           </div>
         </div>
       </div>
@@ -2714,15 +2771,15 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <!-- Discussion -->
       <div class="tkt-detail-section">
         <div class="tkt-detail-label">💬 Discussion</div>
-        <div class="comment-thread" id="tkt-comments-list" style="max-height:200px;overflow-y:auto"></div>
-        <div class="comment-input-row" style="margin-top:10px" id="tkt-comment-input">
-          <input class="fi" id="tkt-comment-text" type="text" placeholder="Écrire un message…" onkeydown="if(event.key==='Enter')addTktComment()">
+        <div class="comment-thread" id="tkt-comments-list" style="max-height:260px;overflow-y:auto"></div>
+        <div class="comment-input-row" style="margin-top:12px" id="tkt-comment-input">
+          <input class="fi" id="tkt-comment-text" type="text" placeholder="Écrire un message…" style="font-size:13px" onkeydown="if(event.key==='Enter')addTktComment()">
           <button class="btn btn-primary" onclick="addTktComment()">Envoyer</button>
         </div>
       </div>
     </div>
     <!-- Footer actions -->
-    <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px" id="tkt-detail-footer">
+    <div style="padding:16px 30px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px" id="tkt-detail-footer">
       <div id="tkt-footer-left" style="display:flex;gap:8px;align-items:center"></div>
       <div id="tkt-footer-right" style="display:flex;gap:8px"></div>
     </div>
@@ -3902,10 +3959,9 @@ async function saveDemande() {
   if (dems.find(d => d.userId === CU.id && d.subId === subId && d.status === 'pending')) { toast('Demande déjà en attente pour ce sub.', 'error'); return; }
   if (dems.find(d => d.userId === CU.id && d.subId === subId && d.status === 'approved')) { toast('Vous maîtrisez déjà ce sub-jutsu.', 'error'); return; }
 
-  // Parse images & links
-  const imagesRaw = (document.getElementById('dem-images')?.value || '').trim();
+  // Images base64 depuis _imgStore
+  const images = _imgStore.dem.map(img => img.dataUrl);
   const linksRaw  = (document.getElementById('dem-links')?.value || '').trim();
-  const images = imagesRaw ? imagesRaw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http')) : [];
   const links  = linksRaw  ? linksRaw.split('\n').map(l=>{
     const parts = l.split('|');
     const url = (parts[1]||parts[0]).trim();
@@ -3935,9 +3991,11 @@ async function saveDemande() {
   await addLog('demande', `a ouvert le ticket ${ticketNum} pour`, { sub: s.nom });
   closeModal('modal-demande');
   // Reset form
-  document.getElementById('dem-images').value = '';
-  document.getElementById('dem-links').value = '';
   document.getElementById('dem-images-preview').innerHTML = '';
+  document.getElementById('dem-links').value = '';
+  _imgStore.dem = [];
+  const demFileInput = document.getElementById('dem-images-file');
+  if (demFileInput) demFileInput.value = '';
   toast(`🎫 Ticket ${ticketNum} créé ! Un MJ le traitera bientôt.`, 'success');
   await updateDemBadge();
   await updateTktBadge();
@@ -5466,28 +5524,73 @@ document.getElementById('sub-image')?.addEventListener('input', e => _previewSub
 
 // (openModalAddSub définie plus haut — pas de doublon)
 
-// ── Image preview helper (demande form) ──────────────────
-function previewDemImages() {
-  const raw = document.getElementById('dem-images')?.value || '';
-  const urls = raw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'));
-  const preview = document.getElementById('dem-images-preview');
-  if (!preview) return;
-  preview.innerHTML = urls.map(url=>`
-    <div class="tkt-media-thumb">
-      <img src="${esc(url)}" alt="preview" onerror="this.parentElement.style.display='none'">
+// ── Image base64 storage (en mémoire pour la session) ──
+// Map : fileInputId → tableau de {name, dataUrl}
+const _imgStore = { dem: [], rp: [] };
+
+function _readFilesAsBase64(files, max = 2097152) {
+  return Promise.all(Array.from(files).map(f => new Promise((res, rej) => {
+    if (f.size > max) { toast(`Image trop lourde (max 2 Mo) : ${f.name}`, 'warn'); res(null); return; }
+    const r = new FileReader();
+    r.onload = () => res({ name: f.name, dataUrl: r.result });
+    r.onerror = () => res(null);
+    r.readAsDataURL(f);
+  }))).then(arr => arr.filter(Boolean));
+}
+
+function _renderImgPreview(containerId, imgArr, storeKey) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!imgArr.length) { el.innerHTML = ''; return; }
+  el.innerHTML = imgArr.map((img, i) => `
+    <div class="tkt-media-thumb" style="position:relative">
+      <img src="${img.dataUrl}" alt="${esc(img.name)}">
+      <button onclick="_removeImg('${storeKey}',${i},'${containerId}')" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
     </div>`).join('');
 }
 
-function previewRpImages() {
-  const raw = document.getElementById('rp-images')?.value || '';
-  const urls = raw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'));
-  const preview = document.getElementById('rp-images-preview');
-  if (!preview) return;
-  preview.innerHTML = urls.map(url=>`
-    <div class="tkt-media-thumb">
-      <img src="${esc(url)}" alt="preview" onerror="this.parentElement.style.display='none'">
-    </div>`).join('');
+function _removeImg(storeKey, idx, containerId) {
+  _imgStore[storeKey].splice(idx, 1);
+  _renderImgPreview(containerId, _imgStore[storeKey], storeKey);
 }
+
+async function handleDemImageFiles(files) {
+  const loaded = await _readFilesAsBase64(files);
+  _imgStore.dem.push(...loaded);
+  _renderImgPreview('dem-images-preview', _imgStore.dem, 'dem');
+}
+
+async function handleRpImageFiles(files) {
+  const loaded = await _readFilesAsBase64(files);
+  _imgStore.rp.push(...loaded);
+  _renderImgPreview('rp-images-preview', _imgStore.rp, 'rp');
+}
+
+// Drag & drop support
+function _setupDropZone(zoneId, storeKey, previewId) {
+  const zone = document.getElementById(zoneId);
+  if (!zone) return;
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', async e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length) {
+      const loaded = await _readFilesAsBase64(files);
+      _imgStore[storeKey].push(...loaded);
+      _renderImgPreview(previewId, _imgStore[storeKey], storeKey);
+    }
+  });
+}
+// Setup drop zones after DOM ready
+setTimeout(() => {
+  _setupDropZone('dem-drop-zone', 'dem', 'dem-images-preview');
+  _setupDropZone('rp-drop-zone', 'rp', 'rp-images-preview');
+}, 500);
+
+// previewDemImages et previewRpImages (conservés pour compatibilité, non utilisés)
+function previewDemImages() {}
+function previewRpImages() {}
 
 // ── Lightbox ──────────────────────────────────────────────
 function openLightbox(url) {
@@ -5524,25 +5627,58 @@ function renderRpEntries(d) {
   if (!list) return;
   const entries = (d.rpEntries || []).slice().sort((a,b) => (a.ts||'').localeCompare(b.ts||''));
   if (!entries.length) {
-    list.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--muted);font-size:12px">
-      <div style="font-size:24px;margin-bottom:8px">⛩</div>
-      Aucune entrée RP pour ce ticket. Ajoutez des narrations, événements ou dialogues pour enrichir le suivi !
+    list.innerHTML = `<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">
+      <div style="font-size:28px;margin-bottom:10px">⛩</div>
+      Aucune entrée RP. Ajoutez des narrations, événements ou dialogues !
     </div>`;
     return;
   }
   list.innerHTML = entries.map((e, i) => {
     const meta = RP_TYPE_META[e.type] || RP_TYPE_META.narration;
     const canDel = (CU.id === e.authorId || hasPerm(CU, 'approve_requests'));
+    const isMJ   = hasPerm(CU, 'approve_requests');
+
     const imgsHtml = (e.images||[]).length ? `
-      <div class="tkt-media-preview">${(e.images).map(url=>`
-        <div class="tkt-media-thumb" onclick="openLightbox('${esc(url)}')">
-          <img src="${esc(url)}" alt="" onerror="this.parentElement.style.display='none'">
+      <div class="tkt-media-preview">${e.images.map(img=>`
+        <div class="tkt-media-thumb" onclick="openLightbox('${esc(typeof img==='string'?img:img.dataUrl||img)}')">
+          <img src="${esc(typeof img==='string'?img:img.dataUrl||img)}" alt="" onerror="this.parentElement.style.display='none'">
         </div>`).join('')}
       </div>` : '';
+
     const linksHtml = (e.links||[]).length ? `
-      <div class="rp-entry-links">${(e.links).map(l=>`
+      <div class="rp-entry-links">${e.links.map(l=>`
         <a href="${esc(l.url)}" target="_blank" rel="noopener" class="rp-link-pill">🔗 ${esc(l.label)}</a>`).join('')}
       </div>` : '';
+
+    // Réponse(s) MJ
+    const replies = (e.mjReplies||[]);
+    const repliesHtml = replies.map((rep, ri) => `
+      <div class="rp-mj-reply">
+        <div class="rp-mj-reply-header">
+          <span class="rp-mj-reply-badge">🎲 Réponse MJ</span>
+          <span style="font-size:12px;font-weight:700;color:var(--gold2)">${esc(rep.authorName||'MJ')}</span>
+          <span class="rp-mj-reply-time">${fmtDateTime(rep.ts)}</span>
+          ${hasPerm(CU,'approve_requests') ? `<button onclick="deleteMJReply('${d.id}',${i},${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px;margin-left:4px" title="Supprimer">🗑</button>` : ''}
+        </div>
+        <div class="rp-mj-reply-body">${esc(rep.content)}</div>
+      </div>`).join('');
+
+    // Formulaire réponse MJ (inline, collapsible)
+    const replyFormHtml = isMJ ? `
+      <div class="rp-reply-form" id="mj-reply-form-${i}" style="display:none">
+        <label class="fl" style="font-size:9px;margin-bottom:6px">✍ Votre réponse MJ</label>
+        <textarea class="rp-textarea" id="mj-reply-content-${i}" placeholder="Répondez à la narration du joueur, guidez l'histoire, ajoutez des conséquences RP…" style="min-height:100px;font-size:13px;margin-bottom:10px"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('mj-reply-form-${i}').style.display='none'">Annuler</button>
+          <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:7px 16px;border-radius:7px;font-weight:700;font-size:11px;cursor:pointer" onclick="submitMJReply('${d.id}',${i})">⚡ Publier la réponse</button>
+        </div>
+      </div>` : '';
+
+    const mjReplyBtn = isMJ ? `
+      <button onclick="toggleMJReplyForm(${i})" class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--gold);margin-top:8px">
+        🎲 Répondre en tant que MJ
+      </button>` : '';
+
     return `<div class="rp-entry" style="--rp-color:${meta.color}">
       ${canDel ? `<button class="rp-entry-delete" onclick="deleteRpEntry('${d.id}',${i})" title="Supprimer cette entrée">🗑</button>` : ''}
       <div class="rp-entry-header">
@@ -5553,8 +5689,66 @@ function renderRpEntries(d) {
       <div class="rp-entry-body">${esc(e.content)}</div>
       ${imgsHtml}
       ${linksHtml}
+      ${repliesHtml}
+      ${mjReplyBtn}
+      ${replyFormHtml}
     </div>`;
   }).join('');
+}
+
+function toggleMJReplyForm(idx) {
+  const form = document.getElementById(`mj-reply-form-${idx}`);
+  if (!form) return;
+  const show = form.style.display === 'none';
+  form.style.display = show ? '' : 'none';
+  if (show) { form.scrollIntoView({behavior:'smooth',block:'nearest'}); document.getElementById(`mj-reply-content-${idx}`)?.focus(); }
+}
+
+async function submitMJReply(demId, entryIdx) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const content = document.getElementById(`mj-reply-content-${entryIdx}`)?.value.trim();
+  if (!content) { toast('La réponse ne peut pas être vide.', 'error'); return; }
+
+  const d = await fsGetOne('demandes', demId);
+  if (!d) return;
+  const entries = d.rpEntries || [];
+  if (!entries[entryIdx]) return;
+
+  const reply = {
+    content,
+    authorId: CU.id, authorName: CU.nomrp||CU.username, authorRole: CU.role,
+    ts: new Date().toISOString()
+  };
+  if (!entries[entryIdx].mjReplies) entries[entryIdx].mjReplies = [];
+  entries[entryIdx].mjReplies.push(reply);
+
+  const tl = d.timeline || [];
+  tl.push({ ts: reply.ts, actor: CU.nomrp||CU.username, action: 'a répondu à une entrée RP', icon: '🎲' });
+
+  await fsUpdate('demandes', demId, { rpEntries: entries, timeline: tl });
+  _cache.demandes = null;
+
+  // Notif au joueur
+  await pushNotif(d.userId, `🎲 Le MJ @${CU.username} a répondu à votre narration RP sur le ticket ${d.ticketNum||''}.`, 'system');
+
+  const dFresh = await fsGetOne('demandes', demId);
+  renderRpEntries(dFresh);
+  toast('✦ Réponse MJ publiée !', 'success');
+}
+
+async function deleteMJReply(demId, entryIdx, replyIdx) {
+  if (!hasPerm(CU, 'approve_requests')) return;
+  if (!confirm('Supprimer cette réponse MJ ?')) return;
+  const d = await fsGetOne('demandes', demId);
+  if (!d) return;
+  const entries = d.rpEntries || [];
+  if (entries[entryIdx]?.mjReplies) {
+    entries[entryIdx].mjReplies.splice(replyIdx, 1);
+    await fsUpdate('demandes', demId, { rpEntries: entries });
+    _cache.demandes = null;
+    renderRpEntries({ ...d, rpEntries: entries });
+    toast('Réponse supprimée.', 'info');
+  }
 }
 
 async function submitRpEntry() {
@@ -5565,10 +5759,12 @@ async function submitRpEntry() {
   const type   = document.getElementById('rp-type').value;
   const author = document.getElementById('rp-author').value.trim() || CU.nomrp || CU.username;
 
-  const imagesRaw = document.getElementById('rp-images').value.trim();
-  const linksRaw  = document.getElementById('rp-links').value.trim();
-  const images = imagesRaw ? imagesRaw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http')) : [];
-  const links  = linksRaw  ? linksRaw.split('\n').map(l=>{
+  // Images base64
+  const images = _imgStore.rp.map(img => img.dataUrl);
+
+  // Liens
+  const linksRaw = document.getElementById('rp-links').value.trim();
+  const links = linksRaw ? linksRaw.split('\n').map(l=>{
     const parts = l.split('|');
     const url = (parts[1]||parts[0]).trim();
     const label = parts.length>1 ? parts[0].trim() : url;
@@ -5581,36 +5777,34 @@ async function submitRpEntry() {
   const entry = {
     type, author, content, images, links,
     authorId: CU.id, authorName: CU.nomrp||CU.username, authorRole: CU.role,
+    mjReplies: [],
     ts: new Date().toISOString()
   };
   entries.push(entry);
 
-  // Timeline event
   const tl = d.timeline || [];
   tl.push({ ts: entry.ts, actor: CU.nomrp||CU.username, action: `a ajouté une entrée RP (${RP_TYPE_META[type]?.label||type})`, icon: RP_TYPE_META[type]?.icon||'📜' });
 
   await fsUpdate('demandes', currentTktId, { rpEntries: entries, timeline: tl });
   _cache.demandes = null;
 
-  // Notif
-  const users = await getUsers();
   if (d.userId !== CU.id) {
     await pushNotif(d.userId, `⛩ @${CU.username} a ajouté une entrée RP sur votre ticket ${d.ticketNum||''}.`, 'system');
   }
 
   // Reset form
   document.getElementById('rp-content').value = '';
-  document.getElementById('rp-images').value = '';
   document.getElementById('rp-links').value = '';
   document.getElementById('rp-author').value = '';
   document.getElementById('rp-images-preview').innerHTML = '';
+  _imgStore.rp = [];
+  const fileInput = document.getElementById('rp-images-file');
+  if (fileInput) fileInput.value = '';
   toggleRpForm(false);
 
-  // Re-render
   const dFresh = await fsGetOne('demandes', currentTktId);
   renderRpEntries(dFresh);
   _cache.demandes = null;
-
   toast('✦ Entrée RP publiée !', 'success');
 }
 
@@ -5680,6 +5874,9 @@ Object.assign(window, {
   openGlobalSearch, closeGlobalSearch, runGlobalSearch, handleGsKey, gsSelect,
   // 🆕 RP & médias
   toggleRpForm, submitRpEntry, deleteRpEntry,
+  submitMJReply, deleteMJReply, toggleMJReplyForm,
+  handleDemImageFiles, handleRpImageFiles,
+  _removeImg,
   previewDemImages, previewRpImages,
   openLightbox, closeLightbox,
 });

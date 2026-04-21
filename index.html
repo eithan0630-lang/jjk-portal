@@ -3997,6 +3997,10 @@ function openModalAddSub() {
   document.getElementById('sub-rang').value = '4';
   document.getElementById('sub-type').value = '';
   document.getElementById('sub-slots').value = '';
+  const imgEl = document.getElementById('sub-image'); if (imgEl) imgEl.value = '';
+  const ytEl  = document.getElementById('sub-youtube'); if (ytEl) ytEl.value = '';
+  const kjEl  = document.getElementById('sub-kanji'); if (kjEl) kjEl.value = '';
+  _previewSubImage('');
   openModal('modal-sub');
 }
 async function openModalEditSub(id) {
@@ -5460,25 +5464,7 @@ function _previewSubImage(url) {
 // Live preview as you type
 document.getElementById('sub-image')?.addEventListener('input', e => _previewSubImage(e.target.value.trim()));
 
-// ── Reset new fields on openModalAddSub ──────────────
-const _origOpenModalAddSub = window.openModalAddSub;
-function openModalAddSub() {
-  editingSubId = null;
-  document.getElementById('modal-sub-title').textContent = 'Ajouter un Sub-Jutsu';
-  document.getElementById('sub-nom').value = '';
-  document.getElementById('sub-createur').value = '';
-  document.getElementById('sub-rang').value = '4';
-  document.getElementById('sub-slots').value = '';
-  document.getElementById('sub-conditions').value = '';
-  document.getElementById('sub-desc').value = '';
-  document.getElementById('sub-type').value = '';
-  document.getElementById('sub-image').value = '';
-  document.getElementById('sub-youtube').value = '';
-  document.getElementById('sub-kanji').value = '';
-  _previewSubImage('');
-  openModal('modal-sub');
-}
-Object.assign(window, { openModalAddSub, openSubDetail, extractYoutubeId, saveSub, openModalEditSub: window.openModalEditSub });
+// (openModalAddSub définie plus haut — pas de doublon)
 
 // ── Image preview helper (demande form) ──────────────────
 function previewDemImages() {

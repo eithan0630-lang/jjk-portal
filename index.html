@@ -2780,14 +2780,14 @@ tr:hover td { background: rgba(201,162,39,0.02); }
 
 <!-- Modal Ticket Détail -->
 <div class="modal-overlay" id="modal-ticket-detail">
-  <div class="modal" style="max-width:900px;padding:0;overflow:hidden">
-    <div class="tkt-detail-hero" id="tkt-detail-hero">
+  <div class="modal" style="max-width:900px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:92vh">
+    <div class="tkt-detail-hero" id="tkt-detail-hero" style="flex-shrink:0">
       <button class="modal-close" onclick="closeModal('modal-ticket-detail')" style="position:absolute;top:14px;right:14px">✕</button>
       <div class="tkt-detail-num" id="tkt-detail-num">—</div>
       <div class="tkt-detail-title" id="tkt-detail-title">—</div>
       <div class="tkt-detail-badges" id="tkt-detail-badges"></div>
     </div>
-    <div class="tkt-detail-body" style="max-height:78vh;overflow-y:auto;padding-bottom:8px">
+    <div class="tkt-detail-body" style="flex:1;overflow-y:auto;min-height:0;padding-bottom:24px">
       <!-- Info grid -->
       <div class="tkt-detail-section">
         <div class="profil-id-grid" id="tkt-detail-info"></div>
@@ -2874,7 +2874,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       </div>
     </div>
     <!-- Footer actions -->
-    <div style="padding:16px 30px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px" id="tkt-detail-footer">
+    <div style="padding:16px 30px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;flex-shrink:0;background:var(--bg1)" id="tkt-detail-footer">
       <div id="tkt-footer-left" style="display:flex;gap:8px;align-items:center"></div>
       <div id="tkt-footer-right" style="display:flex;gap:8px"></div>
     </div>

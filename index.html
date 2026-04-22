@@ -6096,6 +6096,7 @@ async function openTktTreat(demId) {
 }
 
 async function submitTktTreat() {
+  try {
   if (!currentTreatId) return;
   const status   = document.getElementById('tkt-treat-status').value;
   const note     = document.getElementById('tkt-treat-note').value.trim();
@@ -6139,10 +6140,14 @@ async function submitTktTreat() {
   }
 
   closeModal('modal-tkt-treat');
-  await renderAllTickets();
-  await renderStaffStats();
+  try { await renderAllTickets(); } catch(_) {}
+  if (document.getElementById('staff-stats')) { try { await renderStaffStats(); } catch(_) {} }
   const toastLabel = status==='approved' ? `${m?.icon||'✅'} Approuvé — ${m?.label||'Initié'} !` : status==='in_review' ? 'En révision' : 'Ticket refusé.';
   toast(toastLabel, status==='approved'?'success':status==='in_review'?'info':'error');
+  } catch(err) {
+    console.error('[submitTktTreat] Erreur:', err);
+    toast('Erreur lors du traitement du ticket.', 'error');
+  }
 }
 
 // ── Ticket badge update ─────────────────────────────────

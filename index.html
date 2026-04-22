@@ -3470,6 +3470,11 @@ async function fsGetAll(col) {
 async function fsSet(col, id, data) {
   await setDoc(doc(db, col, id), data);
 }
+function deepClean(obj) {
+  if (Array.isArray(obj)) return obj.map(deepClean);
+  if (obj && typeof obj === 'object') return Object.fromEntries(Object.entries(obj).filter(([_,v])=>v!==undefined).map(([k,v])=>[k,deepClean(v)]));
+  return obj;
+}
 async function fsUpdate(col, id, data) {
   // Firebase rejette les valeurs undefined — on les filtre
   data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
@@ -6114,7 +6119,9 @@ async function submitTktTreat() {
   const tl = d.timeline || [];
   const icons = {approved:'✅',rejected:'❌',in_review:'🔍'};
   const actions = {approved:'a approuvé ce ticket',rejected:'a refusé ce ticket',in_review:'a mis ce ticket en révision'};
-  tl.push({ ts: now, actor: CU.username, action: actions[status]||status, icon: icons[status]||'📋', note: note||undefined });
+  const tlEntry = { ts: now, actor: CU.username, action: actions[status]||status, icon: icons[status]||'📋' };
+  if (note) tlEntry.note = note;
+  tl.push(tlEntry);
 
   const masteryLevel = status === 'approved' ? (_tktSelectedMastery || 1) : null;
   const updateData = { status, mjNote: note, priority, treatedAt: now, treatedBy: CU.username, assignedTo: d.assignedTo || CU.username, timeline: tl };
@@ -6169,7 +6176,9 @@ async function revokeSubJutsu(demId) {
   if (reason === null) return;
   const now = new Date().toISOString();
   const tl = d.timeline || [];
-  tl.push({ ts: now, actor: CU.username, action: `a révoqué ce sub-jutsu${reason ? ' — ' + reason : ''}`, icon: '🚫', note: reason || undefined });
+  const tlRevoke = { ts: now, actor: CU.username, action: `a révoqué ce sub-jutsu${reason ? ' — ' + reason : ''}`, icon: '🚫' };
+  if (reason) tlRevoke.note = reason;
+  tl.push(tlRevoke);
   await fsUpdate('demandes', demId, { status: 'revoked', revokedAt: now, revokedBy: CU.username, revokeReason: reason || '', timeline: tl });
   _cache.demandes = null;
   await addLog('demande', `a révoqué le sub-jutsu "${s.nom}" de @${u.username}${reason ? ' ('+reason+')' : ''}`, { sub: s.nom });

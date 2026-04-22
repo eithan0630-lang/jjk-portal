@@ -49,6 +49,7 @@
   --r-player:   #22c55e;
   --radius: 12px;
   --radius-sm: 7px;
+  --card-glass: rgba(255,255,255,0.02);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1904,6 +1905,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
     <input id="r-steam" type="hidden">
     <input id="r-pass" type="hidden">
     <input id="r-pass2" type="hidden">
+    <div id="form-register" style="display:none"></div>
   </div>
 </div>
 
@@ -2781,7 +2783,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
     <div class="form-row">
       <div class="fg">
         <label class="fl">Type</label>
-        <select class="fi" id="narr-type">
+        <select class="fi" id="narr-modal-type">
           <option value="suivi_normal">🗂 Suivi Normal</option>
           <option value="narration">📜 Narration</option>
           <option value="event">⭐ Événement</option>
@@ -2902,16 +2904,43 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <div class="tkt-detail-section" id="tkt-rp-section">
         <div class="tkt-detail-label">⛩ Suivi RP</div>
         <div id="tkt-rp-status-block" style="margin-top:12px"></div>
-        <!-- hidden compat -->
-        <input type="hidden" id="rp-type" value="narration">
-        <input type="hidden" id="rp-author" value="">
-        <input type="hidden" id="rp-content" value="">
-        <input type="hidden" id="rp-links" value="">
-        <div id="rp-images-preview" style="display:none"></div>
-        <div id="tkt-rp-form" style="display:none"></div>
+        <!-- RP form (peuplé par JS) -->
+        <div id="tkt-rp-form" style="display:none;margin-top:12px">
+          <div style="background:rgba(124,92,191,0.04);border:1px dashed rgba(124,92,191,0.2);border-radius:var(--radius);padding:16px">
+            <div class="rp-form-row">
+              <div class="fg" style="margin-bottom:0">
+                <label class="fl">Type</label>
+                <select class="fi" id="rp-type">
+                  <option value="narration">📜 Narration</option>
+                  <option value="event">⭐ Événement</option>
+                  <option value="combat">⚔ Combat</option>
+                  <option value="dialogue">💬 Dialogue</option>
+                  <option value="flashback">🌀 Flashback</option>
+                </select>
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <label class="fl">Auteur / Personnage</label>
+                <input class="fi" id="rp-author" type="text" placeholder="Nom RP…">
+              </div>
+            </div>
+            <div class="fg">
+              <label class="fl">Contenu RP *</label>
+              <textarea class="rp-textarea" id="rp-content" placeholder="Rédigez votre narration, actions, dialogues…" style="min-height:120px;margin-top:4px"></textarea>
+            </div>
+            <div class="fg">
+              <label class="fl">🔗 Liens <span style="font-weight:400;color:var(--muted)">(label | url, un par ligne)</span></label>
+              <textarea class="fi" id="rp-links" placeholder="Fiche RP | https://…" style="min-height:44px;font-size:11px;font-family:'Share Tech Mono',monospace"></textarea>
+            </div>
+            <div id="rp-images-preview" class="tkt-media-preview" style="margin-bottom:8px"></div>
+            <input type="file" id="rp-images-file" accept="image/*" multiple style="display:none" onchange="handleRpImageFiles(this.files)">
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+              <button class="btn btn-ghost btn-sm" onclick="toggleRpForm(false)">Annuler</button>
+              <button class="btn btn-primary btn-sm" onclick="submitRpEntry()">✦ Publier</button>
+            </div>
+          </div>
+        </div>
         <div id="tkt-rp-add-btn" style="display:none"></div>
         <div id="tkt-rp-list" style="display:none"></div>
-        <input type="file" id="rp-images-file" accept="image/*" multiple style="display:none" onchange="handleRpImageFiles(this.files)">
       </div>
       <!-- Timeline -->
       <div class="tkt-detail-section">
@@ -3586,6 +3615,11 @@ async function initFounder() {
   _cache.users = null;
   await setInitialized(true);
   await addLogSystem('Système initialisé — compte Fondateur créé');
+  // Afficher les credentials au fondateur une seule fois
+  document.getElementById('fr-username').textContent = username;
+  document.getElementById('fr-password').textContent = password;
+  document.getElementById('fr-secret').textContent = secret;
+  document.getElementById('founder-reveal').classList.add('open');
 }
 async function addLogSystem(msg) {
   const entry = { id: 'l'+Date.now()+'sys', ts: new Date().toISOString(), type:'system', actor:'system', actorRole:'system', action: msg, details:{} };
@@ -4465,7 +4499,9 @@ async function renderProfil() {
   document.getElementById('profil-count').textContent = dems.length;
   const c = document.getElementById('profil-subs-list');
   if (!dems.length) { c.innerHTML = emptyState('⚡', 'Aucun sub-jutsu maîtrisé pour l\'instant.'); return; }
-  c.innerHTML = `<div class="sub-grid">${dems.map(d => { const s = subs.find(x => x.id === d.subId) || { nom: 'Sub supprimé', rang: '?', createur: '?', desc: '', conditions: '', slots: 0 }; return subCardHtml(s, {}, allDems); }).join('')}</div>`;
+  const takenMap = {};
+  allDems.filter(x => x.status === 'approved').forEach(x => { takenMap[x.subId] = (takenMap[x.subId]||0) + 1; });
+  c.innerHTML = `<div class="sub-grid-v3">${dems.map(d => { const s = subs.find(x => x.id === d.subId) || { id: d.subId, nom: 'Sub supprimé', rang: '?', createur: '?', desc: '', conditions: '', slots: 1 }; return subCardV3Html(s, takenMap, allDems, getFavorites()); }).join('')}</div>`;
 }
 function openModalEditProfil() {
   document.getElementById('ep-nomrp').value = CU.nomrp || '';
@@ -4810,8 +4846,9 @@ async function renderPanelDemandes() {
       <td>${statusBadge(d.status)}</td>
       <td style="font-size:11px;color:var(--muted)">${d.treatedBy ? '@'+esc(d.treatedBy) : '—'}</td>
       <td>
-        ${d.status === 'approved' && d.masteryLevel ? (() => { const ml = MASTERY_LEVELS[d.masteryLevel]; return ml ? `<span class="mastery-badge" style="background:${ml.color}18;border-color:${ml.color}44;color:${ml.color}">${ml.icon} ${ml.label}</span>` : ''; })() : ''}
-        ${canTreat && d.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="openMJRep('${d.id}')">Traiter</button>` : (d.status !== 'approved' ? `<span style="font-size:10px;color:var(--muted)">—</span>` : '')} <button class="btn btn-ghost btn-sm" onclick="openCommentsModal('${d.id}')" title="Discussion">💬</button>
+        ${d.status === 'approved' && d.masteryLevel ? (() => { const ml = MASTERY_LEVELS[d.masteryLevel]; return ml ? `<span class="mastery-badge" style="background:${ml.color}18;border-color:${ml.color}44;color:${ml.color}">${ml.icon} ${ml.label}</span> ` : ''; })() : ''}
+        ${canTreat && d.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="openMJRep('${d.id}')">Traiter</button> ` : (d.status !== 'approved' ? `<span style="font-size:10px;color:var(--muted)">— </span>` : '')}
+        <button class="btn btn-ghost btn-sm" onclick="openCommentsModal('${d.id}')" title="Discussion">💬</button>
       </td>
     </tr>`;
   }).join('');
@@ -5471,7 +5508,7 @@ async function refreshComments() {
       const cmRole = ROLES[cm.authorRole] || ROLES.player;
       return `<div class="comment-item">
         <div class="comment-av" style="background:${cmRole.color}22;border-color:${cmRole.color}44;color:${cmRole.color}">${initials(cm.authorNom||cm.authorName||'?')}</div>
-        <div class="comment-bubble ${isMe ? 'style="border-color:rgba(201,162,39,0.2)"' : ''}">
+        <div class="comment-bubble" ${isMe ? 'style="border-color:rgba(201,162,39,0.2)"' : ''}>
           <div class="comment-author">${esc(cm.authorNom||cm.authorName||'?')} <span class="role-badge ${cmRole.cls}" style="font-size:8px">${cmRole.icon} ${cmRole.label}</span> <span class="comment-time">${fmtDateTime(cm.ts)}</span></div>
           <div class="comment-text">${esc(cm.text)}</div>
         </div>
@@ -6513,7 +6550,7 @@ async function deleteRpEntry(demId, index) {
   toast('Entrée RP supprimée.', 'info');
 }
 
-// Lancer le handler Discord après le boot
+// Lancer l'application
 boot().then(() => handleDiscordAuthAsync());
 
 // ══════════════════════════════════════════════════════
@@ -6537,7 +6574,7 @@ const NARR_TYPE_META = {
 function openModalNewNarration() {
   document.getElementById('narr-modal-title').textContent = 'Nouvelle Narration';
   document.getElementById('narr-titre').value = '';
-  document.getElementById('narr-type').value = 'suivi_normal';
+  document.getElementById('narr-modal-type').value = 'suivi_normal';
   document.getElementById('narr-author').value = CU.nomrp || CU.username;
   document.getElementById('narr-content').value = '';
   document.getElementById('narr-links').value = '';
@@ -6556,7 +6593,7 @@ async function openEditNarration(narrId) {
   if (d.authorId !== CU.id && !hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
   document.getElementById('narr-modal-title').textContent = 'Modifier la Narration';
   document.getElementById('narr-titre').value = d.titre || '';
-  document.getElementById('narr-type').value = d.type || 'suivi_normal';
+  document.getElementById('narr-modal-type').value = d.type || 'suivi_normal';
   document.getElementById('narr-author').value = d.author || '';
   document.getElementById('narr-content').value = d.content || '';
   document.getElementById('narr-links').value = (d.links||[]).map(l => l.label !== l.url ? l.label + ' | ' + l.url : l.url).join('\n');
@@ -6570,7 +6607,7 @@ let _editingNarrId = null;
 
 async function saveNarration() {
   const titre   = document.getElementById('narr-titre').value.trim();
-  const type    = document.getElementById('narr-type').value;
+  const type    = document.getElementById('narr-modal-type').value;
   const author  = document.getElementById('narr-author').value.trim() || CU.nomrp || CU.username;
   const content = document.getElementById('narr-content').value.trim();
   if (!titre)   { toast('Le titre est requis.', 'error'); return; }
@@ -6619,7 +6656,7 @@ async function deleteNarration(narrId) {
 
 async function submitNarrMJReply(narrId, idx) {
   if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
-  const content = document.getElementById('narr-mj-reply-content-' + idx)?.value.trim();
+  const content = document.getElementById('narr-mj-reply-content-' + narrId)?.value.trim();
   if (!content) { toast('La réponse ne peut pas être vide.', 'error'); return; }
   const d = await fsGetOne('narrations', narrId);
   if (!d) return;
@@ -6734,7 +6771,7 @@ async function renderNarrations() {
     const replyFormHtml = isMJ ? `
       <div class="rp-reply-form" id="narr-mj-form-${n.id}-0" style="display:none">
         <label class="fl" style="font-size:9px;margin-bottom:6px">✍ Votre réponse MJ</label>
-        <textarea class="rp-textarea" id="narr-mj-reply-content-0" placeholder="Guidez la narration, ajoutez des conséquences RP…" style="min-height:90px;font-size:13px;margin-bottom:10px"></textarea>
+        <textarea class="rp-textarea" id="narr-mj-reply-content-${n.id}" placeholder="Guidez la narration, ajoutez des conséquences RP…" style="min-height:90px;font-size:13px;margin-bottom:10px"></textarea>
         <div style="display:flex;gap:8px;justify-content:flex-end">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('narr-mj-form-${n.id}-0').style.display='none'">Annuler</button>
           <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:7px 16px;border-radius:7px;font-weight:700;font-size:11px;cursor:pointer" onclick="submitNarrMJReply('${n.id}',0)">⚡ Publier</button>
@@ -6811,6 +6848,11 @@ function renderRpStatusBlock(d) {
   const lastTs = entries.length ? entries[entries.length-1].ts : null;
 
   if (!rpOpen) {
+    // Masquer la liste RP
+    const listEl = document.getElementById('tkt-rp-list');
+    const addBtn = document.getElementById('tkt-rp-add-btn');
+    if (listEl) listEl.style.display = 'none';
+    if (addBtn) addBtn.style.display = 'none';
     // Pas encore ouvert
     if (isMJ) {
       el.innerHTML = `
@@ -6846,6 +6888,14 @@ function renderRpStatusBlock(d) {
     return;
   }
 
+  // Ouvert → afficher la liste RP et le bouton ajout
+  const listEl2 = document.getElementById('tkt-rp-list');
+  const addBtn2 = document.getElementById('tkt-rp-add-btn');
+  if (listEl2) { listEl2.style.display = ''; renderRpEntries(d); }
+  if (addBtn2 && (isMJ || isOwner)) {
+    addBtn2.style.display = '';
+    addBtn2.innerHTML = `<button class="btn btn-ghost btn-sm" style="margin-top:10px;color:var(--purple2)" onclick="toggleRpForm()">✦ Ajouter une narration</button>`;
+  }
   // Ouvert → résumé + bouton accès
   const canAccess = isMJ || isOwner;
   el.innerHTML = `
@@ -6943,7 +6993,6 @@ async function openNarrSpace(demId) {
   nsCloseForm();
 
   const overlay = document.getElementById('narr-space-overlay');
-  overlay.style.display = 'flex';
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 
@@ -6953,7 +7002,6 @@ async function openNarrSpace(demId) {
 function closeNarrSpace() {
   const overlay = document.getElementById('narr-space-overlay');
   overlay.classList.remove('open');
-  overlay.style.display = 'none';
   document.body.style.overflow = '';
 }
 
@@ -7310,7 +7358,7 @@ Object.assign(window, {
   // Sub-jutsu (staff)
   openModalAddSub, openModalEditSub, saveSub, deleteSub,
   // Panel staff
-  submitMJRep, openMJRep,
+  submitMJRep, openMJRep, handleApproveClick,
   // Maîtrise
   selectMasteryLevel, openMasterySection,
   // Membres

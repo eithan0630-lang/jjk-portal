@@ -3442,6 +3442,8 @@ async function fsSet(col, id, data) {
   await setDoc(doc(db, col, id), data);
 }
 async function fsUpdate(col, id, data) {
+  // Firebase rejette les valeurs undefined — on les filtre
+  data = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
   await updateDoc(doc(db, col, id), data);
 }
 async function fsDelete(col, id) {
@@ -6087,7 +6089,7 @@ async function submitTktTreat() {
   const u = users.find(x=>x.id===d.userId);
   const s = allSubs.find(x=>x.id===d.subId);
   const m = MASTERY_LEVELS[masteryLevel];
-  await addLog('demande', `a ${status==='approved'?`approuvé (${m?.label||'?'})`:status==='rejected'?'refusé':'mis en révision'} le ticket ${d.ticketNum||''} de @${u?.username||'?'}`, {sub:s?.nom});
+  await addLog('demande', `a ${status==='approved'?`approuvé (${m?.label||'?'})`:status==='rejected'?'refusé':'mis en révision'} le ticket ${d.ticketNum||''} de @${u?.username||'?'}`, {sub:s?.nom||'?'});
 
   if (u) {
     const approvedMsg = buildMasteryNotifMessage(s?.nom||'?', masteryLevel, note);
@@ -7284,7 +7286,7 @@ function openMasterySection(show) {
 }
 
 function buildMasteryNotifMessage(subName, level, mjNote) {
-  const m = MASTERY_LEVELS[level];
+  const m = MASTERY_LEVELS[level] || MASTERY_LEVELS[1];
   const starsOn  = '★'.repeat(m.stars);
   const starsOff = '☆'.repeat(5 - m.stars);
   let msg = `✅ Votre demande pour **${subName}** a été approuvée !\n`;

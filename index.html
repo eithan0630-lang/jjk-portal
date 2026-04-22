@@ -2954,7 +2954,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
     </div>
     <div class="fg">
       <label class="fl">Statut</label>
-      <select class="fi" id="tkt-treat-status">
+      <select class="fi" id="tkt-treat-status" onchange="toggleTktMasterySection(this.value)">
         <option value="in_review">🔍 Passer en révision</option>
         <option value="approved">✅ Approuver</option>
         <option value="rejected">❌ Refuser</option>
@@ -2964,6 +2964,40 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <label class="fl">Note MJ (optionnel)</label>
       <textarea class="fi" id="tkt-treat-note" placeholder="Votre note pour le joueur…" style="min-height:80px"></textarea>
     </div>
+
+    <!-- Niveau de maîtrise (visible si approved) -->
+    <div id="tkt-mastery-section" style="display:none;margin-top:14px">
+      <label class="fl" style="margin-bottom:10px">⚡ Niveau de maîtrise attribué</label>
+      <div class="mastery-selector" id="tkt-mastery-selector">
+        <div class="mastery-opt" data-level="1" onclick="selectTktMasteryLevel(1)">
+          <span class="mastery-opt-icon">🌱</span>
+          <span class="mastery-opt-label">Initié</span>
+          <span class="mastery-opt-stars">★☆☆☆☆</span>
+        </div>
+        <div class="mastery-opt" data-level="2" onclick="selectTktMasteryLevel(2)">
+          <span class="mastery-opt-icon">⚡</span>
+          <span class="mastery-opt-label">Apprenti</span>
+          <span class="mastery-opt-stars">★★☆☆☆</span>
+        </div>
+        <div class="mastery-opt" data-level="3" onclick="selectTktMasteryLevel(3)">
+          <span class="mastery-opt-icon">🔥</span>
+          <span class="mastery-opt-label">Praticien</span>
+          <span class="mastery-opt-stars">★★★☆☆</span>
+        </div>
+        <div class="mastery-opt" data-level="4" onclick="selectTktMasteryLevel(4)">
+          <span class="mastery-opt-icon">💜</span>
+          <span class="mastery-opt-label">Expert</span>
+          <span class="mastery-opt-stars">★★★★☆</span>
+        </div>
+        <div class="mastery-opt" data-level="5" onclick="selectTktMasteryLevel(5)">
+          <span class="mastery-opt-icon">👑</span>
+          <span class="mastery-opt-label">Maître</span>
+          <span class="mastery-opt-stars">★★★★★</span>
+        </div>
+      </div>
+      <div id="tkt-mastery-preview" style="margin-top:10px;display:none"></div>
+    </div>
+
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-tkt-treat')">Annuler</button>
       <button class="btn btn-primary" onclick="submitTktTreat()">Valider</button>
@@ -5960,6 +5994,45 @@ async function openTktTagModal(demId) {
 }
 
 // ── Traitement staff ────────────────────────────────────
+
+let _tktSelectedMastery = 1;
+
+function toggleTktMasterySection(status) {
+  const section = document.getElementById('tkt-mastery-section');
+  if (!section) return;
+  const show = status === 'approved';
+  section.style.display = show ? 'block' : 'none';
+  if (show) {
+    _tktSelectedMastery = 1;
+    document.querySelectorAll('#tkt-mastery-selector .mastery-opt').forEach(el => el.classList.remove('selected'));
+    document.querySelector('#tkt-mastery-selector .mastery-opt[data-level="1"]')?.classList.add('selected');
+    document.getElementById('tkt-mastery-preview').style.display = 'none';
+  }
+}
+
+
+
+function selectTktMasteryLevel(level) {
+  _tktSelectedMastery = level;
+  document.querySelectorAll('#tkt-mastery-selector .mastery-opt').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.level) === level);
+  });
+  const m = MASTERY_LEVELS[level];
+  const starsOn  = '★'.repeat(m.stars);
+  const starsOff = '☆'.repeat(5 - m.stars);
+  const preview = document.getElementById('tkt-mastery-preview');
+  preview.style.display = 'block';
+  preview.innerHTML = `
+    <div class="mastery-preview-box">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:20px">${m.icon}</span>
+        <strong>${m.label}</strong>
+        <span style="color:${m.color};font-size:12px;letter-spacing:2px">${starsOn}<span style="opacity:0.25">${starsOff}</span></span>
+      </div>
+      <div>${m.desc}</div>
+    </div>`;
+}
+
 let currentTreatId = null;
 async function openTktTreat(demId) {
   if (!hasPerm(CU,'approve_requests')) { toast('Permission refusée.','error'); return; }
@@ -5978,6 +6051,8 @@ async function openTktTreat(demId) {
   document.getElementById('tkt-treat-priority').value = d.priority || 'normale';
   document.getElementById('tkt-treat-status').value = 'approved';
   document.getElementById('tkt-treat-note').value = '';
+  toggleTktMasterySection('approved');
+  _tktSelectedMastery = 1;
   openModal('modal-tkt-treat');
 }
 
@@ -6001,22 +6076,23 @@ async function submitTktTreat() {
   const actions = {approved:'a approuvé ce ticket',rejected:'a refusé ce ticket',in_review:'a mis ce ticket en révision'};
   tl.push({ ts: now, actor: CU.username, action: actions[status]||status, icon: icons[status]||'📋', note: note||undefined });
 
-  await fsUpdate('demandes', currentTreatId, {
-    status, mjNote: note, priority,
-    treatedAt: now, treatedBy: CU.username,
-    assignedTo: d.assignedTo || CU.username,
-    timeline: tl
-  });
+  const masteryLevel = status === 'approved' ? (_tktSelectedMastery || 1) : null;
+  const updateData = { status, mjNote: note, priority, treatedAt: now, treatedBy: CU.username, assignedTo: d.assignedTo || CU.username, timeline: tl };
+  if (masteryLevel) updateData.masteryLevel = masteryLevel;
+
+  await fsUpdate('demandes', currentTreatId, updateData);
   _cache.demandes = null;
 
   const users = await getUsers();
   const u = users.find(x=>x.id===d.userId);
   const s = allSubs.find(x=>x.id===d.subId);
-  await addLog('demande', `a ${status==='approved'?'approuvé':status==='rejected'?'refusé':'mis en révision'} le ticket ${d.ticketNum||''} de @${u?.username||'?'}`, {sub:s?.nom});
+  const m = MASTERY_LEVELS[masteryLevel];
+  await addLog('demande', `a ${status==='approved'?`approuvé (${m?.label||'?'})`:status==='rejected'?'refusé':'mis en révision'} le ticket ${d.ticketNum||''} de @${u?.username||'?'}`, {sub:s?.nom});
 
   if (u) {
+    const approvedMsg = buildMasteryNotifMessage(s?.nom||'?', masteryLevel, note);
     const statusMsgs = {
-      approved: `✅ Votre ticket ${d.ticketNum||''} pour "${s?.nom||'?'}" a été approuvé !${note?' Note : '+note:''}`,
+      approved: approvedMsg,
       rejected: `❌ Votre ticket ${d.ticketNum||''} pour "${s?.nom||'?'}" a été refusé.${note?' Note : '+note:''}`,
       in_review: `🔍 Votre ticket ${d.ticketNum||''} est passé en révision par @${CU.username}.`,
     };
@@ -6026,7 +6102,8 @@ async function submitTktTreat() {
   closeModal('modal-tkt-treat');
   await renderAllTickets();
   await renderStaffStats();
-  toast(status==='approved'?'Ticket approuvé ✓':status==='in_review'?'En révision':'Ticket refusé.', status==='approved'?'success':status==='in_review'?'info':'error');
+  const toastLabel = status==='approved' ? `${m?.icon||'✅'} Approuvé — ${m?.label||'Initié'} !` : status==='in_review' ? 'En révision' : 'Ticket refusé.';
+  toast(toastLabel, status==='approved'?'success':status==='in_review'?'info':'error');
 }
 
 // ── Ticket badge update ─────────────────────────────────
@@ -7259,6 +7336,7 @@ Object.assign(window, {
   // Tickets
   renderMyTickets, renderAllTickets, setTktView, setAllTktView,
   openTicketDetail, openTktTreat, submitTktTreat, addTktComment,
+  selectTktMasteryLevel, toggleTktMasterySection,
   assignTicketToSelf, changeTicketPriority, openTktTagModal, exportTicketsCSV,
   revokeSubJutsu, reopenTicket, deleteTicket, openTktInternalNote,
   // Stats

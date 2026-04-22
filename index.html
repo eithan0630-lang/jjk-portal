@@ -2806,29 +2806,11 @@ tr:hover td { background: rgba(201,162,39,0.02); }
         <div class="tkt-detail-label">📝 Note du MJ</div>
         <div id="tkt-detail-note" style="font-size:14px;color:var(--warn2);line-height:1.8;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:14px"></div>
       </div>
-      <!-- ══ SUIVI RP → lien vers l'espace narration dédié ══ -->
+      <!-- ══ SUIVI RP ══ -->
       <div class="tkt-detail-section" id="tkt-rp-section">
-        <div class="tkt-detail-label">⛩ Narrations &amp; Suivi RP</div>
-        <div id="tkt-rp-summary" style="margin-top:10px"></div>
-        <button id="tkt-open-narr-space" onclick="openNarrSpace(currentTktId)"
-          style="
-            margin-top:14px;width:100%;
-            background:linear-gradient(135deg,rgba(124,92,191,0.12),rgba(201,162,39,0.08));
-            border:1px solid rgba(124,92,191,0.3);border-radius:12px;
-            padding:18px 22px;cursor:pointer;
-            display:flex;align-items:center;gap:16px;
-            transition:all 0.2s;font-family:'Rajdhani',sans-serif;
-          "
-          onmouseover="this.style.borderColor='rgba(167,139,250,0.6)';this.style.background='linear-gradient(135deg,rgba(124,92,191,0.18),rgba(201,162,39,0.12))'"
-          onmouseout="this.style.borderColor='rgba(124,92,191,0.3)';this.style.background='linear-gradient(135deg,rgba(124,92,191,0.12),rgba(201,162,39,0.08))'">
-          <div style="width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,rgba(124,92,191,0.3),rgba(201,162,39,0.15));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">📜</div>
-          <div style="flex:1;text-align:left">
-            <div style="font-size:13px;font-weight:700;color:var(--text);font-family:'Cinzel',serif;letter-spacing:0.04em;margin-bottom:3px">Espace Narrations</div>
-            <div style="font-size:11px;color:var(--muted2)">Rédigez, gérez et enrichissez toutes les narrations liées à ce ticket dans un espace dédié.</div>
-          </div>
-          <div style="font-size:18px;color:var(--purple2);opacity:0.7">→</div>
-        </button>
-        <!-- Hidden inputs for RP form (kept for backward compat) -->
+        <div class="tkt-detail-label">⛩ Suivi RP</div>
+        <div id="tkt-rp-status-block" style="margin-top:12px"></div>
+        <!-- hidden compat -->
         <input type="hidden" id="rp-type" value="narration">
         <input type="hidden" id="rp-author" value="">
         <input type="hidden" id="rp-content" value="">
@@ -5648,20 +5630,8 @@ async function openTicketDetail(demId) {
   if (d.mjNote) { noteSec.style.display=''; document.getElementById('tkt-detail-note').textContent = d.mjNote; }
   else noteSec.style.display='none';
 
-  // ── Résumé narrations (espace dédié) ─────────────────
-  const entries = d.rpEntries || [];
-  const totalMjReplies = entries.reduce((acc, e) => acc + (e.mjReplies||[]).length, 0);
-  const lastTs = entries.length ? entries[entries.length-1].ts : null;
-  const summaryEl = document.getElementById('tkt-rp-summary');
-  if (summaryEl) {
-    summaryEl.innerHTML = entries.length
-      ? `<div style="font-size:11px;color:var(--muted2);display:flex;gap:14px;flex-wrap:wrap">
-          <span>📜 <b style="color:var(--text)">${entries.length}</b> entrée${entries.length>1?'s':''}</span>
-          <span>🎲 <b style="color:var(--gold)">${totalMjReplies}</b> réponse${totalMjReplies>1?'s':''} MJ</span>
-          ${lastTs ? `<span>🕐 <b style="color:var(--text2)">${new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</b></span>` : ''}
-        </div>`
-      : `<div style="font-size:11px;color:var(--muted)">Aucune narration pour le moment.</div>`;
-  }
+  // ── Bloc Suivi RP (MJ-gated) ──────────────────────────
+  renderRpStatusBlock(d);
 
   // Timeline
   const timeline = (d.timeline || []);
@@ -6557,15 +6527,15 @@ async function renderNarrations() {
 // ══════════════════════════════════════════════════════
 
 const NS_TYPE_META = {
-  narration:    { icon:'📜', label:'Narration',      color:'var(--purple2)',   cls:'narr-t-narr' },
-  event:        { icon:'⭐', label:'Événement',      color:'var(--gold)',      cls:'narr-t-event' },
-  combat:       { icon:'⚔', label:'Combat',          color:'var(--danger)',    cls:'narr-t-combat' },
-  dialogue:     { icon:'💬', label:'Dialogue',        color:'var(--cyan)',      cls:'narr-t-dial' },
-  flashback:    { icon:'🌀', label:'Flashback',       color:'var(--purple)',    cls:'narr-t-fb' },
-  revelation:   { icon:'💥', label:'Révélation',      color:'var(--warn)',      cls:'narr-t-rev' },
-  introspection:{ icon:'🧠', label:'Introspection',   color:'var(--blue)',      cls:'narr-t-intro' },
-  mort:         { icon:'☠',  label:'Mort / Fin',       color:'#6b7280',         cls:'narr-t-mort' },
-  pouvoir:      { icon:'⚡', label:'Éveil de pouvoir', color:'var(--gold3)',    cls:'narr-t-pvr' },
+  narration:    { icon:'📜', label:'Narration',       color:'var(--purple2)' },
+  event:        { icon:'⭐', label:'Événement',       color:'var(--gold)' },
+  combat:       { icon:'⚔',  label:'Combat',           color:'var(--danger)' },
+  dialogue:     { icon:'💬', label:'Dialogue',         color:'var(--cyan)' },
+  flashback:    { icon:'🌀', label:'Flashback',        color:'var(--purple)' },
+  revelation:   { icon:'💥', label:'Révélation',       color:'var(--warn)' },
+  introspection:{ icon:'🧠', label:'Introspection',    color:'var(--blue)' },
+  mort:         { icon:'☠',  label:'Mort / Fin',        color:'#6b7280' },
+  pouvoir:      { icon:'⚡', label:'Éveil de pouvoir', color:'var(--gold3)' },
 };
 
 const NS_MOOD_META = {
@@ -6584,32 +6554,154 @@ let _nsFilter = '';
 let _nsView = 'cards';
 let _nsMood = [];
 
+// ── Bloc affiché dans le modal ticket ──────────────────
+function renderRpStatusBlock(d) {
+  const el = document.getElementById('tkt-rp-status-block');
+  if (!el) return;
+  const isMJ = hasPerm(CU, 'approve_requests');
+  const isOwner = d.userId === CU.id;
+  const rpOpen = !!d.rpOpen;
+  const entries = d.rpEntries || [];
+  const totalMjR = entries.reduce((s,e)=>s+(e.mjReplies||[]).length,0);
+  const lastTs = entries.length ? entries[entries.length-1].ts : null;
+
+  if (!rpOpen) {
+    // Pas encore ouvert
+    if (isMJ) {
+      el.innerHTML = `
+        <div style="
+          background:rgba(124,92,191,0.06);border:1px dashed rgba(124,92,191,0.25);
+          border-radius:12px;padding:20px 22px;display:flex;align-items:center;gap:16px;
+        ">
+          <div style="font-size:28px">🔒</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;font-family:'Cinzel',serif">Suivi RP non activé</div>
+            <div style="font-size:11px;color:var(--muted2);line-height:1.6">En tant que MJ, vous pouvez activer le Suivi RP pour ce ticket. Le joueur pourra ensuite y rédiger ses narrations.</div>
+          </div>
+          <button onclick="activateRpSpace('${d.id}')" style="
+            background:linear-gradient(135deg,var(--purple),var(--purple2));border:none;
+            border-radius:9px;padding:10px 20px;cursor:pointer;font-size:12px;font-weight:700;
+            color:#fff;letter-spacing:0.08em;font-family:'Rajdhani',sans-serif;
+            white-space:nowrap;box-shadow:0 4px 16px rgba(124,92,191,0.35);
+            transition:all 0.2s;text-transform:uppercase;
+          " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            ⛩ Activer
+          </button>
+        </div>`;
+    } else {
+      el.innerHTML = `
+        <div style="
+          background:rgba(255,255,255,0.02);border:1px solid var(--border);
+          border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px;opacity:0.6;
+        ">
+          <div style="font-size:24px">🔒</div>
+          <div style="font-size:12px;color:var(--muted2)">Le Suivi RP n'a pas encore été activé par un MJ.</div>
+        </div>`;
+    }
+    return;
+  }
+
+  // Ouvert → résumé + bouton accès
+  const canAccess = isMJ || isOwner;
+  el.innerHTML = `
+    <div style="margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2)">
+        <span style="font-size:16px">📜</span>
+        <b style="color:var(--text);font-size:14px">${entries.length}</b> entrée${entries.length>1?'s':''}
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2)">
+        <span style="font-size:16px">🎲</span>
+        <b style="color:var(--gold);font-size:14px">${totalMjR}</b> réponse${totalMjR>1?'s':''} MJ
+      </div>
+      ${lastTs ? `<div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2)">
+        <span style="font-size:16px">🕐</span>
+        <b style="color:var(--text2)">${new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</b>
+      </div>` : ''}
+    </div>
+    ${canAccess ? `
+    <button onclick="openNarrSpace('${d.id}')" style="
+      width:100%;background:linear-gradient(135deg,rgba(124,92,191,0.12),rgba(201,162,39,0.08));
+      border:1px solid rgba(124,92,191,0.3);border-radius:12px;padding:16px 22px;cursor:pointer;
+      display:flex;align-items:center;gap:14px;transition:all 0.2s;font-family:'Rajdhani',sans-serif;
+    "
+    onmouseover="this.style.borderColor='rgba(167,139,250,0.55)';this.style.background='linear-gradient(135deg,rgba(124,92,191,0.18),rgba(201,162,39,0.12))'"
+    onmouseout="this.style.borderColor='rgba(124,92,191,0.3)';this.style.background='linear-gradient(135deg,rgba(124,92,191,0.12),rgba(201,162,39,0.08))'">
+      <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(124,92,191,0.3),rgba(201,162,39,0.15));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⛩</div>
+      <div style="flex:1;text-align:left">
+        <div style="font-size:13px;font-weight:700;color:var(--text);font-family:'Cinzel',serif;letter-spacing:0.04em;margin-bottom:2px">Ouvrir le Suivi RP</div>
+        <div style="font-size:11px;color:var(--muted2)">Narrations, événements, combats, réponses MJ…</div>
+      </div>
+      <div style="font-size:16px;color:var(--purple2);opacity:0.7">→</div>
+    </button>` : `
+    <div style="font-size:11px;color:var(--muted);padding:10px 0">
+      Seul le joueur propriétaire du ticket peut accéder au Suivi RP.
+    </div>`}
+    ${isMJ ? `<button onclick="closeRpSpace('${d.id}')" style="margin-top:8px;background:none;border:none;color:var(--danger);font-size:10px;cursor:pointer;opacity:0.5;padding:4px 0;font-family:'Rajdhani',sans-serif" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">🔒 Désactiver le Suivi RP</button>` : ''}
+  `;
+}
+
+async function activateRpSpace(demId) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const d = await fsGetOne('demandes', demId); if (!d) return;
+  const tl = d.timeline || [];
+  const now = new Date().toISOString();
+  tl.push({ ts: now, actor: CU.nomrp||CU.username, action: 'a activé le Suivi RP', icon: '⛩' });
+  await fsUpdate('demandes', demId, { rpOpen: true, rpOpenedAt: now, rpOpenedBy: CU.username, timeline: tl });
+  _cache.demandes = null;
+  // Notifier le joueur
+  await pushNotif(d.userId, `⛩ Le MJ @${CU.username} a activé le Suivi RP pour votre ticket ${d.ticketNum||''} ! Vous pouvez maintenant rédiger vos narrations.`, 'system');
+  await addLog('demande', `a activé le Suivi RP sur le ticket ${d.ticketNum||''}`, {});
+  toast('⛩ Suivi RP activé ! Le joueur peut maintenant accéder à son espace narrations.', 'success');
+  // Reopen ticket detail to refresh
+  await openTicketDetail(demId);
+}
+
+async function closeRpSpace(demId) {
+  if (!hasPerm(CU, 'approve_requests')) return;
+  if (!confirm('Désactiver le Suivi RP ? Le joueur ne pourra plus y accéder.')) return;
+  await fsUpdate('demandes', demId, { rpOpen: false });
+  _cache.demandes = null;
+  toast('Suivi RP désactivé.', 'info');
+  await openTicketDetail(demId);
+}
+
+// ── Espace narrations plein écran ──────────────────────
 async function openNarrSpace(demId) {
   _nsCurrentTktId = demId;
-  const overlay = document.getElementById('narr-space-overlay');
-  overlay.classList.add('open');
-  overlay.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
+  const d = await fsGetOne('demandes', demId); if (!d) return;
 
-  // Load ticket info
-  const [dems, subs] = await Promise.all([getDemandes(), getSubs()]);
-  const d = dems.find(x => x.id === demId);
-  const s = d ? subs.find(x => x.id === d.subId) : null;
-  document.getElementById('ns-tkt-num').textContent  = d?.ticketNum || '—';
-  document.getElementById('ns-tkt-sub').textContent  = s?.nom || '—';
+  // Vérif accès : MJ ou owner
+  if (!hasPerm(CU,'approve_requests') && d.userId !== CU.id) {
+    toast('Accès non autorisé.', 'error'); return;
+  }
+  if (!d.rpOpen) { toast('Le Suivi RP n\'est pas encore activé.', 'error'); return; }
 
-  // Filter tabs init
+  const subs = await getSubs();
+  const s = subs.find(x => x.id === d.subId);
+  document.getElementById('ns-tkt-num').textContent = d.ticketNum || '—';
+  document.getElementById('ns-tkt-sub').textContent = s?.nom || '—';
+
   _nsFilter = '';
   _nsView = 'cards';
   document.querySelectorAll('.ns-ftab').forEach(t => {
-    t.classList.toggle('active', (t.dataset.filter || '') === _nsFilter);
-    t.onclick = () => { _nsFilter = t.dataset.filter || ''; nsRefreshEntries(); document.querySelectorAll('.ns-ftab').forEach(x => x.classList.toggle('active', x === t)); };
+    t.classList.toggle('active', (t.dataset.filter||'') === '');
+    t.onclick = () => {
+      _nsFilter = t.dataset.filter||'';
+      nsRefreshEntries();
+      document.querySelectorAll('.ns-ftab').forEach(x => x.classList.toggle('active', x===t));
+    };
   });
   document.getElementById('ns-view-cards').classList.add('active');
   document.getElementById('ns-view-scroll').classList.remove('active');
   document.getElementById('ns-entries-col').className = 'ns-entries-col';
 
   nsCloseForm();
+
+  const overlay = document.getElementById('narr-space-overlay');
+  overlay.style.display = 'flex';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
   await nsRefreshEntries();
 }
 
@@ -6618,84 +6710,71 @@ function closeNarrSpace() {
   overlay.classList.remove('open');
   overlay.style.display = 'none';
   document.body.style.overflow = '';
-  _nsCurrentTktId = null;
 }
 
 function nsSetView(v) {
   _nsView = v;
-  document.getElementById('ns-view-cards').classList.toggle('active', v === 'cards');
-  document.getElementById('ns-view-scroll').classList.toggle('active', v === 'scroll');
-  const col = document.getElementById('ns-entries-col');
-  col.className = v === 'scroll' ? 'ns-entries-col view-scroll' : 'ns-entries-col';
+  document.getElementById('ns-view-cards').classList.toggle('active', v==='cards');
+  document.getElementById('ns-view-scroll').classList.toggle('active', v==='scroll');
+  document.getElementById('ns-entries-col').className = v==='scroll' ? 'ns-entries-col view-scroll' : 'ns-entries-col';
 }
 
 async function nsRefreshEntries() {
   if (!_nsCurrentTktId) return;
   const d = await fsGetOne('demandes', _nsCurrentTktId);
-  const entries = (d?.rpEntries || []);
+  const entries = d?.rpEntries || [];
 
   // Stats
-  const totalMjReplies = entries.reduce((acc, e) => acc + (e.mjReplies||[]).length, 0);
-  const combats = entries.filter(e => e.type === 'combat').length;
-  document.getElementById('ns-stat-total').textContent  = entries.length;
-  document.getElementById('ns-stat-narr').textContent   = entries.filter(e => e.type === 'narration').length;
-  document.getElementById('ns-stat-mj').textContent     = totalMjReplies;
-  document.getElementById('ns-stat-combat').textContent = combats;
+  const totalMjR = entries.reduce((a,e)=>a+(e.mjReplies||[]).length,0);
+  document.getElementById('ns-stat-total').textContent   = entries.length;
+  document.getElementById('ns-stat-narr').textContent    = entries.filter(e=>e.type==='narration').length;
+  document.getElementById('ns-stat-mj').textContent      = totalMjR;
+  document.getElementById('ns-stat-combat').textContent  = entries.filter(e=>e.type==='combat').length;
   const lastTs = entries.length ? entries[entries.length-1].ts : null;
-  document.getElementById('ns-stat-last').textContent = lastTs ? new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '—';
+  document.getElementById('ns-stat-last').textContent = lastTs
+    ? new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '—';
 
-  // Also update summary in ticket modal
-  const summaryEl = document.getElementById('tkt-rp-summary');
-  if (summaryEl) {
-    summaryEl.innerHTML = entries.length
-      ? `<div style="font-size:11px;color:var(--muted2);display:flex;gap:14px;flex-wrap:wrap">
-          <span>📜 <b style="color:var(--text)">${entries.length}</b> entrée${entries.length>1?'s':''}</span>
-          <span>🎲 <b style="color:var(--gold)">${totalMjReplies}</b> réponse${totalMjReplies>1?'s':''} MJ</span>
-          ${lastTs ? `<span>🕐 <b style="color:var(--text2)">${new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</b></span>` : ''}
-        </div>`
-      : `<div style="font-size:11px;color:var(--muted)">Aucune narration pour le moment.</div>`;
-  }
+  const isMJ   = hasPerm(CU,'approve_requests');
+  const isOwner = d?.userId === CU.id;
+  const col     = document.getElementById('ns-entries-col');
+  let filtered  = _nsFilter ? entries.filter(e=>e.type===_nsFilter) : entries;
 
-  const col = document.getElementById('ns-entries-col');
-  let filtered = _nsFilter ? entries.filter(e => e.type === _nsFilter) : entries;
+  // Bouton "Nouvelle narration" : visible pour owner ET MJ
+  document.querySelector('.ns-add-btn').style.display = (isMJ||isOwner) ? '' : 'none';
 
   if (!filtered.length) {
     col.innerHTML = `<div class="ns-empty">
-      <div class="ns-empty-icon">${_nsFilter ? (NS_TYPE_META[_nsFilter]?.icon||'📜') : '📜'}</div>
-      <div class="ns-empty-text">Aucune narration${_nsFilter ? ' de ce type' : ''}</div>
-      <div class="ns-empty-sub">Cliquez sur "✦ Nouvelle narration" pour commencer à écrire l'histoire de ce ticket.</div>
+      <div class="ns-empty-icon">${_nsFilter ? (NS_TYPE_META[_nsFilter]?.icon||'📜') : '⛩'}</div>
+      <div class="ns-empty-text">Aucune narration${_nsFilter?' de ce type':''}</div>
+      <div class="ns-empty-sub">${(isMJ||isOwner)?'Cliquez sur "✦ Nouvelle narration" pour commencer.':'En attente de narrations.'}</div>
     </div>`;
     return;
   }
 
-  const isMJ = hasPerm(CU, 'approve_requests');
-  const canAdd = d?.userId === CU.id || isMJ;
-  const globalEntries = d?.rpEntries || [];
-
   col.innerHTML = filtered.map((e, fi) => {
-    // Find real index in globalEntries for operations
-    const realIdx = globalEntries.indexOf(e);
-    const meta = NS_TYPE_META[e.type] || NS_TYPE_META.narration;
+    const realIdx = entries.indexOf(e);
+    const meta  = NS_TYPE_META[e.type] || NS_TYPE_META.narration;
     const moods = e.moods || [];
     const canDel = e.authorId === CU.id || isMJ;
+    const canEdit = e.authorId === CU.id || isMJ;
 
-    const moodHtml = moods.length ? moods.map(m => {
+    const moodHtml = moods.map(m => {
       const mm = NS_MOOD_META[m]; if (!mm) return '';
       return `<span class="ns-entry-mood" style="color:${mm.color};border-color:${mm.color}33;background:${mm.color}11">${mm.icon} ${m}</span>`;
-    }).join('') : '';
+    }).join('');
 
     const lieuHtml = e.lieu ? `<span style="font-size:10px;color:var(--muted2);padding:2px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:20px">📍 ${esc(e.lieu)}</span>` : '';
 
-    const imgsHtml = (e.images||[]).length ? `<div class="tkt-media-preview">${e.images.map(img=>`<div class="tkt-media-thumb" onclick="openLightbox('${esc(typeof img==='string'?img:img.dataUrl||img)}')" ><img src="${esc(typeof img==='string'?img:img.dataUrl||img)}" alt="" onerror="this.parentElement.style.display='none'"></div>`).join('')}</div>` : '';
+    const imgsHtml = (e.images||[]).length ? `<div class="tkt-media-preview">${e.images.map(img=>`<div class="tkt-media-thumb" onclick="openLightbox('${esc(typeof img==='string'?img:img.dataUrl||img)}')"><img src="${esc(typeof img==='string'?img:img.dataUrl||img)}" alt="" onerror="this.parentElement.style.display='none'"></div>`).join('')}</div>` : '';
     const linksHtml = (e.links||[]).length ? `<div class="rp-entry-links">${e.links.map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener" class="rp-link-pill">🔗 ${esc(l.label)}</a>`).join('')}</div>` : '';
 
-    const repliesHtml = (e.mjReplies||[]).map((rep, ri) => `
+    const repliesHtml = (e.mjReplies||[]).map((rep,ri)=>`
       <div class="ns-mj-reply">
         <div class="ns-mj-reply-header">
           <span class="ns-mj-reply-badge">🎲 Réponse MJ</span>
           <span style="font-size:12px;font-weight:700;color:var(--gold2)">${esc(rep.authorName||'MJ')}</span>
           <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto">${fmtDateTime(rep.ts)}</span>
-          ${isMJ ? `<button onclick="nsDeleteMJReply(${realIdx},${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 5px;border-radius:4px" title="Supprimer">🗑</button>` : ''}
+          ${isMJ?`<button onclick="nsDeleteMJReply(${realIdx},${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 5px;border-radius:4px" title="Supprimer">🗑</button>`:''}
         </div>
         <div class="ns-mj-reply-body">${esc(rep.content)}</div>
       </div>`).join('');
@@ -6719,10 +6798,9 @@ async function nsRefreshEntries() {
           <div class="ns-entry-meta">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
               <span class="ns-entry-type-badge" style="color:${meta.color};border-color:${meta.color}44;background:${meta.color}11">${meta.icon} ${meta.label}</span>
-              ${lieuHtml}
-              ${moodHtml}
+              ${lieuHtml}${moodHtml}
             </div>
-            ${e.titre ? `<div class="ns-entry-title">${esc(e.titre)}</div>` : ''}
+            ${e.titre?`<div class="ns-entry-title">${esc(e.titre)}</div>`:''}
             <div class="ns-entry-sub-meta">
               <span class="ns-entry-author">${esc(e.author||e.authorName||'?')}</span>
               <span style="color:var(--border3)">·</span>
@@ -6730,8 +6808,8 @@ async function nsRefreshEntries() {
             </div>
           </div>
           <div class="ns-entry-actions">
-            ${canDel ? `<button class="ns-action-btn" onclick="nsOpenEditForm(${realIdx})" title="Modifier">✏</button>` : ''}
-            ${canDel ? `<button class="ns-action-btn danger" onclick="nsDeleteEntry(${realIdx})" title="Supprimer">🗑</button>` : ''}
+            ${canEdit?`<button class="ns-action-btn" onclick="nsOpenEditForm(${realIdx})" title="Modifier">✏</button>`:''}
+            ${canDel?`<button class="ns-action-btn danger" onclick="nsDeleteEntry(${realIdx})" title="Supprimer">🗑</button>`:''}
           </div>
         </div>
         <div class="ns-entry-body">${esc(e.content)}</div>
@@ -6748,16 +6826,16 @@ function nsOpenForm() {
   document.getElementById('ns-form-title').textContent = '✦ Nouvelle narration';
   document.getElementById('ns-editing-idx').value = '';
   document.getElementById('ns-titre').value = '';
-  document.getElementById('ns-author').value = CU.nomrp || CU.username || '';
+  document.getElementById('ns-author').value = CU.nomrp||CU.username||'';
   document.getElementById('ns-content').value = '';
   document.getElementById('ns-lieu').value = '';
   document.getElementById('ns-links').value = '';
   _nsMood = [];
-  document.querySelectorAll('.ns-mood-chip').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('.ns-type-option').forEach(t => t.classList.toggle('selected', t.dataset.type === 'narration'));
+  document.querySelectorAll('.ns-mood-chip').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.ns-type-option').forEach(t=>t.classList.toggle('selected',t.dataset.type==='narration'));
   document.getElementById('ns-charcount').textContent = '0 caractères';
   document.getElementById('ns-form-panel').classList.add('open');
-  setTimeout(() => document.getElementById('ns-content').focus(), 350);
+  setTimeout(()=>document.getElementById('ns-content').focus(),350);
 }
 
 async function nsOpenEditForm(idx) {
@@ -6765,16 +6843,16 @@ async function nsOpenEditForm(idx) {
   const e = d?.rpEntries?.[idx]; if (!e) return;
   document.getElementById('ns-form-title').textContent = '✏ Modifier la narration';
   document.getElementById('ns-editing-idx').value = idx;
-  document.getElementById('ns-titre').value = e.titre || '';
-  document.getElementById('ns-author').value = e.author || '';
-  document.getElementById('ns-content').value = e.content || '';
-  document.getElementById('ns-lieu').value = e.lieu || '';
+  document.getElementById('ns-titre').value = e.titre||'';
+  document.getElementById('ns-author').value = e.author||'';
+  document.getElementById('ns-content').value = e.content||'';
+  document.getElementById('ns-lieu').value = e.lieu||'';
   document.getElementById('ns-links').value = (e.links||[]).map(l=>l.label+'|'+l.url).join('\n');
-  _nsMood = e.moods || [];
-  document.querySelectorAll('.ns-mood-chip').forEach(c => c.classList.toggle('selected', _nsMood.includes(c.dataset.mood)));
-  const t = e.type || 'narration';
-  document.querySelectorAll('.ns-type-option').forEach(o => o.classList.toggle('selected', o.dataset.type === t));
-  document.getElementById('ns-charcount').textContent = (e.content||'').length + ' caractères';
+  _nsMood = e.moods||[];
+  document.querySelectorAll('.ns-mood-chip').forEach(c=>c.classList.toggle('selected',_nsMood.includes(c.dataset.mood)));
+  const t = e.type||'narration';
+  document.querySelectorAll('.ns-type-option').forEach(o=>o.classList.toggle('selected',o.dataset.type===t));
+  document.getElementById('ns-charcount').textContent = (e.content||'').length+' caractères';
   document.getElementById('ns-form-panel').classList.add('open');
 }
 
@@ -6783,20 +6861,18 @@ function nsCloseForm() {
 }
 
 function nsSelectType(el) {
-  document.querySelectorAll('.ns-type-option').forEach(o => o.classList.remove('selected'));
+  document.querySelectorAll('.ns-type-option').forEach(o=>o.classList.remove('selected'));
   el.classList.add('selected');
 }
 
 function nsToggleMood(el) {
   const m = el.dataset.mood;
   el.classList.toggle('selected');
-  if (_nsMood.includes(m)) _nsMood = _nsMood.filter(x => x !== m);
-  else _nsMood.push(m);
+  if (_nsMood.includes(m)) _nsMood=_nsMood.filter(x=>x!==m); else _nsMood.push(m);
 }
 
-// Char counter
 document.getElementById('ns-content')?.addEventListener('input', function() {
-  document.getElementById('ns-charcount').textContent = this.value.length + ' caractères';
+  document.getElementById('ns-charcount').textContent = this.value.length+' caractères';
 });
 
 async function nsSubmitEntry() {
@@ -6804,45 +6880,36 @@ async function nsSubmitEntry() {
   if (!content) { toast('Le contenu est requis.', 'error'); return; }
   if (!_nsCurrentTktId) return;
 
-  const type    = document.querySelector('.ns-type-option.selected')?.dataset.type || 'narration';
-  const titre   = document.getElementById('ns-titre').value.trim();
-  const author  = document.getElementById('ns-author').value.trim() || CU.nomrp || CU.username;
-  const lieu    = document.getElementById('ns-lieu').value.trim();
+  const type     = document.querySelector('.ns-type-option.selected')?.dataset.type||'narration';
+  const titre    = document.getElementById('ns-titre').value.trim();
+  const author   = document.getElementById('ns-author').value.trim()||CU.nomrp||CU.username;
+  const lieu     = document.getElementById('ns-lieu').value.trim();
   const linksRaw = document.getElementById('ns-links').value.trim();
-  const links = linksRaw ? linksRaw.split('\n').map(l=>{
-    const parts = l.split('|');
-    const url = (parts[1]||parts[0]).trim();
-    const label = parts.length>1 ? parts[0].trim() : url;
-    return url.startsWith('http') ? {label, url} : null;
+  const links    = linksRaw ? linksRaw.split('\n').map(l=>{
+    const parts=l.split('|');const url=(parts[1]||parts[0]).trim();const label=parts.length>1?parts[0].trim():url;
+    return url.startsWith('http')?{label,url}:null;
   }).filter(Boolean) : [];
 
   const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
-  const entries = d.rpEntries || [];
+  const entries = d.rpEntries||[];
   const editIdx = document.getElementById('ns-editing-idx').value;
   const now = new Date().toISOString();
 
   if (editIdx !== '') {
     const idx = parseInt(editIdx);
-    entries[idx] = { ...entries[idx], type, titre, author, content, lieu, moods: _nsMood, links, updatedAt: now };
-    const tl = d.timeline || [];
-    tl.push({ ts: now, actor: CU.nomrp||CU.username, action: 'a modifié une narration', icon: NS_TYPE_META[type]?.icon||'📜' });
-    await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries, timeline: tl });
+    entries[idx] = {...entries[idx], type, titre, author, content, lieu, moods:_nsMood, links, updatedAt:now};
+    const tl=d.timeline||[]; tl.push({ts:now,actor:CU.nomrp||CU.username,action:'a modifié une narration',icon:NS_TYPE_META[type]?.icon||'📜'});
+    await fsUpdate('demandes', _nsCurrentTktId, {rpEntries:entries,timeline:tl});
     toast('✦ Narration modifiée !', 'success');
   } else {
-    const entry = {
-      type, titre, author, content, lieu, moods: _nsMood, links, images:[],
-      authorId: CU.id, authorName: CU.nomrp||CU.username, authorRole: CU.role,
-      mjReplies: [], ts: now
-    };
+    const entry = {type,titre,author,content,lieu,moods:_nsMood,links,images:[],
+      authorId:CU.id,authorName:CU.nomrp||CU.username,authorRole:CU.role,mjReplies:[],ts:now};
     entries.push(entry);
-    const tl = d.timeline || [];
-    tl.push({ ts: now, actor: CU.nomrp||CU.username, action: `a ajouté une narration (${NS_TYPE_META[type]?.label||type})`, icon: NS_TYPE_META[type]?.icon||'📜' });
-    await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries, timeline: tl });
-    // Notify
+    const tl=d.timeline||[]; tl.push({ts:now,actor:CU.nomrp||CU.username,action:`a ajouté une narration (${NS_TYPE_META[type]?.label||type})`,icon:NS_TYPE_META[type]?.icon||'📜'});
+    await fsUpdate('demandes', _nsCurrentTktId, {rpEntries:entries,timeline:tl});
     if (d.userId !== CU.id) await pushNotif(d.userId, `📜 @${CU.username} a ajouté une narration sur votre ticket ${d.ticketNum||''}.`, 'system');
     toast('✦ Narration publiée !', 'success');
   }
-
   _cache.demandes = null;
   nsCloseForm();
   await nsRefreshEntries();
@@ -6851,27 +6918,26 @@ async function nsSubmitEntry() {
 async function nsDeleteEntry(idx) {
   if (!confirm('Supprimer cette narration ?')) return;
   const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
-  const entries = d.rpEntries || [];
-  entries.splice(idx, 1);
-  await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries });
+  const entries = d.rpEntries||[];
+  entries.splice(idx,1);
+  await fsUpdate('demandes', _nsCurrentTktId, {rpEntries:entries});
   _cache.demandes = null;
   toast('Narration supprimée.', 'info');
   await nsRefreshEntries();
 }
 
 async function nsSubmitMJReply(entryIdx) {
-  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  if (!hasPerm(CU,'approve_requests')) { toast('Permission refusée.','error'); return; }
   const content = document.getElementById(`ns-mj-reply-txt-${entryIdx}`)?.value.trim();
-  if (!content) { toast('La réponse ne peut pas être vide.', 'error'); return; }
+  if (!content) { toast('La réponse ne peut pas être vide.','error'); return; }
   const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
-  const entries = d.rpEntries || [];
+  const entries = d.rpEntries||[];
   if (!entries[entryIdx]) return;
-  const reply = { content, authorId:CU.id, authorName:CU.nomrp||CU.username, authorRole:CU.role, ts:new Date().toISOString() };
-  if (!entries[entryIdx].mjReplies) entries[entryIdx].mjReplies = [];
+  const reply = {content,authorId:CU.id,authorName:CU.nomrp||CU.username,authorRole:CU.role,ts:new Date().toISOString()};
+  if (!entries[entryIdx].mjReplies) entries[entryIdx].mjReplies=[];
   entries[entryIdx].mjReplies.push(reply);
-  const tl = d.timeline || [];
-  tl.push({ ts: reply.ts, actor: CU.nomrp||CU.username, action: 'a répondu à une narration', icon: '🎲' });
-  await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries, timeline: tl });
+  const tl=d.timeline||[]; tl.push({ts:reply.ts,actor:CU.nomrp||CU.username,action:'a répondu à une narration',icon:'🎲'});
+  await fsUpdate('demandes', _nsCurrentTktId, {rpEntries:entries,timeline:tl});
   _cache.demandes = null;
   await pushNotif(d.userId, `🎲 Le MJ @${CU.username} a répondu à votre narration sur le ticket ${d.ticketNum||''}.`, 'system');
   toast('✦ Réponse MJ publiée !', 'success');
@@ -6879,15 +6945,15 @@ async function nsSubmitMJReply(entryIdx) {
 }
 
 async function nsDeleteMJReply(entryIdx, replyIdx) {
-  if (!hasPerm(CU, 'approve_requests')) return;
+  if (!hasPerm(CU,'approve_requests')) return;
   if (!confirm('Supprimer cette réponse MJ ?')) return;
   const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
-  const entries = d.rpEntries || [];
+  const entries = d.rpEntries||[];
   if (entries[entryIdx]?.mjReplies) {
-    entries[entryIdx].mjReplies.splice(replyIdx, 1);
-    await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries });
+    entries[entryIdx].mjReplies.splice(replyIdx,1);
+    await fsUpdate('demandes', _nsCurrentTktId, {rpEntries:entries});
     _cache.demandes = null;
-    toast('Réponse supprimée.', 'info');
+    toast('Réponse supprimée.','info');
     await nsRefreshEntries();
   }
 }
@@ -6895,15 +6961,15 @@ async function nsDeleteMJReply(entryIdx, replyIdx) {
 function nsToggleMJForm(idx) {
   const form = document.getElementById(`ns-mj-form-${idx}`);
   if (!form) return;
-  const show = form.style.display === 'none';
-  form.style.display = show ? '' : 'none';
+  const show = form.style.display==='none';
+  form.style.display = show?'':'none';
   if (show) { form.scrollIntoView({behavior:'smooth',block:'nearest'}); document.getElementById(`ns-mj-reply-txt-${idx}`)?.focus(); }
 }
 
-// Keyboard shortcut: Escape closes narr space
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && document.getElementById('narr-space-overlay')?.classList.contains('open')) {
-    nsCloseForm();
+  if (e.key==='Escape' && document.getElementById('narr-space-overlay')?.classList.contains('open')) {
+    if (document.getElementById('ns-form-panel').classList.contains('open')) nsCloseForm();
+    else closeNarrSpace();
   }
 });
 
@@ -6944,22 +7010,23 @@ Object.assign(window, {
   openCommentsModal, addComment,
   // Export
   exportCSV,
-  // 🆕 Tickets
+  // Tickets
   renderMyTickets, renderAllTickets, setTktView, setAllTktView,
   openTicketDetail, openTktTreat, submitTktTreat, addTktComment,
   assignTicketToSelf, changeTicketPriority, openTktTagModal, exportTicketsCSV,
   revokeSubJutsu, reopenTicket, deleteTicket, openTktInternalNote,
-  // 🆕 Stats
+  // Stats
   renderStats,
-  // 🆕 Recherche globale
+  // Recherche globale
   openGlobalSearch, closeGlobalSearch, runGlobalSearch, handleGsKey, gsSelect,
-  // 🆕 RP & médias
+  // RP & médias (compat)
   toggleRpForm, submitRpEntry, deleteRpEntry,
-  // 🆕 Narrations libres
+  // Narrations libres (page dédiée)
   renderNarrations, openModalNewNarration, openEditNarration, saveNarration, deleteNarration,
   submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
   submitMJReply, deleteMJReply, toggleMJReplyForm,
-  // 🆕 Espace Narrations dédié (ticket)
+  // Suivi RP ticket
+  activateRpSpace, closeRpSpace,
   openNarrSpace, closeNarrSpace, nsSetView, nsOpenForm, nsCloseForm,
   nsSelectType, nsToggleMood, nsSubmitEntry, nsDeleteEntry,
   nsOpenEditForm, nsSubmitMJReply, nsDeleteMJReply, nsToggleMJForm,
@@ -6968,6 +7035,7 @@ Object.assign(window, {
   previewDemImages, previewRpImages,
   openLightbox, closeLightbox,
 });
+
 
 </script>
 </body>

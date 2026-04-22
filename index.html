@@ -1808,6 +1808,59 @@ tr:hover td { background: rgba(201,162,39,0.02); }
 
 /* ── Image preview in modal-sub ── */
 #sub-image-preview-wrap { border-radius: 9px; overflow: hidden; }
+
+/* ══════════════════════════════════
+   NIVEAU DE MAÎTRISE — MASTERY LEVEL
+══════════════════════════════════ */
+.mastery-bar-wrap {
+  background:rgba(255,255,255,0.02);border:1px solid var(--border2);
+  border-radius:var(--radius);padding:18px 20px;margin-top:14px;
+}
+.mastery-bar-header {
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
+}
+.mastery-level-badge {
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;border:1px solid;
+  font-family:'Cinzel',serif;
+}
+.mastery-lvl-1 { background:rgba(156,163,175,0.1);border-color:rgba(156,163,175,0.3);color:#9ca3af }
+.mastery-lvl-2 { background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.35);color:#86efac }
+.mastery-lvl-3 { background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.35);color:#93c5fd }
+.mastery-lvl-4 { background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.35);color:#c4b5fd }
+.mastery-lvl-5 { background:rgba(201,162,39,0.15);border-color:rgba(201,162,39,0.5);color:var(--gold3);box-shadow:0 0 16px rgba(201,162,39,0.12) }
+.mastery-stars { display:flex;gap:4px }
+.mastery-star { font-size:14px;transition:transform 0.2s }
+.mastery-star.filled { color:var(--gold);text-shadow:0 0 8px rgba(201,162,39,0.6);transform:scale(1.1) }
+.mastery-star.empty  { color:var(--muted);opacity:0.4 }
+.mastery-progress { height:6px;border-radius:3px;background:rgba(255,255,255,0.05);overflow:hidden;margin-top:8px }
+.mastery-progress-fill {
+  height:100%;border-radius:3px;transition:width 0.6s cubic-bezier(0.22,1,0.36,1);
+  background:linear-gradient(90deg,var(--lvl-start,#9ca3af),var(--lvl-end,#d1d5db));
+}
+.mastery-history { margin-top:12px;display:flex;flex-direction:column;gap:6px }
+.mastery-hist-item {
+  display:flex;align-items:center;gap:10px;
+  padding:7px 11px;background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);border-radius:8px;font-size:11px;
+}
+.mastery-hist-lvl { font-weight:700;font-family:'Cinzel',serif }
+
+/* Modal passage de niveau */
+#modal-level-up .modal { max-width:540px }
+.level-up-preview {
+  background:linear-gradient(135deg,rgba(201,162,39,0.08),rgba(124,92,191,0.06));
+  border:1px solid rgba(201,162,39,0.2);border-radius:12px;
+  padding:16px 18px;margin-bottom:16px;
+}
+.level-up-msg-preview {
+  font-family:'Zen Antique Soft',serif;font-size:13px;line-height:1.85;
+  color:var(--text2);white-space:pre-wrap;padding:14px;
+  background:rgba(255,255,255,0.02);border:1px solid var(--border2);
+  border-radius:8px;min-height:80px;max-height:220px;overflow-y:auto;
+}
+
 </style>
 </head>
 <body>
@@ -2841,6 +2894,11 @@ tr:hover td { background: rgba(201,162,39,0.02); }
         <div class="tkt-detail-label">📝 Note du MJ</div>
         <div id="tkt-detail-note" style="font-size:14px;color:var(--warn2);line-height:1.8;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:14px"></div>
       </div>
+      <!-- ══ NIVEAU DE MAÎTRISE ══ -->
+      <div class="tkt-detail-section" id="tkt-mastery-section" style="display:none">
+        <div class="tkt-detail-label">⚡ Niveau de Maîtrise</div>
+        <div id="tkt-mastery-block" style="margin-top:8px"></div>
+      </div>
       <!-- ══ SUIVI RP ══ -->
       <div class="tkt-detail-section" id="tkt-rp-section">
         <div class="tkt-detail-label">⛩ Suivi RP</div>
@@ -3309,6 +3367,50 @@ tr:hover td { background: rgba(201,162,39,0.02); }
     </div>
   </div>
 </div>
+</div>
+
+
+<!-- Modal Passage de Niveau (MJ) -->
+<div class="modal-overlay" id="modal-level-up">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚡ Passage de Niveau — Maîtrise</div>
+      <button class="modal-close" onclick="closeModal('modal-level-up')">✕</button>
+    </div>
+    <div id="lu-ticket-info" style="margin-bottom:16px"></div>
+
+    <!-- Sélecteur de niveau -->
+    <div class="fg">
+      <label class="fl">Niveau de maîtrise à attribuer</label>
+      <div id="lu-level-picker" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"></div>
+    </div>
+
+    <!-- Aperçu du message généré -->
+    <div class="level-up-preview" id="lu-msg-preview-wrap" style="margin-top:16px">
+      <div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:0.16em;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        <span>📜</span> Message généré automatiquement
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(201,162,39,0.2),transparent)"></div>
+      </div>
+      <div class="level-up-msg-preview" id="lu-msg-preview">—</div>
+    </div>
+
+    <!-- Personnalisation optionnelle -->
+    <div class="fg" style="margin-top:14px">
+      <label class="fl">Complément / Note du MJ <span style="font-weight:400;color:var(--muted)">(optionnel)</span></label>
+      <textarea class="fi" id="lu-custom-note" placeholder="Ajoutez un commentaire personnel, une remarque sur la progression RP…" style="min-height:70px" oninput="refreshLuPreview()"></textarea>
+    </div>
+
+    <!-- Notifier le joueur ? -->
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;margin-bottom:4px">
+      <input type="checkbox" id="lu-notify" checked>
+      <label for="lu-notify" style="font-size:12px;cursor:pointer;color:var(--text2)">Envoyer une notification au joueur</label>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-level-up')">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmLevelUp()" id="lu-confirm-btn">⚡ Valider le passage</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══ FIREBASE SDK ══ -->
@@ -5664,6 +5766,7 @@ function tktCardHtml(d, subs, isStaffView, users) {
           ${d.tags?.length ? tagsHtml : ''}
         </div>
         <div class="tkt-card-title">${d.ticketTitle ? esc(d.ticketTitle) : '⚡ '+esc(s.nom)}</div>
+        ${d.status === 'approved' && d.masteryLevel ? `<div style="display:inline-flex;align-items:center;gap:5px;margin-top:4px;font-size:10px;color:${['','#9ca3af','#86efac','#93c5fd','#c4b5fd','#ffd97a'][d.masteryLevel]||'var(--gold)'}"><span>${['','🌱','🔥','⚡','💜','👑'][d.masteryLevel]||'⚡'}</span><span style="font-family:'Cinzel',serif;font-weight:700">${['','Initié','Apprenti','Praticien','Expert','Maître'][d.masteryLevel]||''}</span>${Array.from({length:5},(_,i)=>`<span style="font-size:9px">${i<d.masteryLevel?'★':'☆'}</span>`).join('')}</div>` : ''}
         ${isStaffView && u ? `<div style="font-size:11px;color:var(--muted2);margin-top:2px">Demandé par <b>${esc(u.nomrp||u.username)}</b> @${esc(u.username)}</div>` : ''}
         ${d.message ? `<div style="font-size:11px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px">${esc(d.message)}</div>` : ''}
       </div>
@@ -5738,6 +5841,10 @@ async function openTicketDetail(demId) {
   if (d.mjNote) { noteSec.style.display=''; document.getElementById('tkt-detail-note').textContent = d.mjNote; }
   else noteSec.style.display='none';
 
+  // ── Bloc Maîtrise ──────────────────────────────────────
+  const subsForMastery = await getSubs();
+  renderMasteryBlock(d, subsForMastery);
+
   // ── Bloc Suivi RP (MJ-gated) ──────────────────────────
   renderRpStatusBlock(d);
 
@@ -5793,9 +5900,15 @@ async function openTicketDetail(demId) {
         <button class="btn btn-primary" onclick="closeModal('modal-ticket-detail');openTktTreat('${d.id}')">Traiter</button>`;
     }
 
-    // Ticket approuvé → bouton Révoquer le sub
+    // Ticket approuvé → bouton Révoquer le sub + Passage de niveau
     if (d.status === 'approved') {
       footLeft.innerHTML += `<button class="btn btn-danger btn-sm" onclick="revokeSubJutsu('${d.id}')" title="Retirer le sub-jutsu à ce joueur">🚫 Révoquer sub</button>`;
+      const currentLvl = d.masteryLevel || 1;
+      if (currentLvl < 5) {
+        footLeft.innerHTML += `<button class="btn btn-sm" style="background:linear-gradient(135deg,var(--gold),#8a6010);color:#000;border:none;font-weight:700;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border-radius:7px;padding:6px 14px;font-family:'Rajdhani',sans-serif" onclick="openLevelUpModal('${d.id}')" title="Faire progresser ce personnage">⚡ Niveau</button>`;
+      } else {
+        footLeft.innerHTML += `<span style="font-size:10px;color:var(--gold3);font-family:'Cinzel',serif;padding:0 8px">★ Maîtrise max</span>`;
+      }
       footRight.innerHTML = `
         <button class="btn btn-ghost" onclick="closeModal('modal-ticket-detail')">Fermer</button>
         <button class="btn btn-ghost btn-sm" style="color:var(--warn)" onclick="reopenTicket('${d.id}')">🔄 Rouvrir</button>`;
@@ -6379,6 +6492,280 @@ async function deleteRpEntry(demId, index) {
 // Lancer le handler Discord après le boot
 boot().then(() => handleDiscordAuthAsync());
 
+
+// ══════════════════════════════════════════════════════
+//  SYSTÈME DE NIVEAUX DE MAÎTRISE
+// ══════════════════════════════════════════════════════
+
+const MASTERY_LEVELS = {
+  1: { label: 'Initié',       icon: '🌱', stars: 1, color: '#9ca3af', start: '#6b7280', end: '#9ca3af',
+       desc: 'Premiers pas dans la maîtrise de la technique. Les bases sont acquises.' },
+  2: { label: 'Apprenti',     icon: '🔥', stars: 2, color: '#86efac', start: '#22c55e', end: '#86efac',
+       desc: 'La technique se stabilise. Les fondements sont maîtrisés, mais le chemin est long.' },
+  3: { label: 'Praticien',    icon: '⚡', stars: 3, color: '#93c5fd', start: '#3b82f6', end: '#93c5fd',
+       desc: 'Maîtrise solide. La technique peut être utilisée avec constance et efficacité.' },
+  4: { label: 'Expert',       icon: '💜', stars: 4, color: '#c4b5fd', start: '#7c5cbf', end: '#c4b5fd',
+       desc: 'La technique est intégrée à l'essence du combattant. La puissance est palpable.' },
+  5: { label: 'Maître',       icon: '👑', stars: 5, color: '#ffd97a', start: '#c9a227', end: '#ffd97a',
+       desc: 'Maîtrise absolue. La technique est devenue une extension naturelle de l'âme maudite.' },
+};
+
+function masteryStarsHtml(level) {
+  return Array.from({length: 5}, (_, i) =>
+    `<span class="mastery-star ${i < level ? 'filled' : 'empty'}">${i < level ? '★' : '☆'}</span>`
+  ).join('');
+}
+
+function masteryLevelBadgeHtml(level) {
+  const m = MASTERY_LEVELS[level];
+  if (!m) return '';
+  return `<span class="mastery-level-badge mastery-lvl-${level}">${m.icon} ${m.label}</span>`;
+}
+
+// Génère le message automatique de passage de niveau
+function genLevelUpMessage(d, subs, users, newLevel) {
+  const s  = subs.find(x => x.id === d.subId) || { nom: '?' };
+  const u  = users.find(x => x.id === d.userId) || { nomrp: '?', username: '?' };
+  const m  = MASTERY_LEVELS[newLevel];
+  const prevLevel = d.masteryLevel || 1;
+  const pm = MASTERY_LEVELS[prevLevel];
+  const nomPerso = [d.rpPrenomRp, d.rpNomRp].filter(Boolean).join(' ') || u.nomrp || u.username;
+  const sub = s.nom;
+  const faction = d.rpFaction ? ` de ${d.rpFaction}` : '';
+  const grade = d.rpGrade ? `${d.rpGrade} ` : '';
+
+  const templates = {
+    2: `${grade}${nomPerso}${faction} a franchi un cap décisif dans l'apprentissage de ${sub}.
+
+Après avoir assimilé les bases de cette technique, le praticien démontre une stabilité nouvelle dans son application. Les erreurs se font plus rares, la compréhension s'approfondit.
+
+⚡ Niveau ${newLevel} — ${m.label} atteint.`,
+    3: `La progression de ${grade}${nomPerso}${faction} ne laisse plus place au doute.
+
+${sub} n'est plus une technique apprise — c'est désormais une arme maîtrisée. Le contrôle de l'énergie maudite associée témoigne d'un travail acharné et d'une compréhension profonde de la technique.
+
+⚡ Niveau ${newLevel} — ${m.label} atteint.`,
+    4: `${grade}${nomPerso}${faction} entre dans une nouvelle dimension dans sa pratique de ${sub}.
+
+La technique est maintenant intégrée à un niveau instinctif. En situation de combat, l'exécution est fluide, puissante, précise. Peu nombreux sont ceux qui atteignent ce stade.
+
+⚡ Niveau ${newLevel} — ${m.label} atteint.`,
+    5: `Ce qui était une technique est devenu une vérité.
+
+${grade}${nomPerso}${faction} a atteint la maîtrise absolue de ${sub}. Chaque utilisation porte l'empreinte d'une âme maudite forgée par l'expérience et la volonté. La technique et son porteur ne font plus qu'un.
+
+★ Niveau ${newLevel} — ${m.label}. Maîtrise parfaite.`,
+  };
+
+  return templates[newLevel] || `${nomPerso} a progressé vers le niveau ${newLevel} — ${m?.label || '?'} dans la maîtrise de ${sub}.`;
+}
+
+// Render le bloc maîtrise dans le ticket detail
+function renderMasteryBlock(d, subs) {
+  const sec = document.getElementById('tkt-mastery-section');
+  const block = document.getElementById('tkt-mastery-block');
+  if (!sec || !block) return;
+
+  // Seulement sur les tickets approuvés
+  if (d.status !== 'approved') { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+
+  const level = d.masteryLevel || 1;
+  const m = MASTERY_LEVELS[level];
+  const isMJ = hasPerm(CU, 'approve_requests');
+  const pct = ((level - 1) / 4) * 100;
+  const history = d.masteryHistory || [];
+
+  block.innerHTML = `
+    <div class="mastery-bar-wrap">
+      <div class="mastery-bar-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          ${masteryLevelBadgeHtml(level)}
+          <div class="mastery-stars">${masteryStarsHtml(level)}</div>
+        </div>
+        ${isMJ && level < 5 ? `
+        <button onclick="openLevelUpModal('${d.id}')" style="
+          background:linear-gradient(135deg,var(--gold),#8a6010);color:#000;
+          border:none;border-radius:8px;padding:7px 16px;cursor:pointer;
+          font-size:11px;font-weight:700;font-family:'Rajdhani',sans-serif;
+          letter-spacing:0.1em;text-transform:uppercase;
+          transition:all 0.2s;box-shadow:0 3px 12px rgba(201,162,39,0.25);
+        " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          ⚡ Faire progresser
+        </button>` : (level === 5 ? `<span style="font-size:11px;color:var(--gold3);font-family:'Cinzel',serif">★ Maîtrise Absolue</span>` : '')}
+      </div>
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:8px;line-height:1.5">${m.desc}</div>
+      <div class="mastery-progress">
+        <div class="mastery-progress-fill" style="width:${pct}%;--lvl-start:${m.start};--lvl-end:${m.end}"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:var(--muted)">
+        <span>Niveau 1</span><span style="color:${m.color};font-weight:700">Niveau ${level}/5</span><span>Niveau 5</span>
+      </div>
+      ${history.length > 0 ? `
+      <div style="margin-top:14px;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px">Historique de progression</div>
+      <div class="mastery-history">
+        ${history.slice().reverse().map(h => {
+          const hm = MASTERY_LEVELS[h.level] || {};
+          return `<div class="mastery-hist-item">
+            <span style="font-size:16px">${hm.icon||'⚡'}</span>
+            <span class="mastery-hist-lvl" style="color:${hm.color||'var(--gold)'}">${hm.label || 'Niv.'+h.level}</span>
+            <span style="color:var(--muted2);flex:1">attribué par <b>@${esc(h.by||'?')}</b></span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted)">${new Date(h.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'})}</span>
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+    </div>`;
+}
+
+// ── Modal Level-Up ────────────────────────────────────────
+let _luDemId = null;
+let _luSelectedLevel = null;
+
+async function openLevelUpModal(demId) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const d = dems.find(x => x.id === demId); if (!d) return;
+  const s = subs.find(x => x.id === d.subId) || { nom: '?' };
+  const u = users.find(x => x.id === d.userId) || { nomrp: '?', username: '?' };
+  _luDemId = demId;
+  _luSelectedLevel = null;
+
+  const currentLevel = d.masteryLevel || 1;
+  const nomPerso = [d.rpPrenomRp, d.rpNomRp].filter(Boolean).join(' ') || u.nomrp || u.username;
+
+  // Info ticket
+  document.getElementById('lu-ticket-info').innerHTML = `
+    <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:22px">${MASTERY_LEVELS[currentLevel]?.icon || '⚡'}</div>
+      <div style="flex:1">
+        <div style="font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--text)">${esc(nomPerso)}</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:2px">⚡ ${esc(s.nom)} · Actuellement : ${masteryLevelBadgeHtml(currentLevel)}</div>
+      </div>
+      <div class="mastery-stars">${masteryStarsHtml(currentLevel)}</div>
+    </div>`;
+
+  // Level picker — seulement les niveaux supérieurs
+  const picker = document.getElementById('lu-level-picker');
+  picker.innerHTML = Object.entries(MASTERY_LEVELS)
+    .filter(([lvl]) => parseInt(lvl) > currentLevel)
+    .map(([lvl, m]) => `
+      <button onclick="selectLuLevel(${lvl}, this)" style="
+        display:flex;flex-direction:column;align-items:center;gap:5px;
+        padding:12px 16px;border-radius:10px;cursor:pointer;
+        background:rgba(255,255,255,0.02);border:2px solid var(--border2);
+        color:${m.color};transition:all 0.18s;font-family:'Rajdhani',sans-serif;
+        min-width:90px;
+      "
+      onmouseover="this.style.borderColor='${m.color}66';this.style.background='${m.start}14'"
+      onmouseout="if(!this.classList.contains('lu-selected')){this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.02)'}">
+        <span style="font-size:22px">${m.icon}</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">Niv. ${lvl}</span>
+        <span style="font-size:10px;font-weight:700;font-family:'Cinzel',serif">${m.label}</span>
+        <div style="display:flex;gap:2px;margin-top:2px">${Array.from({length:5},(_,i)=>`<span style="font-size:10px;color:${i<parseInt(lvl)?m.color:'var(--muted)'}">${i<parseInt(lvl)?'★':'☆'}</span>`).join('')}</div>
+      </button>`).join('');
+
+  document.getElementById('lu-custom-note').value = '';
+  document.getElementById('lu-msg-preview').textContent = '← Sélectionnez un niveau ci-dessus';
+  document.getElementById('lu-confirm-btn').disabled = true;
+  document.getElementById('lu-confirm-btn').style.opacity = '0.4';
+
+  // Store for closure
+  window._luDems = dems; window._luSubs = subs; window._luUsers = users;
+  openModal('modal-level-up');
+}
+
+function selectLuLevel(level, btn) {
+  _luSelectedLevel = level;
+  document.querySelectorAll('#lu-level-picker button').forEach(b => {
+    b.classList.remove('lu-selected');
+    b.style.borderColor = 'rgba(255,255,255,0.08)';
+    b.style.background = 'rgba(255,255,255,0.02)';
+  });
+  const m = MASTERY_LEVELS[level];
+  btn.classList.add('lu-selected');
+  btn.style.borderColor = m.color;
+  btn.style.background = m.start + '20';
+  document.getElementById('lu-confirm-btn').disabled = false;
+  document.getElementById('lu-confirm-btn').style.opacity = '1';
+  refreshLuPreview();
+}
+
+function refreshLuPreview() {
+  if (!_luSelectedLevel || !_luDemId) return;
+  const d = window._luDems?.find(x => x.id === _luDemId);
+  if (!d) return;
+  const baseMsg = genLevelUpMessage(d, window._luSubs || [], window._luUsers || [], _luSelectedLevel);
+  const extra = document.getElementById('lu-custom-note')?.value.trim();
+  const full = extra ? baseMsg + '
+
+— ' + extra : baseMsg;
+  document.getElementById('lu-msg-preview').textContent = full;
+}
+
+async function confirmLevelUp() {
+  if (!_luDemId || !_luSelectedLevel) return;
+  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const d = dems.find(x => x.id === _luDemId); if (!d) return;
+  const s = subs.find(x => x.id === d.subId) || { nom: '?' };
+  const u = users.find(x => x.id === d.userId);
+
+  const baseMsg = genLevelUpMessage(d, subs, users, _luSelectedLevel);
+  const extra   = document.getElementById('lu-custom-note')?.value.trim();
+  const fullMsg = extra ? baseMsg + '
+
+— ' + extra : baseMsg;
+  const notify  = document.getElementById('lu-notify')?.checked !== false;
+
+  const now = new Date().toISOString();
+  const m   = MASTERY_LEVELS[_luSelectedLevel];
+
+  // Historique de progression
+  const history = d.masteryHistory || [];
+  history.push({ level: _luSelectedLevel, by: CU.username, ts: now, message: fullMsg });
+
+  // Entrée RP automatique dans le ticket (comme un suivi MJ)
+  const rpEntries = d.rpEntries || [];
+  rpEntries.push({
+    type: 'suivi',
+    titre: `⚡ Progression — Niveau ${_luSelectedLevel} · ${m.label}`,
+    author: CU.nomrp || CU.username,
+    authorId: CU.id, authorName: CU.nomrp || CU.username, authorRole: CU.role,
+    content: fullMsg,
+    lieu: '', moods: [], links: [], images: [], mjReplies: [],
+    isMasteryEntry: true,
+    masteryLevel: _luSelectedLevel,
+    ts: now,
+  });
+
+  // Timeline
+  const tl = d.timeline || [];
+  tl.push({ ts: now, actor: CU.nomrp || CU.username, action: `a fait progresser le personnage au niveau ${_luSelectedLevel} — ${m.label}`, icon: m.icon });
+
+  await fsUpdate('demandes', _luDemId, {
+    masteryLevel: _luSelectedLevel,
+    masteryHistory: history,
+    rpEntries,
+    timeline: tl,
+  });
+  _cache.demandes = null;
+
+  // Notification joueur
+  if (notify && u) {
+    const nomPerso = [d.rpPrenomRp, d.rpNomRp].filter(Boolean).join(' ') || u.nomrp || u.username;
+    await pushNotif(u.id,
+      `${m.icon} @${CU.username} a validé la progression de ${nomPerso} au niveau ${_luSelectedLevel} — ${m.label} sur ${s.nom} !`,
+      'demande_approved'
+    );
+  }
+
+  await addLog('demande', `a accordé le niveau ${_luSelectedLevel} (${m.label}) sur "${s.nom}" au ticket ${d.ticketNum||''}`, { sub: s.nom });
+
+  closeModal('modal-level-up');
+  toast(`${m.icon} Niveau ${_luSelectedLevel} — ${m.label} accordé ! Le message a été ajouté au suivi RP.`, 'success');
+  await openTicketDetail(_luDemId);
+}
+
+
 // ══════════════════════════════════════════════════════
 //  EXPOSE FONCTIONS GLOBALES (nécessaire avec type="module")
 // ══════════════════════════════════════════════════════
@@ -6710,7 +7097,10 @@ async function renderSuivisRP() {
             ${factionHtml}${gradeHtml}
           </div>
           <div class="tkt-card-title" style="font-family:'Cinzel',serif">${esc(titre)}</div>
-          <div style="font-size:11px;color:var(--muted2);margin-top:3px">⚡ ${esc(s.nom)} · Joueur : <b>${esc(u.nomrp||u.username)}</b></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">
+            <span style="font-size:11px;color:var(--muted2)">⚡ ${esc(s.nom)} · Joueur : <b>${esc(u.nomrp||u.username)}</b></span>
+            ${d.masteryLevel ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:${['','#9ca3af','#86efac','#93c5fd','#c4b5fd','#ffd97a'][d.masteryLevel]||'var(--gold)'};background:rgba(255,255,255,0.03);border:1px solid currentColor;border-radius:4px;padding:1px 7px">${['','🌱','🔥','⚡','💜','👑'][d.masteryLevel]||'⚡'} Niv.${d.masteryLevel}</span>` : ''}
+          </div>
         </div>
         <div class="tkt-card-badges" style="flex-direction:column;align-items:flex-end;gap:4px">
           <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted2)">
@@ -7242,6 +7632,8 @@ Object.assign(window, {
   submitMJReply, deleteMJReply, toggleMJReplyForm,
   // Suivi RP ticket
   activateRpSpace, closeRpSpace,
+  // Niveaux de maîtrise
+  openLevelUpModal, selectLuLevel, refreshLuPreview, confirmLevelUp, renderMasteryBlock,
   // Page Suivis RP
   renderSuivisRP,
   openNarrSpace, closeNarrSpace, nsSetView, nsOpenForm, nsCloseForm,

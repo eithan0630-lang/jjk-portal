@@ -868,6 +868,7 @@ input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:poin
 .rp-type-combat{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.35);color:var(--danger2)}
 .rp-type-dialogue{background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.35);color:#67e8f9}
 .rp-type-flashback{background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.35);color:#93c5fd}
+.rp-type-suivi{background:rgba(201,162,39,0.1);border-color:rgba(201,162,39,0.35);color:var(--gold2)}
 .rp-entry-author{font-size:11px;font-weight:700;color:var(--text)}
 .rp-entry-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto}
 .rp-entry-body{
@@ -1906,6 +1907,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
         <div class="sb-item" id="nav-annonces" onclick="goPage('annonces')"><span class="ico">📣</span>Annonces<span class="sb-badge" id="nav-badge-annonces" style="display:none">0</span></div>
         <div class="sb-item" id="nav-classement" onclick="goPage('classement')"><span class="ico">🏆</span>Classement</div>
         <div class="sb-item" id="nav-tickets" onclick="goPage('tickets')"><span class="ico">🎫</span>Mes Tickets<span class="sb-badge" id="nav-badge-tkt" style="display:none">0</span></div>
+        <div class="sb-item" id="nav-narrations" onclick="goPage('narrations')"><span class="ico">📜</span>Narrations<span class="sb-badge" id="nav-badge-narrations" style="display:none">0</span></div>
         <div class="sb-item" id="nav-mes-demandes" onclick="goPage('mes-demandes')"><span class="ico">📋</span>Mes Demandes<span class="sb-badge" id="nav-badge-dem" style="display:none">0</span></div>
         <div class="sb-item" id="nav-profil" onclick="goPage('profil')"><span class="ico">👤</span>Mon Profil</div>
 
@@ -2215,6 +2217,38 @@ tr:hover td { background: rgba(201,162,39,0.02); }
             <button class="btn btn-primary" onclick="openModalDemande(null)">+ Nouvelle demande</button>
           </div>
           <div id="mes-demandes-list"></div>
+        </div>
+
+
+        <!-- NARRATIONS (suivi libre) -->
+        <div class="page" id="page-narrations">
+          <div class="page-header">
+            <div>
+              <div class="page-title"><span class="page-title-icon">📜</span>Narrations</div>
+              <div class="page-desc">Suivis narratifs libres — partie normale, scènes RP, journaux de personnage</div>
+            </div>
+            <button class="btn btn-primary" onclick="openModalNewNarration()">＋ Nouvelle narration</button>
+          </div>
+          <!-- Quick stats -->
+          <div class="tkt-qs" id="narr-qs"></div>
+          <!-- Filters -->
+          <div class="tkt-filters" style="margin-bottom:14px">
+            <div class="search-bar" style="flex:1;min-width:160px"><input type="text" id="narr-search" placeholder="Rechercher une narration…" oninput="renderNarrations()"></div>
+            <select class="filter-sel" id="narr-type" onchange="renderNarrations()">
+              <option value="">Tous les types</option>
+              <option value="narration">📜 Narration</option>
+              <option value="event">⭐ Événement</option>
+              <option value="combat">⚔ Combat</option>
+              <option value="dialogue">💬 Dialogue</option>
+              <option value="flashback">🌀 Flashback</option>
+              <option value="suivi_normal">🗂 Suivi Normal</option>
+            </select>
+            <select class="filter-sel" id="narr-mine" onchange="renderNarrations()">
+              <option value="">Toutes</option>
+              <option value="mine">Mes narrations</option>
+            </select>
+          </div>
+          <div id="narrations-container"></div>
         </div>
 
         <!-- PROFIL -->
@@ -2640,6 +2674,67 @@ tr:hover td { background: rgba(201,162,39,0.02); }
   </div>
 </div>
 
+
+<!-- Modal Narration Libre -->
+<div class="modal-overlay" id="modal-narration">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <div class="modal-title" id="narr-modal-title">Nouvelle Narration</div>
+      <button class="modal-close" onclick="closeModal('modal-narration')">✕</button>
+    </div>
+    <div class="fg">
+      <label class="fl">Titre *</label>
+      <input class="fi" id="narr-titre" type="text" placeholder="Titre de la narration…">
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label class="fl">Type</label>
+        <select class="fi" id="narr-type">
+          <option value="suivi_normal">🗂 Suivi Normal</option>
+          <option value="narration">📜 Narration</option>
+          <option value="event">⭐ Événement</option>
+          <option value="combat">⚔ Combat</option>
+          <option value="dialogue">💬 Dialogue</option>
+          <option value="flashback">🌀 Flashback</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Personnage / Auteur</label>
+        <input class="fi" id="narr-author" type="text" placeholder="Nom RP ou @auteur…">
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Contenu RP *</label>
+      <textarea class="rp-textarea" id="narr-content" placeholder="Rédigez votre narration, les actions de votre personnage, le contexte de la scène…&#10;&#10;Ex : Dans les ruelles sombres de Shibuya, l'énergie maudite commence à se manifester…" style="min-height:160px;font-size:14px"></textarea>
+    </div>
+    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,191,0.25),transparent);margin:4px 0 16px"></div>
+    <div style="font-size:9px;color:var(--purple2);text-transform:uppercase;letter-spacing:0.22em;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <span>🖼</span> Médias &amp; Liens (facultatif)
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(124,92,191,0.15),transparent)"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">🖼 Images</label>
+      <div class="file-drop-zone" id="narr-drop-zone">
+        <input type="file" id="narr-images-file" accept="image/*" multiple onchange="handleNarrImageFiles(this.files)">
+        <div class="file-drop-label">
+          <span class="drop-icon">🖼</span>
+          <span>Cliquez ou glissez vos images ici</span><br>
+          <small style="font-size:10px;color:var(--muted)">PNG, JPG, GIF, WebP — max 2 Mo chacune</small>
+        </div>
+      </div>
+      <div id="narr-images-preview" class="tkt-media-preview" style="margin-top:8px"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">🔗 Lien(s) <span style="font-weight:400;color:var(--muted)">(label | url, un par ligne)</span></label>
+      <textarea class="fi" id="narr-links" placeholder="Document RP | https://docs.google.com/…" style="min-height:44px;font-size:11px;font-family:'Share Tech Mono',monospace"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-narration')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveNarration()">✦ Publier</button>
+    </div>
+  </div>
+</div>
+
 <!-- Recherche Globale Ctrl+K -->
 <div class="global-search-overlay" id="global-search" onclick="closeGlobalSearch(event)">
   <div class="global-search-box">
@@ -2957,7 +3052,7 @@ function isStaff(user) {
 //  LOGGING SYSTEM (async)
 // ══════════════════════════════════════════════════════
 const LOG_COLORS = {
-  auth: '#60a5fa', sub: '#c9a227', demande: '#a78bfa', user: '#f59e0b', role: '#ff6b35', system: '#6b7280'
+  auth: '#60a5fa', sub: '#c9a227', demande: '#a78bfa', user: '#f59e0b', role: '#ff6b35', system: '#6b7280', narration: '#9f7aea'
 };
 async function addLog(type, action, details = {}) {
   const entry = {
@@ -3279,7 +3374,7 @@ function redirectDiscord() {
 const PAGE_LABELS = {
   dashboard: 'Tableau de bord', catalogue: 'Catalogue', annonces: 'Annonces',
   classement: 'Classement', 'mes-demandes': 'Mes Demandes', profil: 'Mon Profil',
-  tickets: 'Mes Tickets', 'all-tickets': 'Gestion des Tickets',
+  tickets: 'Mes Tickets', 'all-tickets': 'Gestion des Tickets', narrations: 'Narrations',
   panel: 'Panel Staff', stats: 'Statistiques', logs: 'Journaux', roles: 'Rôles & Perms', export: 'Export données'
 };
 async function goPage(id) {
@@ -3291,6 +3386,7 @@ async function goPage(id) {
   document.getElementById('bc-current').textContent = PAGE_LABELS[id] || id;
   invalidateCache('users','subs','demandes','logs','annonces','notifs');
   if (id === 'tickets') { await renderMyTickets(); await updateTktBadge(); }
+  if (id === 'narrations') { await renderNarrations(); }
   if (id === 'all-tickets') { await renderAllTickets(); }
   if (id === 'dashboard') await renderDashboard();
   if (id === 'catalogue') await renderCatalogue();
@@ -5179,9 +5275,12 @@ async function openTicketDetail(demId) {
   // Reset RP form state
   document.getElementById('tkt-rp-form').style.display = 'none';
   document.getElementById('rp-content').value = '';
-  document.getElementById('rp-images').value = '';
+  const rpFileInput = document.getElementById('rp-images-file');
+  if (rpFileInput) rpFileInput.value = '';
   document.getElementById('rp-links').value = '';
+  document.getElementById('rp-author').value = '';
   document.getElementById('rp-images-preview').innerHTML = '';
+  _imgStore.rp = [];
   // Only show "Ajouter" button to player owning the ticket or staff
   const rpBtn = document.getElementById('tkt-rp-add-btn');
   if (rpBtn) rpBtn.style.display = (d.userId === CU.id || hasPerm(CU,'approve_requests')) ? '' : 'none';
@@ -5526,7 +5625,7 @@ document.getElementById('sub-image')?.addEventListener('input', e => _previewSub
 
 // ── Image base64 storage (en mémoire pour la session) ──
 // Map : fileInputId → tableau de {name, dataUrl}
-const _imgStore = { dem: [], rp: [] };
+const _imgStore = { dem: [], rp: [], narr: [] };
 
 function _readFilesAsBase64(files, max = 2097152) {
   return Promise.all(Array.from(files).map(f => new Promise((res, rej) => {
@@ -5586,6 +5685,7 @@ function _setupDropZone(zoneId, storeKey, previewId) {
 setTimeout(() => {
   _setupDropZone('dem-drop-zone', 'dem', 'dem-images-preview');
   _setupDropZone('rp-drop-zone', 'rp', 'rp-images-preview');
+  _setupDropZone('narr-drop-zone', 'narr', 'narr-images-preview');
 }, 500);
 
 // previewDemImages et previewRpImages (conservés pour compatibilité, non utilisés)
@@ -5826,6 +5926,254 @@ boot().then(() => handleDiscordAuthAsync());
 // ══════════════════════════════════════════════════════
 //  EXPOSE FONCTIONS GLOBALES (nécessaire avec type="module")
 // ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  NARRATIONS LIBRES (suivi normal)
+// ══════════════════════════════════════════════════════
+
+const NARR_TYPE_META = {
+  narration:    { label: 'Narration',     cls: 'rp-type-narration', icon: '📜', color: 'var(--purple2)' },
+  event:        { label: 'Événement',     cls: 'rp-type-event',     icon: '⭐', color: 'var(--gold2)' },
+  combat:       { label: 'Combat',        cls: 'rp-type-combat',    icon: '⚔',  color: 'var(--danger2)' },
+  dialogue:     { label: 'Dialogue',      cls: 'rp-type-dialogue',  icon: '💬', color: '#67e8f9' },
+  flashback:    { label: 'Flashback',     cls: 'rp-type-flashback', icon: '🌀', color: '#93c5fd' },
+  suivi_normal: { label: 'Suivi Normal',  cls: 'rp-type-suivi',     icon: '🗂',  color: 'var(--gold)' },
+};
+
+// Ouvre la modal pour créer une nouvelle narration
+function openModalNewNarration() {
+  document.getElementById('narr-modal-title').textContent = 'Nouvelle Narration';
+  document.getElementById('narr-titre').value = '';
+  document.getElementById('narr-type').value = 'suivi_normal';
+  document.getElementById('narr-author').value = CU.nomrp || CU.username;
+  document.getElementById('narr-content').value = '';
+  document.getElementById('narr-links').value = '';
+  document.getElementById('narr-images-preview').innerHTML = '';
+  _imgStore.narr = [];
+  const fi = document.getElementById('narr-images-file');
+  if (fi) fi.value = '';
+  _editingNarrId = null;
+  openModal('modal-narration');
+}
+
+// Ouvre en mode édition
+async function openEditNarration(narrId) {
+  const d = await fsGetOne('narrations', narrId);
+  if (!d) return;
+  if (d.authorId !== CU.id && !hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  document.getElementById('narr-modal-title').textContent = 'Modifier la Narration';
+  document.getElementById('narr-titre').value = d.titre || '';
+  document.getElementById('narr-type').value = d.type || 'suivi_normal';
+  document.getElementById('narr-author').value = d.author || '';
+  document.getElementById('narr-content').value = d.content || '';
+  document.getElementById('narr-links').value = (d.links||[]).map(l => l.label !== l.url ? l.label + ' | ' + l.url : l.url).join('\n');
+  document.getElementById('narr-images-preview').innerHTML = '';
+  _imgStore.narr = [];
+  _editingNarrId = narrId;
+  openModal('modal-narration');
+}
+
+let _editingNarrId = null;
+
+async function saveNarration() {
+  const titre   = document.getElementById('narr-titre').value.trim();
+  const type    = document.getElementById('narr-type').value;
+  const author  = document.getElementById('narr-author').value.trim() || CU.nomrp || CU.username;
+  const content = document.getElementById('narr-content').value.trim();
+  if (!titre)   { toast('Le titre est requis.', 'error'); return; }
+  if (!content) { toast('Le contenu est requis.', 'error'); return; }
+
+  const images = _imgStore.narr.map(img => img.dataUrl);
+  const linksRaw = document.getElementById('narr-links').value.trim();
+  const links = linksRaw ? linksRaw.split('\n').map(l => {
+    const parts = l.split('|');
+    const url = (parts[1]||parts[0]).trim();
+    const label = parts.length > 1 ? parts[0].trim() : url;
+    return url.startsWith('http') ? { label, url } : null;
+  }).filter(Boolean) : [];
+
+  const now = new Date().toISOString();
+  if (_editingNarrId) {
+    await fsUpdate('narrations', _editingNarrId, { titre, type, author, content, images, links, updatedAt: now });
+    toast('Narration mise à jour !', 'success');
+  } else {
+    const id = 'narr' + Date.now();
+    await fsSet('narrations', id, {
+      id, titre, type, author, content, images, links,
+      authorId: CU.id, authorRole: CU.role,
+      createdAt: now, mjReplies: []
+    });
+    toast('✦ Narration publiée !', 'success');
+    await addLog('narration', `a publié la narration "${titre}"`);
+  }
+  _editingNarrId = null;
+  _imgStore.narr = [];
+  closeModal('modal-narration');
+  await renderNarrations();
+  updateNarrBadge();
+}
+
+async function deleteNarration(narrId) {
+  if (!confirm('Supprimer définitivement cette narration ?')) return;
+  const d = await fsGetOne('narrations', narrId);
+  if (!d) return;
+  if (d.authorId !== CU.id && !hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  await fsDelete('narrations', narrId);
+  toast('Narration supprimée.', 'info');
+  await renderNarrations();
+  updateNarrBadge();
+}
+
+async function submitNarrMJReply(narrId, idx) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const content = document.getElementById('narr-mj-reply-content-' + idx)?.value.trim();
+  if (!content) { toast('La réponse ne peut pas être vide.', 'error'); return; }
+  const d = await fsGetOne('narrations', narrId);
+  if (!d) return;
+  const replies = d.mjReplies || [];
+  replies.push({
+    content, authorId: CU.id,
+    authorName: CU.nomrp || CU.username,
+    authorRole: CU.role,
+    ts: new Date().toISOString()
+  });
+  await fsUpdate('narrations', narrId, { mjReplies: replies });
+  toast('Réponse MJ publiée !', 'success');
+  await renderNarrations();
+}
+
+function toggleNarrMJForm(narrId, idx) {
+  const form = document.getElementById('narr-mj-form-' + narrId + '-' + idx);
+  if (!form) return;
+  const show = form.style.display === 'none';
+  form.style.display = show ? '' : 'none';
+  if (show) form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function deleteNarrMJReply(narrId, replyIdx) {
+  if (!hasPerm(CU, 'approve_requests')) return;
+  if (!confirm('Supprimer cette réponse MJ ?')) return;
+  const d = await fsGetOne('narrations', narrId);
+  if (!d) return;
+  const replies = d.mjReplies || [];
+  replies.splice(replyIdx, 1);
+  await fsUpdate('narrations', narrId, { mjReplies: replies });
+  toast('Réponse supprimée.', 'info');
+  await renderNarrations();
+}
+
+function updateNarrBadge() {
+  // future: badge count
+  const b = document.getElementById('nav-badge-narrations');
+  if (b) b.style.display = 'none';
+}
+
+async function handleNarrImageFiles(files) {
+  const loaded = await _readFilesAsBase64(files);
+  if (!_imgStore.narr) _imgStore.narr = [];
+  _imgStore.narr.push(...loaded);
+  _renderImgPreview('narr-images-preview', _imgStore.narr, 'narr');
+}
+
+async function renderNarrations() {
+  const q      = (document.getElementById('narr-search')?.value || '').toLowerCase();
+  const typeF  = document.getElementById('narr-type')?.value || '';
+  const mineF  = document.getElementById('narr-mine')?.value || '';
+
+  // Fetch all narrations from Firestore
+  let narrs = await fsGetAll('narrations');
+  narrs.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+  if (q)     narrs = narrs.filter(n => (n.titre||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q) || (n.author||'').toLowerCase().includes(q));
+  if (typeF) narrs = narrs.filter(n => n.type === typeF);
+  if (mineF === 'mine') narrs = narrs.filter(n => n.authorId === CU.id);
+
+  // Quick stats
+  const qsEl = document.getElementById('narr-qs');
+  if (qsEl) {
+    const total = narrs.length;
+    const mine  = narrs.filter(n => n.authorId === CU.id).length;
+    const mjR   = narrs.filter(n => (n.mjReplies||[]).length > 0).length;
+    qsEl.innerHTML = [
+      { label: 'Total',       val: total, accent: 'var(--gold)' },
+      { label: 'Mes narrations', val: mine,  accent: 'var(--purple2)' },
+      { label: 'Avec réponse MJ', val: mjR, accent: 'var(--success)' },
+    ].map(s => `<div class="tkt-qs-item" style="--accent:${s.accent}"><div class="tkt-qs-val">${s.val}</div><div class="tkt-qs-label">${s.label}</div></div>`).join('');
+  }
+
+  const ctn = document.getElementById('narrations-container');
+  if (!ctn) return;
+  if (!narrs.length) {
+    ctn.innerHTML = emptyState('📜', 'Aucune narration. Créez-en une avec le bouton "＋ Nouvelle narration" !');
+    return;
+  }
+
+  ctn.innerHTML = narrs.map((n, globalIdx) => {
+    const meta   = NARR_TYPE_META[n.type] || NARR_TYPE_META.suivi_normal;
+    const canDel = n.authorId === CU.id || hasPerm(CU, 'approve_requests');
+    const canEdit= n.authorId === CU.id || hasPerm(CU, 'approve_requests');
+    const isMJ   = hasPerm(CU, 'approve_requests');
+
+    const imgsHtml = (n.images||[]).length ? `
+      <div class="tkt-media-preview">${n.images.map(img => `
+        <div class="tkt-media-thumb" onclick="openLightbox('${esc(typeof img==='string'?img:img.dataUrl||img)}')">
+          <img src="${esc(typeof img==='string'?img:img.dataUrl||img)}" alt="" onerror="this.parentElement.style.display='none'">
+        </div>`).join('')}
+      </div>` : '';
+
+    const linksHtml = (n.links||[]).length ? `
+      <div class="rp-entry-links">${n.links.map(l => `
+        <a href="${esc(l.url)}" target="_blank" rel="noopener" class="rp-link-pill">🔗 ${esc(l.label)}</a>`).join('')}
+      </div>` : '';
+
+    const replies = n.mjReplies || [];
+    const repliesHtml = replies.map((rep, ri) => `
+      <div class="rp-mj-reply">
+        <div class="rp-mj-reply-header">
+          <span class="rp-mj-reply-badge">🎲 Réponse MJ</span>
+          <span style="font-size:12px;font-weight:700;color:var(--gold2)">${esc(rep.authorName||'MJ')}</span>
+          <span class="rp-mj-reply-time">${fmtDateTime(rep.ts)}</span>
+          ${hasPerm(CU,'approve_requests') ? `<button onclick="deleteNarrMJReply('${n.id}',${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px;margin-left:4px" title="Supprimer">🗑</button>` : ''}
+        </div>
+        <div class="rp-mj-reply-body">${esc(rep.content)}</div>
+      </div>`).join('');
+
+    const replyFormHtml = isMJ ? `
+      <div class="rp-reply-form" id="narr-mj-form-${n.id}-0" style="display:none">
+        <label class="fl" style="font-size:9px;margin-bottom:6px">✍ Votre réponse MJ</label>
+        <textarea class="rp-textarea" id="narr-mj-reply-content-0" placeholder="Guidez la narration, ajoutez des conséquences RP…" style="min-height:90px;font-size:13px;margin-bottom:10px"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('narr-mj-form-${n.id}-0').style.display='none'">Annuler</button>
+          <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:7px 16px;border-radius:7px;font-weight:700;font-size:11px;cursor:pointer" onclick="submitNarrMJReply('${n.id}',0)">⚡ Publier</button>
+        </div>
+      </div>` : '';
+
+    const mjReplyBtn = isMJ ? `
+      <button onclick="toggleNarrMJForm('${n.id}',0)" class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--gold);margin-top:8px">
+        🎲 Répondre en tant que MJ
+      </button>` : '';
+
+    return `<div class="rp-entry" style="--rp-color:${meta.color};margin-bottom:14px">
+      <div style="position:absolute;top:10px;right:10px;display:flex;gap:6px">
+        ${canEdit ? `<button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="openEditNarration('${n.id}')" title="Modifier">✏</button>` : ''}
+        ${canDel  ? `<button class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--danger)" onclick="deleteNarration('${n.id}')" title="Supprimer">🗑</button>` : ''}
+      </div>
+      <div class="rp-entry-header">
+        <span class="rp-entry-type ${meta.cls}">${meta.icon} ${meta.label}</span>
+        <span style="font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold2);flex:1;margin-left:8px">${esc(n.titre||'Sans titre')}</span>
+        <span class="rp-entry-author">${esc(n.author||'?')}</span>
+        <span class="rp-entry-time">${fmtDateTime(n.createdAt)}</span>
+      </div>
+      <div class="rp-entry-body">${esc(n.content)}</div>
+      ${imgsHtml}
+      ${linksHtml}
+      ${repliesHtml}
+      ${mjReplyBtn}
+      ${replyFormHtml}
+    </div>`;
+  }).join('');
+}
+
 Object.assign(window, {
   // Auth & session
   redirectDiscord,
@@ -5874,6 +6222,9 @@ Object.assign(window, {
   openGlobalSearch, closeGlobalSearch, runGlobalSearch, handleGsKey, gsSelect,
   // 🆕 RP & médias
   toggleRpForm, submitRpEntry, deleteRpEntry,
+  // 🆕 Narrations libres
+  renderNarrations, openModalNewNarration, openEditNarration, saveNarration, deleteNarration,
+  submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
   submitMJReply, deleteMJReply, toggleMJReplyForm,
   handleDemImageFiles, handleRpImageFiles,
   _removeImg,

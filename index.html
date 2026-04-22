@@ -2676,8 +2676,8 @@ tr:hover td { background: rgba(201,162,39,0.02); }
 
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-mj-rep')">Annuler</button>
-      <button class="btn btn-danger" onclick="openMasterySection(false);submitMJRep('rejected')">✗ Refuser</button>
-      <button class="btn btn-success" id="btn-mj-approve" onclick="openMasterySection(true);document.getElementById('btn-mj-approve').onclick=()=>submitMJRep('approved');this.textContent='✓ Confirmer l\'approbation'">✓ Approuver</button>
+      <button class="btn btn-danger" onclick="_mjApproveStep=0;document.getElementById('btn-mj-approve').textContent='✓ Approuver';openMasterySection(false);submitMJRep('rejected')">✗ Refuser</button>
+      <button class="btn btn-success" id="btn-mj-approve" onclick="handleApproveClick()">✓ Approuver</button>
     </div>
   </div>
 </div>
@@ -4794,7 +4794,10 @@ async function openMJRep(id) {
       ${d.message ? `<div style="font-size:11px;color:var(--muted);margin-top:8px;padding:8px 10px;background:var(--bg2);border-radius:5px">${esc(d.message)}</div>` : ''}
     </div>`;
   document.getElementById('mj-rep-note').value = '';
-  openMasterySection(false); // cachée par défaut, révélée au clic Approuver
+  _mjApproveStep = 0;
+  const btnApprove = document.getElementById('btn-mj-approve');
+  if (btnApprove) btnApprove.textContent = '✓ Approuver';
+  openMasterySection(false);
   openModal('modal-mj-rep');
 }
 async function submitMJRep(status) {
@@ -4834,8 +4837,9 @@ async function submitMJRep(status) {
   }
 
   // Reset le bouton approuver
+  _mjApproveStep = 0;
   const btnApprove = document.getElementById('btn-mj-approve');
-  if (btnApprove) { btnApprove.textContent = '✓ Approuver'; btnApprove.onclick = () => { openMasterySection(true); btnApprove.onclick=()=>submitMJRep('approved'); btnApprove.textContent='✓ Confirmer l\'approbation'; }; }
+  if (btnApprove) btnApprove.textContent = '✓ Approuver';
 
   closeModal('modal-mj-rep'); await renderPanelDemandes(); await renderStaffStats();
   toast(status === 'approved' ? `${m?.icon||'✅'} Approuvé — ${m?.label||'Initié'} !` : 'Demande refusée.', status === 'approved' ? 'success' : 'error');
@@ -7154,6 +7158,21 @@ const MASTERY_LEVELS = {
 };
 
 let _mjSelectedMastery = 1;
+let _mjApproveStep = 0; // 0 = bouton initial, 1 = section maîtrise affichée
+
+
+function handleApproveClick() {
+  if (_mjApproveStep === 0) {
+    // Premier clic : afficher la section maîtrise
+    _mjApproveStep = 1;
+    openMasterySection(true);
+    const btn = document.getElementById('btn-mj-approve');
+    if (btn) btn.textContent = '✓ Confirmer l\'approbation';
+  } else {
+    // Deuxième clic : soumettre
+    submitMJRep('approved');
+  }
+}
 
 function selectMasteryLevel(level) {
   _mjSelectedMastery = level;

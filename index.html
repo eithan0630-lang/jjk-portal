@@ -2564,6 +2564,26 @@ tr:hover td { background: rgba(201,162,39,0.02); }
     <div id="dem-sub-info" style="display:none;margin-bottom:15px">
       <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px" id="dem-sub-info-content"></div>
     </div>
+
+    <!-- Identité RP -->
+    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,39,0.25),transparent);margin:4px 0 16px"></div>
+    <div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:0.22em;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <span>⚔️</span> Identité RP
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(201,162,39,0.15),transparent)"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="fg" style="margin-bottom:0"><label class="fl">Prénom RP *</label><input class="fi" id="dem-prenom-rp" type="text" placeholder="Ex: Ryō" oninput="updateDemTicketPreview()"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Nom RP *</label><input class="fi" id="dem-nom-rp" type="text" placeholder="Ex: Itadori" oninput="updateDemTicketPreview()"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="fg" style="margin-bottom:0"><label class="fl">Grade / Rang RP</label><input class="fi" id="dem-grade-rp" type="text" placeholder="Ex: Exorciste Rang 1" oninput="updateDemTicketPreview()"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Faction / Clan</label><input class="fi" id="dem-faction-rp" type="text" placeholder="Ex: Jujutsu High" oninput="updateDemTicketPreview()"></div>
+    </div>
+    <div id="dem-ticket-preview" style="display:none;margin-bottom:14px;padding:10px 14px;background:rgba(201,162,39,0.06);border:1px solid rgba(201,162,39,0.2);border-radius:8px;font-size:11px;color:var(--text2)">
+      🎫 Nom du ticket : <span id="dem-ticket-preview-name" style="color:var(--gold);font-weight:700;font-family:'Share Tech Mono',monospace"></span>
+    </div>
+
+    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,191,0.15),transparent);margin:4px 0 16px"></div>
     <div class="fg"><label class="fl">Message au MJ</label><textarea class="fi" id="dem-message" placeholder="Expliquez votre démarche RP, votre historique…" style="min-height:100px"></textarea></div>
 
     <!-- Médias & Liens -->
@@ -4448,6 +4468,32 @@ async function changePassword() {
 // ══════════════════════════════════════════════════════
 //  DEMANDE MODAL (async)
 // ══════════════════════════════════════════════════════
+
+function updateDemTicketPreview() {
+  const prenom  = document.getElementById('dem-prenom-rp')?.value.trim() || '';
+  const nom     = document.getElementById('dem-nom-rp')?.value.trim() || '';
+  const grade   = document.getElementById('dem-grade-rp')?.value.trim() || '';
+  const faction = document.getElementById('dem-faction-rp')?.value.trim() || '';
+  const subSel  = document.getElementById('dem-sub-select');
+  const subName = subSel?.options[subSel.selectedIndex]?.text || '';
+
+  if (!prenom && !nom) {
+    document.getElementById('dem-ticket-preview').style.display = 'none';
+    return;
+  }
+
+  const parts = [];
+  if (grade)   parts.push(grade);
+  const fullName = [prenom, nom].filter(Boolean).join(' ');
+  if (fullName) parts.push(fullName);
+  if (faction) parts.push(`[${faction}]`);
+  if (subName && subName !== '— Choisir —') parts.push(`— ${subName}`);
+
+  const ticketName = parts.join(' ');
+  document.getElementById('dem-ticket-preview-name').textContent = ticketName;
+  document.getElementById('dem-ticket-preview').style.display = 'block';
+}
+
 async function openModalDemande(preId) {
   const [subs, allDems] = await Promise.all([getSubs(), getDemandes()]);
   const activeSubs = subs.filter(s => s.active !== false);
@@ -4460,10 +4506,17 @@ async function openModalDemande(preId) {
   }).join('');
   document.getElementById('dem-message').value = '';
   document.getElementById('dem-sub-info').style.display = 'none';
-  if (preId) await updateDemSubInfo(preId);
+  document.getElementById('dem-prenom-rp').value = CU.rpPrenomRp || '';
+  document.getElementById('dem-nom-rp').value = CU.rpNomRp || '';
+  document.getElementById('dem-grade-rp').value = CU.rpGrade || '';
+  document.getElementById('dem-faction-rp').value = CU.rpFaction || '';
+  document.getElementById('dem-ticket-preview').style.display = 'none';
+  if (preId) { await updateDemSubInfo(preId); sel.value = preId; }
+  updateDemTicketPreview();
   openModal('modal-demande');
 }
 async function updateDemSubInfo(id) {
+  updateDemTicketPreview();
   const subs = await getSubs();
   const s = subs.find(x => x.id === id);
   const c = document.getElementById('dem-sub-info');
@@ -4476,9 +4529,14 @@ async function updateDemSubInfo(id) {
   c.style.display = 'block';
 }
 async function saveDemande() {
-  const subId = document.getElementById('dem-sub-select').value;
-  const msg = document.getElementById('dem-message').value.trim();
+  const subId    = document.getElementById('dem-sub-select').value;
+  const msg      = document.getElementById('dem-message').value.trim();
+  const prenomRp = document.getElementById('dem-prenom-rp').value.trim();
+  const nomRp    = document.getElementById('dem-nom-rp').value.trim();
+  const gradeRp  = document.getElementById('dem-grade-rp').value.trim();
+  const factionRp= document.getElementById('dem-faction-rp').value.trim();
   if (!subId) { toast('Choisissez un sub-jutsu.', 'error'); return; }
+  if (!prenomRp || !nomRp) { toast('Le prénom et le nom RP sont requis.', 'error'); return; }
   const [subs, dems] = await Promise.all([getSubs(), getDemandes()]);
   const s = subs.find(x => x.id === subId);
   if (!s) { toast('Sub introuvable.', 'error'); return; }
@@ -4504,13 +4562,26 @@ async function saveDemande() {
   let ticketNum = `TKT-${String(ticketIndex).padStart(4,'0')}`;
   while (existingNums.includes(ticketNum)) { ticketIndex++; ticketNum = `TKT-${String(ticketIndex).padStart(4,'0')}`; }
 
+  // Construire le nom du ticket
+  const subSel = document.getElementById('dem-sub-select');
+  const subNameForTicket = subSel?.options[subSel.selectedIndex]?.text || s.nom;
+  const ticketNameParts = [];
+  if (gradeRp)   ticketNameParts.push(gradeRp);
+  const fullRpName = [prenomRp, nomRp].filter(Boolean).join(' ');
+  if (fullRpName) ticketNameParts.push(fullRpName);
+  if (factionRp) ticketNameParts.push(`[${factionRp}]`);
+  ticketNameParts.push(`— ${subNameForTicket}`);
+  const ticketName = ticketNameParts.join(' ');
+
   const now = new Date().toISOString();
   const timeline = [{ ts: now, actor: CU.nomrp||CU.username, action: 'a ouvert ce ticket', icon: '🎫' }];
   const newDem = {
     id: 'd' + Date.now(), userId: CU.id, subId, message: msg,
     images, links,
     status: 'pending', priority: 'normale', tags: [],
-    ticketNum, timeline,
+    ticketNum, ticketName,
+    rpPrenomRp: prenomRp, rpNomRp: nomRp, rpGrade: gradeRp, rpFaction: factionRp,
+    timeline,
     createdAt: now, mjNote: '', treatedBy: '', treatedAt: '', assignedTo: '',
     rpEntries: []
   };
@@ -4521,10 +4592,15 @@ async function saveDemande() {
   // Reset form
   document.getElementById('dem-images-preview').innerHTML = '';
   document.getElementById('dem-links').value = '';
+  document.getElementById('dem-prenom-rp').value = '';
+  document.getElementById('dem-nom-rp').value = '';
+  document.getElementById('dem-grade-rp').value = '';
+  document.getElementById('dem-faction-rp').value = '';
+  document.getElementById('dem-ticket-preview').style.display = 'none';
   _imgStore.dem = [];
   const demFileInput = document.getElementById('dem-images-file');
   if (demFileInput) demFileInput.value = '';
-  toast(`🎫 Ticket ${ticketNum} créé ! Un MJ le traitera bientôt.`, 'success');
+  toast(`🎫 Ticket "${ticketName}" créé ! Un MJ le traitera bientôt.`, 'success');
   await updateDemBadge();
   await updateTktBadge();
   if (document.getElementById('page-mes-demandes').classList.contains('active')) await renderMesDemandes();
@@ -5644,7 +5720,7 @@ function tktCardHtml(d, subs, isStaffView, users) {
           ${slaIndicator(d.createdAt, d.status)}
           ${d.tags?.length ? tagsHtml : ''}
         </div>
-        <div class="tkt-card-title">⚡ ${esc(s.nom)}</div>
+        <div class="tkt-card-title">⚡ ${esc(d.ticketName || s.nom)}</div>
         ${isStaffView && u ? `<div style="font-size:11px;color:var(--muted2);margin-top:2px">Demandé par <b>${esc(u.nomrp||u.username)}</b> @${esc(u.username)}</div>` : ''}
         ${d.message ? `<div style="font-size:11px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px">${esc(d.message)}</div>` : ''}
       </div>
@@ -5678,7 +5754,7 @@ async function openTicketDetail(demId) {
   const statusD = TKT_STATUS[d.status]||TKT_STATUS.pending;
 
   document.getElementById('tkt-detail-num').textContent = d.ticketNum || '—';
-  document.getElementById('tkt-detail-title').textContent = `⚡ ${s.nom}`;
+  document.getElementById('tkt-detail-title').textContent = `⚡ ${d.ticketName || s.nom}`;
   document.getElementById('tkt-detail-hero').style.background = `linear-gradient(135deg,${statusD.color}10,rgba(7,8,15,0.98))`;
 
   document.getElementById('tkt-detail-badges').innerHTML = `
@@ -7132,7 +7208,7 @@ Object.assign(window, {
   openModal, closeModal,
   // Catalogue & demandes
   renderCatalogue, setCatView, toggleFav, openSubDetail,
-  openModalDemande, saveDemande, updateDemSubInfo,
+  openModalDemande, saveDemande, updateDemSubInfo, updateDemTicketPreview,
   // Sub-jutsu (staff)
   openModalAddSub, openModalEditSub, saveSub, deleteSub,
   // Panel staff

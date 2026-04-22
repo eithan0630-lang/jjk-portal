@@ -6750,6 +6750,47 @@ async function handleNarrImageFiles(files) {
   _renderImgPreview('narr-images-preview', _imgStore.narr, 'narr');
 }
 
+function toggleNarrCategory(demId) {
+  const body    = document.getElementById('narr-cat-body-' + demId);
+  const chevron = document.getElementById('narr-cat-chevron-' + demId);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  if (isOpen) {
+    // Fermer avec animation
+    body.style.maxHeight = body.scrollHeight + 'px';
+    body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+      body.style.transition = 'max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.25s';
+      body.style.maxHeight = '0';
+      body.style.opacity = '0';
+    });
+    setTimeout(() => {
+      body.style.display = 'none';
+      body.style.maxHeight = '';
+      body.style.opacity = '';
+      body.style.transition = '';
+    }, 300);
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+  } else {
+    // Ouvrir avec animation
+    body.style.display = '';
+    body.style.maxHeight = '0';
+    body.style.opacity = '0';
+    body.style.overflow = 'hidden';
+    body.style.transition = 'max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s';
+    requestAnimationFrame(() => {
+      body.style.maxHeight = body.scrollHeight + 'px';
+      body.style.opacity = '1';
+    });
+    setTimeout(() => {
+      body.style.maxHeight = '';
+      body.style.overflow = '';
+      body.style.transition = '';
+    }, 370);
+    if (chevron) chevron.style.transform = 'rotate(-180deg)';
+  }
+}
+
 async function renderNarrations() {
   const q      = (document.getElementById('narr-search')?.value || '').toLowerCase();
   const typeF  = document.getElementById('narr-type')?.value || '';
@@ -6880,9 +6921,17 @@ async function renderNarrations() {
     const emptyMsg = !demNarrs.length ? `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;border:1px dashed var(--border);border-radius:8px">Aucune entrée pour ce suivi. Cliquez sur "＋ Ajouter" pour commencer.</div>` : '';
 
     return `
-    <div style="margin-bottom:32px">
-      <!-- Header catégorie -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:14px 18px;background:linear-gradient(135deg,rgba(201,162,39,0.07),rgba(124,92,191,0.05));border:1px solid rgba(201,162,39,0.18);border-radius:12px">
+    <div style="margin-bottom:32px" id="narr-cat-wrap-${dem.id}">
+      <!-- Header catégorie cliquable -->
+      <div
+        onclick="toggleNarrCategory('${dem.id}')"
+        style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;padding:14px 18px;
+               background:linear-gradient(135deg,rgba(201,162,39,0.07),rgba(124,92,191,0.05));
+               border:1px solid rgba(201,162,39,0.18);border-radius:12px;cursor:pointer;
+               transition:border-color 0.2s,background 0.2s;user-select:none"
+        onmouseover="this.style.borderColor='rgba(201,162,39,0.4)';this.style.background='linear-gradient(135deg,rgba(201,162,39,0.11),rgba(124,92,191,0.09))'"
+        onmouseout="this.style.borderColor='rgba(201,162,39,0.18)';this.style.background='linear-gradient(135deg,rgba(201,162,39,0.07),rgba(124,92,191,0.05))'"
+        id="narr-cat-header-${dem.id}">
         <div style="display:flex;align-items:center;gap:12px">
           <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,rgba(201,162,39,0.2),rgba(124,92,191,0.15));display:flex;align-items:center;justify-content:center;font-size:16px">⚡</div>
           <div>
@@ -6895,10 +6944,42 @@ async function renderNarrations() {
             </div>
           </div>
         </div>
-        <button class="btn btn-ghost btn-sm" style="color:var(--purple2)" onclick="openModalNewNarrationForDem('${dem.id}')">＋ Ajouter</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn btn-ghost btn-sm" style="color:var(--purple2)" onclick="event.stopPropagation();openModalNewNarrationForDem('${dem.id}')">＋ Ajouter</button>
+          <div id="narr-cat-chevron-${dem.id}" style="font-size:14px;color:var(--gold2);transition:transform 0.25s;transform:rotate(0deg)">▼</div>
+        </div>
       </div>
-      <!-- Entrées -->
-      ${narrCards || emptyMsg}
+
+      <!-- Panneau narration RP (collapsed par défaut) -->
+      <div id="narr-cat-body-${dem.id}" style="display:none;overflow:hidden">
+        <!-- Bande décorative supérieure -->
+        <div style="height:3px;background:linear-gradient(90deg,rgba(201,162,39,0.4),rgba(124,92,191,0.25),transparent);border-radius:0 0 4px 4px;margin:0 6px 0 6px"></div>
+
+        <!-- Section Narration RP -->
+        <div style="
+          background:linear-gradient(180deg,rgba(7,8,15,0.98) 0%,rgba(11,13,24,0.95) 100%);
+          border:1px solid rgba(201,162,39,0.12);border-top:none;
+          border-radius:0 0 12px 12px;padding:20px 20px 24px;
+        ">
+          <!-- En-tête de section narration -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.04)">
+            <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,rgba(124,92,191,0.3),rgba(201,162,39,0.1));display:flex;align-items:center;justify-content:center;font-size:14px">📜</div>
+            <div>
+              <div style="font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--purple3);letter-spacing:0.1em;text-transform:uppercase">Narration RP</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:1px">Chronologie des événements • ${demNarrs.length} entrée${demNarrs.length>1?'s':''}</div>
+            </div>
+            ${ml ? `<div style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.2);border-radius:20px">
+              <span style="font-size:13px">${ml.icon}</span>
+              <span style="font-size:10px;font-weight:700;color:${ml.color};letter-spacing:0.05em">${ml.label}</span>
+            </div>` : ''}
+          </div>
+
+          <!-- Entrées RP -->
+          <div id="narr-entries-${dem.id}" style="position:relative">
+            ${narrCards || emptyMsg}
+          </div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -7607,6 +7688,7 @@ Object.assign(window, {
   submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
   submitMJReply, deleteMJReply, toggleMJReplyForm,
   // Suivi RP ticket
+  toggleNarrCategory,
   activateRpSpace, closeRpSpace,
   openNarrSpace, closeNarrSpace, nsSetView, nsOpenForm, nsCloseForm,
   nsSelectType, nsToggleMood, nsSubmitEntry, nsDeleteEntry,

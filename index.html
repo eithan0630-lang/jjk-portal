@@ -2903,6 +2903,17 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <!-- ══ SUIVI RP ══ -->
       <div class="tkt-detail-section" id="tkt-rp-section">
         <div class="tkt-detail-label">⛩ Suivi RP</div>
+        <!-- Bloc maîtrise (staff only, ticket approuvé) -->
+        <div id="tkt-mastery-assign-block" style="display:none;margin-bottom:16px;margin-top:12px">
+          <div style="background:linear-gradient(135deg,rgba(201,162,39,0.06),rgba(124,92,191,0.04));border:1px solid rgba(201,162,39,0.2);border-radius:12px;padding:18px 20px">
+            <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold);letter-spacing:0.08em;margin-bottom:12px">⚡ Attribuer un niveau de maîtrise</div>
+            <div class="mastery-selector" id="tkt-inline-mastery-selector"></div>
+            <div id="tkt-inline-mastery-preview" style="margin-top:10px;display:none"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+              <button class="btn btn-primary btn-sm" onclick="assignTktMastery()">⚡ Attribuer</button>
+            </div>
+          </div>
+        </div>
         <div id="tkt-rp-status-block" style="margin-top:12px"></div>
         <!-- RP form (peuplé par JS) -->
         <div id="tkt-rp-form" style="display:none;margin-top:12px">
@@ -2983,7 +2994,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
     </div>
     <div class="fg">
       <label class="fl">Statut</label>
-      <select class="fi" id="tkt-treat-status" onchange="toggleTktMasterySection(this.value)">
+      <select class="fi" id="tkt-treat-status">
         <option value="in_review">🔍 Passer en révision</option>
         <option value="approved">✅ Approuver</option>
         <option value="rejected">❌ Refuser</option>
@@ -2994,38 +3005,6 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <textarea class="fi" id="tkt-treat-note" placeholder="Votre note pour le joueur…" style="min-height:80px"></textarea>
     </div>
 
-    <!-- Niveau de maîtrise (visible si approved) -->
-    <div id="tkt-mastery-section" style="display:none;margin-top:14px">
-      <label class="fl" style="margin-bottom:10px">⚡ Niveau de maîtrise attribué</label>
-      <div class="mastery-selector" id="tkt-mastery-selector">
-        <div class="mastery-opt" data-level="1" onclick="selectTktMasteryLevel(1)">
-          <span class="mastery-opt-icon">🌱</span>
-          <span class="mastery-opt-label">Initié</span>
-          <span class="mastery-opt-stars">★☆☆☆☆</span>
-        </div>
-        <div class="mastery-opt" data-level="2" onclick="selectTktMasteryLevel(2)">
-          <span class="mastery-opt-icon">⚡</span>
-          <span class="mastery-opt-label">Apprenti</span>
-          <span class="mastery-opt-stars">★★☆☆☆</span>
-        </div>
-        <div class="mastery-opt" data-level="3" onclick="selectTktMasteryLevel(3)">
-          <span class="mastery-opt-icon">🔥</span>
-          <span class="mastery-opt-label">Praticien</span>
-          <span class="mastery-opt-stars">★★★☆☆</span>
-        </div>
-        <div class="mastery-opt" data-level="4" onclick="selectTktMasteryLevel(4)">
-          <span class="mastery-opt-icon">💜</span>
-          <span class="mastery-opt-label">Expert</span>
-          <span class="mastery-opt-stars">★★★★☆</span>
-        </div>
-        <div class="mastery-opt" data-level="5" onclick="selectTktMasteryLevel(5)">
-          <span class="mastery-opt-icon">👑</span>
-          <span class="mastery-opt-label">Maître</span>
-          <span class="mastery-opt-stars">★★★★★</span>
-        </div>
-      </div>
-      <div id="tkt-mastery-preview" style="margin-top:10px;display:none"></div>
-    </div>
 
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-tkt-treat')">Annuler</button>
@@ -5876,6 +5855,8 @@ async function openTicketDetail(demId) {
 
   // ── Bloc Suivi RP (MJ-gated) ──────────────────────────
   renderRpStatusBlock(d);
+  // ── Bloc maîtrise (staff only, ticket approuvé) ────────
+  renderTktMasteryBlock(d);
 
   // Timeline
   const timeline = (d.timeline || []);
@@ -6123,9 +6104,8 @@ async function submitTktTreat() {
   if (note) tlEntry.note = note;
   tl.push(tlEntry);
 
-  const masteryLevel = status === 'approved' ? (_tktSelectedMastery || 1) : null;
   const updateData = { status, mjNote: note, priority, treatedAt: now, treatedBy: CU.username, assignedTo: d.assignedTo || CU.username, timeline: tl };
-  if (masteryLevel) updateData.masteryLevel = masteryLevel;
+  const masteryLevel = null;
 
   await fsUpdate('demandes', currentTreatId, updateData);
   _cache.demandes = null;
@@ -6589,10 +6569,44 @@ const NARR_TYPE_META = {
 };
 
 // Ouvre la modal pour créer une nouvelle narration
-function openModalNewNarration() {
-  document.getElementById('narr-modal-title').textContent = 'Nouvelle Narration';
+let _currentNarrDemId = null;
+
+function openModalNewNarrationForDem(demId) {
+  _currentNarrDemId = demId;
+  openModalNewNarration();
+}
+
+async function openModalNewNarration() {
+  // Vérifier qu'il existe au moins un ticket approuvé + rpOpen accessible
+  const [allDems, subs] = await Promise.all([getDemandes(), getSubs()]);
+  const isMJ = hasPerm(CU, 'approve_requests');
+  const eligibleDems = allDems.filter(d =>
+    d.status === 'approved' && d.rpOpen &&
+    (isMJ || d.userId === CU.id)
+  );
+  if (!eligibleDems.length) {
+    toast('Aucun Suivi RP actif. Un MJ doit activer le Suivi RP sur votre ticket approuvé.', 'error');
+    return;
+  }
+  // Si demId pas encore défini, prendre le premier éligible
+  if (!_currentNarrDemId || !eligibleDems.find(d => d.id === _currentNarrDemId)) {
+    _currentNarrDemId = eligibleDems[0].id;
+  }
+  // Peupler le select de ticket si plusieurs tickets éligibles
+  const selectHtml = eligibleDems.length > 1
+    ? `<div class="fg" style="margin-bottom:14px">
+        <label class="fl">Ticket lié</label>
+        <select class="fi" id="narr-dem-select">
+          ${eligibleDems.map(d => {
+            const s = subs.find(x => x.id === d.subId);
+            return `<option value="${d.id}" ${d.id === _currentNarrDemId ? 'selected' : ''}>${d.ticketNum||'—'} — ${s?.nom||'?'}</option>`;
+          }).join('')}
+        </select>
+      </div>`
+    : `<input type="hidden" id="narr-dem-select" value="${eligibleDems[0].id}">`;
+  document.getElementById('narr-modal-title').textContent = 'Nouveau suivi RP';
   document.getElementById('narr-titre').value = '';
-  document.getElementById('narr-modal-type').value = 'suivi_normal';
+  document.getElementById('narr-modal-type').value = 'narration';
   document.getElementById('narr-author').value = CU.nomrp || CU.username;
   document.getElementById('narr-content').value = '';
   document.getElementById('narr-links').value = '';
@@ -6601,6 +6615,16 @@ function openModalNewNarration() {
   const fi = document.getElementById('narr-images-file');
   if (fi) fi.value = '';
   _editingNarrId = null;
+  // Injecter le sélecteur de ticket dans le modal
+  let demSelectCtn = document.getElementById('narr-dem-select-ctn');
+  if (!demSelectCtn) {
+    demSelectCtn = document.createElement('div');
+    demSelectCtn.id = 'narr-dem-select-ctn';
+    const firstFg = document.querySelector('#modal-narration .modal-body .fg, #modal-narration .fg');
+    if (firstFg) firstFg.parentNode.insertBefore(demSelectCtn, firstFg);
+    else document.querySelector('#modal-narration .modal-body, #modal-narration .modal')?.prepend(demSelectCtn);
+  }
+  demSelectCtn.innerHTML = selectHtml;
   openModal('modal-narration');
 }
 
@@ -6646,11 +6670,14 @@ async function saveNarration() {
     toast('Narration mise à jour !', 'success');
   } else {
     const id = 'narr' + Date.now();
+    const demIdForNarr = document.getElementById('narr-dem-select')?.value || _currentNarrDemId || null;
     await fsSet('narrations', id, {
       id, titre, type, author, content, images, links,
       authorId: CU.id, authorRole: CU.role,
+      demId: demIdForNarr,
       createdAt: now, mjReplies: []
     });
+    _currentNarrDemId = null;
     toast('✦ Narration publiée !', 'success');
     await addLog('narration', `a publié la narration "${titre}"`);
   }
@@ -6727,9 +6754,20 @@ async function renderNarrations() {
   const q      = (document.getElementById('narr-search')?.value || '').toLowerCase();
   const typeF  = document.getElementById('narr-type')?.value || '';
   const mineF  = document.getElementById('narr-mine')?.value || '';
+  const isMJ   = hasPerm(CU, 'approve_requests');
 
-  // Fetch all narrations from Firestore
-  let narrs = await fsGetAll('narrations');
+  // Charger tickets approuvés avec rpOpen + narrations
+  const [allDems, subs, narrs_all] = await Promise.all([getDemandes(), getSubs(), fsGetAll('narrations')]);
+
+  // Tickets accessibles : approuvés + rpOpen + (owner ou staff)
+  const eligibleDems = allDems.filter(d =>
+    d.status === 'approved' && d.rpOpen &&
+    (isMJ || d.userId === CU.id)
+  );
+
+  // Filtrer les narrations liées à un ticket éligible
+  const eligibleDemIds = new Set(eligibleDems.map(d => d.id));
+  let narrs = narrs_all.filter(n => n.demId && eligibleDemIds.has(n.demId));
   narrs.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 
   if (q)     narrs = narrs.filter(n => (n.titre||'').toLowerCase().includes(q) || (n.content||'').toLowerCase().includes(q) || (n.author||'').toLowerCase().includes(q));
@@ -6743,81 +6781,124 @@ async function renderNarrations() {
     const mine  = narrs.filter(n => n.authorId === CU.id).length;
     const mjR   = narrs.filter(n => (n.mjReplies||[]).length > 0).length;
     qsEl.innerHTML = [
-      { label: 'Total',       val: total, accent: 'var(--gold)' },
-      { label: 'Mes suivis', val: mine,  accent: 'var(--purple2)' },
-      { label: 'Avec réponse MJ', val: mjR, accent: 'var(--success)' },
+      { label: 'Total',            val: total,             accent: 'var(--gold)' },
+      { label: 'Mes suivis',       val: mine,              accent: 'var(--purple2)' },
+      { label: 'Avec réponse MJ',  val: mjR,               accent: 'var(--success)' },
+      { label: 'Catégories',       val: eligibleDems.length, accent: 'var(--cyan)' },
     ].map(s => `<div class="tkt-qs-item" style="--accent:${s.accent}"><div class="tkt-qs-val">${s.val}</div><div class="tkt-qs-label">${s.label}</div></div>`).join('');
   }
 
+  // Bouton "Nouveau suivi" : visible si au moins un ticket éligible
+  const addBtn = document.querySelector('#page-narrations .btn-primary[onclick="openModalNewNarration()"]');
+  if (addBtn) addBtn.style.display = eligibleDems.length ? '' : 'none';
+
   const ctn = document.getElementById('narrations-container');
   if (!ctn) return;
-  if (!narrs.length) {
-    ctn.innerHTML = emptyState('📜', 'Aucune narration. Créez-en une avec le bouton "＋ Nouvelle narration" !');
+
+  if (!eligibleDems.length) {
+    ctn.innerHTML = emptyState('🔒', 'Aucun Suivi RP actif. Un MJ doit approuver votre demande et activer le Suivi RP sur votre ticket.');
     return;
   }
 
-  ctn.innerHTML = narrs.map((n, globalIdx) => {
-    const meta   = NARR_TYPE_META[n.type] || NARR_TYPE_META.suivi_normal;
-    const canDel = n.authorId === CU.id || hasPerm(CU, 'approve_requests');
-    const canEdit= n.authorId === CU.id || hasPerm(CU, 'approve_requests');
-    const isMJ   = hasPerm(CU, 'approve_requests');
+  // Construire une map demId → narrations
+  const narrByDem = {};
+  for (const n of narrs) {
+    if (!narrByDem[n.demId]) narrByDem[n.demId] = [];
+    narrByDem[n.demId].push(n);
+  }
 
-    const imgsHtml = (n.images||[]).length ? `
-      <div class="tkt-media-preview">${n.images.map(img => `
-        <div class="tkt-media-thumb" onclick="openLightbox('${esc(typeof img==='string'?img:img.dataUrl||img)}')">
-          <img src="${esc(typeof img==='string'?img:img.dataUrl||img)}" alt="" onerror="this.parentElement.style.display='none'">
-        </div>`).join('')}
-      </div>` : '';
+  // Grouper par ticket avec header catégorie
+  ctn.innerHTML = eligibleDems.map(dem => {
+    const s = subs.find(x => x.id === dem.subId) || { nom: '?', rang: '?' };
+    const ml = dem.masteryLevel ? MASTERY_LEVELS[dem.masteryLevel] : null;
+    const demNarrs = (narrByDem[dem.id] || []);
 
-    const linksHtml = (n.links||[]).length ? `
-      <div class="rp-entry-links">${n.links.map(l => `
-        <a href="${esc(l.url)}" target="_blank" rel="noopener" class="rp-link-pill">🔗 ${esc(l.label)}</a>`).join('')}
-      </div>` : '';
+    const narrCards = demNarrs.map(n => {
+      const meta   = NARR_TYPE_META[n.type] || NARR_TYPE_META.narration;
+      const canDel = n.authorId === CU.id || isMJ;
+      const canEdit= n.authorId === CU.id || isMJ;
 
-    const replies = n.mjReplies || [];
-    const repliesHtml = replies.map((rep, ri) => `
-      <div class="rp-mj-reply">
-        <div class="rp-mj-reply-header">
-          <span class="rp-mj-reply-badge">🎲 Réponse MJ</span>
-          <span style="font-size:12px;font-weight:700;color:var(--gold2)">${esc(rep.authorName||'MJ')}</span>
-          <span class="rp-mj-reply-time">${fmtDateTime(rep.ts)}</span>
-          ${hasPerm(CU,'approve_requests') ? `<button onclick="deleteNarrMJReply('${n.id}',${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px;margin-left:4px" title="Supprimer">🗑</button>` : ''}
+      const imgsHtml = (n.images||[]).length ? `
+        <div class="tkt-media-preview">${n.images.map(img => `
+          <div class="tkt-media-thumb" onclick="openLightbox('${esc(typeof img==='string'?img:img.dataUrl||img)}')">
+            <img src="${esc(typeof img==='string'?img:img.dataUrl||img)}" alt="" onerror="this.parentElement.style.display='none'">
+          </div>`).join('')}
+        </div>` : '';
+
+      const linksHtml = (n.links||[]).length ? `
+        <div class="rp-entry-links">${n.links.map(l => `
+          <a href="${esc(l.url)}" target="_blank" rel="noopener" class="rp-link-pill">🔗 ${esc(l.label)}</a>`).join('')}
+        </div>` : '';
+
+      const replies = n.mjReplies || [];
+      const repliesHtml = replies.map((rep, ri) => `
+        <div class="rp-mj-reply">
+          <div class="rp-mj-reply-header">
+            <span class="rp-mj-reply-badge">🎲 Réponse MJ</span>
+            <span style="font-size:12px;font-weight:700;color:var(--gold2)">${esc(rep.authorName||'MJ')}</span>
+            <span class="rp-mj-reply-time">${fmtDateTime(rep.ts)}</span>
+            ${isMJ ? `<button onclick="deleteNarrMJReply('${n.id}',${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px;margin-left:4px" title="Supprimer">🗑</button>` : ''}
+          </div>
+          <div class="rp-mj-reply-body">${esc(rep.content)}</div>
+        </div>`).join('');
+
+      const replyFormHtml = isMJ ? `
+        <div class="rp-reply-form" id="narr-mj-form-${n.id}-0" style="display:none">
+          <label class="fl" style="font-size:9px;margin-bottom:6px">✍ Votre réponse MJ</label>
+          <textarea class="rp-textarea" id="narr-mj-reply-content-${n.id}" placeholder="Guidez la narration, ajoutez des conséquences RP…" style="min-height:90px;font-size:13px;margin-bottom:10px"></textarea>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('narr-mj-form-${n.id}-0').style.display='none'">Annuler</button>
+            <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:7px 16px;border-radius:7px;font-weight:700;font-size:11px;cursor:pointer" onclick="submitNarrMJReply('${n.id}',0)">⚡ Publier</button>
+          </div>
+        </div>` : '';
+
+      const mjReplyBtn = isMJ ? `
+        <button onclick="toggleNarrMJForm('${n.id}',0)" class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--gold);margin-top:8px">
+          🎲 Répondre en tant que MJ
+        </button>` : '';
+
+      return `<div class="rp-entry" style="--rp-color:${meta.color};margin-bottom:14px">
+        <div style="position:absolute;top:10px;right:10px;display:flex;gap:6px">
+          ${canEdit ? `<button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="openEditNarration('${n.id}')" title="Modifier">✏</button>` : ''}
+          ${canDel  ? `<button class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--danger)" onclick="deleteNarration('${n.id}')" title="Supprimer">🗑</button>` : ''}
         </div>
-        <div class="rp-mj-reply-body">${esc(rep.content)}</div>
-      </div>`).join('');
-
-    const replyFormHtml = isMJ ? `
-      <div class="rp-reply-form" id="narr-mj-form-${n.id}-0" style="display:none">
-        <label class="fl" style="font-size:9px;margin-bottom:6px">✍ Votre réponse MJ</label>
-        <textarea class="rp-textarea" id="narr-mj-reply-content-${n.id}" placeholder="Guidez la narration, ajoutez des conséquences RP…" style="min-height:90px;font-size:13px;margin-bottom:10px"></textarea>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('narr-mj-form-${n.id}-0').style.display='none'">Annuler</button>
-          <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:7px 16px;border-radius:7px;font-weight:700;font-size:11px;cursor:pointer" onclick="submitNarrMJReply('${n.id}',0)">⚡ Publier</button>
+        <div class="rp-entry-header">
+          <span class="rp-entry-type ${meta.cls}">${meta.icon} ${meta.label}</span>
+          <span style="font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold2);flex:1;margin-left:8px">${esc(n.titre||'Sans titre')}</span>
+          <span class="rp-entry-author">${esc(n.author||'?')}</span>
+          <span class="rp-entry-time">${fmtDateTime(n.createdAt)}</span>
         </div>
-      </div>` : '';
+        <div class="rp-entry-body">${esc(n.content)}</div>
+        ${imgsHtml}
+        ${linksHtml}
+        ${repliesHtml}
+        ${mjReplyBtn}
+        ${replyFormHtml}
+      </div>`;
+    }).join('');
 
-    const mjReplyBtn = isMJ ? `
-      <button onclick="toggleNarrMJForm('${n.id}',0)" class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--gold);margin-top:8px">
-        🎲 Répondre en tant que MJ
-      </button>` : '';
+    const emptyMsg = !demNarrs.length ? `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;border:1px dashed var(--border);border-radius:8px">Aucune entrée pour ce suivi. Cliquez sur "＋ Ajouter" pour commencer.</div>` : '';
 
-    return `<div class="rp-entry" style="--rp-color:${meta.color};margin-bottom:14px">
-      <div style="position:absolute;top:10px;right:10px;display:flex;gap:6px">
-        ${canEdit ? `<button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="openEditNarration('${n.id}')" title="Modifier">✏</button>` : ''}
-        ${canDel  ? `<button class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--danger)" onclick="deleteNarration('${n.id}')" title="Supprimer">🗑</button>` : ''}
+    return `
+    <div style="margin-bottom:32px">
+      <!-- Header catégorie -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:14px 18px;background:linear-gradient(135deg,rgba(201,162,39,0.07),rgba(124,92,191,0.05));border:1px solid rgba(201,162,39,0.18);border-radius:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,rgba(201,162,39,0.2),rgba(124,92,191,0.15));display:flex;align-items:center;justify-content:center;font-size:16px">⚡</div>
+          <div>
+            <div style="font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:0.05em">${esc(s.nom)}</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:2px">
+              <span class="tkt-number" style="font-size:9px">${esc(dem.ticketNum||'—')}</span>
+              · Rang ${esc(String(s.rang))}
+              · ${demNarrs.length} entrée${demNarrs.length>1?'s':''}
+              ${ml ? `· <span style="color:${ml.color}">${ml.icon} ${ml.label}</span>` : '· <span style="color:var(--muted)">Niveau non attribué</span>'}
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="color:var(--purple2)" onclick="openModalNewNarrationForDem('${dem.id}')">＋ Ajouter</button>
       </div>
-      <div class="rp-entry-header">
-        <span class="rp-entry-type ${meta.cls}">${meta.icon} ${meta.label}</span>
-        <span style="font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold2);flex:1;margin-left:8px">${esc(n.titre||'Sans titre')}</span>
-        <span class="rp-entry-author">${esc(n.author||'?')}</span>
-        <span class="rp-entry-time">${fmtDateTime(n.createdAt)}</span>
-      </div>
-      <div class="rp-entry-body">${esc(n.content)}</div>
-      ${imgsHtml}
-      ${linksHtml}
-      ${repliesHtml}
-      ${mjReplyBtn}
-      ${replyFormHtml}
+      <!-- Entrées -->
+      ${narrCards || emptyMsg}
     </div>`;
   }).join('');
 }
@@ -6966,6 +7047,113 @@ async function activateRpSpace(demId) {
   await addLog('demande', `a activé le Suivi RP sur le ticket ${d.ticketNum||''}`, {});
   toast('⛩ Suivi RP activé ! Le joueur peut maintenant accéder à ses Suivis RP.', 'success');
   // Reopen ticket detail to refresh
+  await openTicketDetail(demId);
+}
+
+
+// ══════════════════════════════════════════════════════
+//  MAÎTRISE INLINE (dans le ticket approuvé)
+// ══════════════════════════════════════════════════════
+let _tktInlineMastery = 1;
+
+function renderTktMasteryBlock(d) {
+  const block = document.getElementById('tkt-mastery-assign-block');
+  if (!block) return;
+  const isMJ = hasPerm(CU, 'approve_requests');
+  if (!isMJ || d.status !== 'approved') { block.style.display = 'none'; return; }
+  block.style.display = '';
+
+  const currentLevel = d.masteryLevel || 0;
+  _tktInlineMastery = currentLevel || 1;
+
+  // Construire le sélecteur
+  const sel = document.getElementById('tkt-inline-mastery-selector');
+  sel.innerHTML = Object.entries(MASTERY_LEVELS).map(([lvl, m]) => {
+    const starsOn  = '★'.repeat(m.stars);
+    const starsOff = '☆'.repeat(5 - m.stars);
+    const isCurrent = parseInt(lvl) === currentLevel;
+    return `<div class="mastery-opt${parseInt(lvl) === _tktInlineMastery ? ' selected' : ''}" data-level="${lvl}" onclick="selectTktInlineMastery(${lvl})"
+      style="${isCurrent ? 'border-color:var(--gold);box-shadow:0 0 12px rgba(201,162,39,0.2)' : ''}">
+      ${isCurrent ? '<div style="position:absolute;top:4px;right:4px;font-size:8px;color:var(--gold);letter-spacing:0.05em">ACTUEL</div>' : ''}
+      <span class="mastery-opt-icon">${m.icon}</span>
+      <span class="mastery-opt-label">${m.label}</span>
+      <span class="mastery-opt-stars" style="color:var(--gold)">${starsOn}<span style="opacity:0.25">${starsOff}</span></span>
+    </div>`;
+  }).join('');
+
+  // Preview si niveau actuel
+  const preview = document.getElementById('tkt-inline-mastery-preview');
+  if (currentLevel) {
+    const m = MASTERY_LEVELS[currentLevel];
+    preview.style.display = 'block';
+    preview.innerHTML = `<div class="mastery-preview-box" style="border-color:${m.color}33">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span>${m.icon}</span><strong style="color:${m.color}">${m.label} — Niveau actuel</strong>
+      </div>
+      <div style="font-size:11px;color:var(--muted2)">${m.desc}</div>
+    </div>`;
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function selectTktInlineMastery(level) {
+  _tktInlineMastery = level;
+  document.querySelectorAll('#tkt-inline-mastery-selector .mastery-opt').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.level) === level);
+  });
+  const m = MASTERY_LEVELS[level];
+  const starsOn  = '★'.repeat(m.stars);
+  const starsOff = '☆'.repeat(5 - m.stars);
+  const preview = document.getElementById('tkt-inline-mastery-preview');
+  preview.style.display = 'block';
+  preview.innerHTML = `<div class="mastery-preview-box">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:20px">${m.icon}</span>
+      <strong>${m.label}</strong>
+      <span style="color:${m.color};font-size:12px;letter-spacing:2px">${starsOn}<span style="opacity:0.25">${starsOff}</span></span>
+    </div>
+    <div style="font-size:12px;color:var(--muted2)">${m.desc}</div>
+  </div>`;
+}
+
+async function assignTktMastery() {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const demId = currentTktId;
+  if (!demId) return;
+  const level = _tktInlineMastery;
+  const m = MASTERY_LEVELS[level];
+  if (!m) return;
+
+  const d = await fsGetOne('demandes', demId); if (!d) return;
+  const [subs, users] = await Promise.all([getSubs(), getUsers()]);
+  const s = subs.find(x => x.id === d.subId);
+  const u = users.find(x => x.id === d.userId);
+
+  const now = new Date().toISOString();
+  const tl = d.timeline || [];
+  const starsOn  = '★'.repeat(m.stars);
+  const starsOff = '☆'.repeat(5 - m.stars);
+  tl.push({
+    ts: now, actor: CU.username,
+    action: `a attribué le niveau de maîtrise ${m.icon} ${m.label} (${starsOn}${starsOff})`,
+    icon: m.icon
+  });
+
+  await fsUpdate('demandes', demId, { masteryLevel: level, timeline: tl });
+  _cache.demandes = null;
+
+  // Message narratif automatique dans la timeline et notif
+  const starsStr = starsOn + ('☆'.repeat(5 - m.stars));
+  const notifMsg = `${m.icon} Tu as atteint le niveau **${m.label}** (${starsStr}) pour le Sub-Jutsu **${s?.nom || '?'}** !
+
+_${m.desc}_
+
+✦ Attribué par @${CU.username}`;
+  await pushNotif(u?.id || d.userId, notifMsg, 'mastery_assigned');
+  await addLog('demande', `a attribué le niveau ${m.label} sur le ticket ${d.ticketNum||''} de @${u?.username||'?'}`, { sub: s?.nom || '?' });
+
+  toast(`${m.icon} Niveau ${m.label} attribué !`, 'success');
   await openTicketDetail(demId);
 }
 
@@ -7405,6 +7593,7 @@ Object.assign(window, {
   renderMyTickets, renderAllTickets, setTktView, setAllTktView,
   openTicketDetail, openTktTreat, submitTktTreat, addTktComment,
   selectTktMasteryLevel, toggleTktMasterySection,
+  selectTktInlineMastery, renderTktMasteryBlock, assignTktMastery,
   assignTicketToSelf, changeTicketPriority, openTktTagModal, exportTicketsCSV,
   revokeSubJutsu, reopenTicket, deleteTicket, openTktInternalNote,
   // Stats
@@ -7414,7 +7603,7 @@ Object.assign(window, {
   // RP & médias (compat)
   toggleRpForm, submitRpEntry, deleteRpEntry,
   // Narrations libres (page dédiée)
-  renderNarrations, openModalNewNarration, openEditNarration, saveNarration, deleteNarration,
+  renderNarrations, openModalNewNarration, openModalNewNarrationForDem, openEditNarration, saveNarration, deleteNarration,
   submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
   submitMJReply, deleteMJReply, toggleMJReplyForm,
   // Suivi RP ticket

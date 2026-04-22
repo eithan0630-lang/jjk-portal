@@ -2806,57 +2806,38 @@ tr:hover td { background: rgba(201,162,39,0.02); }
         <div class="tkt-detail-label">📝 Note du MJ</div>
         <div id="tkt-detail-note" style="font-size:14px;color:var(--warn2);line-height:1.8;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:14px"></div>
       </div>
-      <!-- ══ SUIVI RP ══ -->
+      <!-- ══ SUIVI RP → lien vers l'espace narration dédié ══ -->
       <div class="tkt-detail-section" id="tkt-rp-section">
-        <div class="tkt-detail-label" style="display:flex;align-items:center;justify-content:space-between">
-          <span>⛩ Suivi RP — Narrations &amp; Événements</span>
-          <button id="tkt-rp-add-btn" class="btn btn-ghost btn-sm" style="font-size:11px;color:var(--purple2)" onclick="toggleRpForm()">＋ Ajouter une entrée</button>
-        </div>
-        <!-- Liste des entrées RP -->
-        <div id="tkt-rp-list" style="margin-top:14px"></div>
-        <!-- Formulaire d'ajout joueur -->
-        <div id="tkt-rp-form" class="rp-add-form" style="display:none;margin-top:12px">
-          <div class="rp-form-row">
-            <div>
-              <label class="fl" style="font-size:10px;margin-bottom:5px">Type</label>
-              <select class="fi" id="rp-type" style="font-size:12px">
-                <option value="narration">📜 Narration</option>
-                <option value="event">⭐ Événement</option>
-                <option value="combat">⚔ Combat</option>
-                <option value="dialogue">💬 Dialogue</option>
-                <option value="flashback">🌀 Flashback</option>
-              </select>
-            </div>
-            <div>
-              <label class="fl" style="font-size:10px;margin-bottom:5px">Personnage / Auteur</label>
-              <input class="fi" id="rp-author" type="text" placeholder="Nom RP ou @auteur…" style="font-size:12px">
-            </div>
+        <div class="tkt-detail-label">⛩ Narrations &amp; Suivi RP</div>
+        <div id="tkt-rp-summary" style="margin-top:10px"></div>
+        <button id="tkt-open-narr-space" onclick="openNarrSpace(currentTktId)"
+          style="
+            margin-top:14px;width:100%;
+            background:linear-gradient(135deg,rgba(124,92,191,0.12),rgba(201,162,39,0.08));
+            border:1px solid rgba(124,92,191,0.3);border-radius:12px;
+            padding:18px 22px;cursor:pointer;
+            display:flex;align-items:center;gap:16px;
+            transition:all 0.2s;font-family:'Rajdhani',sans-serif;
+          "
+          onmouseover="this.style.borderColor='rgba(167,139,250,0.6)';this.style.background='linear-gradient(135deg,rgba(124,92,191,0.18),rgba(201,162,39,0.12))'"
+          onmouseout="this.style.borderColor='rgba(124,92,191,0.3)';this.style.background='linear-gradient(135deg,rgba(124,92,191,0.12),rgba(201,162,39,0.08))'">
+          <div style="width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,rgba(124,92,191,0.3),rgba(201,162,39,0.15));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">📜</div>
+          <div style="flex:1;text-align:left">
+            <div style="font-size:13px;font-weight:700;color:var(--text);font-family:'Cinzel',serif;letter-spacing:0.04em;margin-bottom:3px">Espace Narrations</div>
+            <div style="font-size:11px;color:var(--muted2)">Rédigez, gérez et enrichissez toutes les narrations liées à ce ticket dans un espace dédié.</div>
           </div>
-          <div style="margin-bottom:12px">
-            <label class="fl" style="font-size:10px;margin-bottom:6px">Narration / Contenu RP *</label>
-            <textarea class="rp-textarea" id="rp-content" placeholder="Rédigez votre narration, les actions de votre personnage, le contexte…&#10;&#10;Ex : Dans les ruelles sombres de Shibuya, l'énergie maudite de [Personnage] se manifeste pour la première fois…" style="min-height:130px;font-size:14px"></textarea>
-          </div>
-          <div style="margin-bottom:12px">
-            <label class="fl" style="font-size:10px;margin-bottom:6px">🖼 Images <span style="font-weight:400;color:var(--muted)">(depuis votre appareil)</span></label>
-            <div class="file-drop-zone" id="rp-drop-zone">
-              <input type="file" id="rp-images-file" accept="image/*" multiple onchange="handleRpImageFiles(this.files)">
-              <div class="file-drop-label">
-                <span class="drop-icon">🖼</span>
-                <span>Cliquez ou glissez vos images ici</span><br>
-                <small style="font-size:10px;color:var(--muted)">PNG, JPG, GIF, WebP — max 2 Mo chacune</small>
-              </div>
-            </div>
-            <div id="rp-images-preview" class="tkt-media-preview" style="margin-top:8px"></div>
-          </div>
-          <div style="margin-bottom:14px">
-            <label class="fl" style="font-size:10px;margin-bottom:6px">🔗 Lien(s) <span style="font-weight:400;color:var(--muted)">(label | url, un par ligne)</span></label>
-            <textarea class="fi" id="rp-links" placeholder="Fiche Google Doc | https://docs.google.com/…" style="min-height:44px;font-size:11px;font-family:'Share Tech Mono',monospace"></textarea>
-          </div>
-          <div style="display:flex;gap:8px;justify-content:flex-end">
-            <button class="btn btn-ghost btn-sm" onclick="toggleRpForm(false)">Annuler</button>
-            <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;border:none;padding:7px 18px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer" onclick="submitRpEntry()">✦ Publier l'entrée RP</button>
-          </div>
-        </div>
+          <div style="font-size:18px;color:var(--purple2);opacity:0.7">→</div>
+        </button>
+        <!-- Hidden inputs for RP form (kept for backward compat) -->
+        <input type="hidden" id="rp-type" value="narration">
+        <input type="hidden" id="rp-author" value="">
+        <input type="hidden" id="rp-content" value="">
+        <input type="hidden" id="rp-links" value="">
+        <div id="rp-images-preview" style="display:none"></div>
+        <div id="tkt-rp-form" style="display:none"></div>
+        <div id="tkt-rp-add-btn" style="display:none"></div>
+        <div id="tkt-rp-list" style="display:none"></div>
+        <input type="file" id="rp-images-file" accept="image/*" multiple style="display:none" onchange="handleRpImageFiles(this.files)">
       </div>
       <!-- Timeline -->
       <div class="tkt-detail-section">
@@ -2914,6 +2895,403 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <button class="btn btn-primary" onclick="submitTktTreat()">Valider</button>
     </div>
   </div>
+</div>
+
+<!-- ══ ESPACE NARRATIONS (overlay dédié) ══ -->
+<div id="narr-space-overlay" style="
+  display:none;position:fixed;inset:0;z-index:2000;
+  background:var(--bg);
+  flex-direction:column;
+  animation:ns-in 0.35s cubic-bezier(0.22,1,0.36,1) both;
+">
+
+<style>
+@keyframes ns-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ns-entry-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── NARR SPACE LAYOUT ── */
+#narr-space-overlay.open { display:flex }
+
+.ns-bg {
+  position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.ns-bg::before {
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 0% 0%,rgba(124,92,191,0.15) 0%,transparent 55%),
+    radial-gradient(ellipse 40% 35% at 100% 100%,rgba(201,162,39,0.08) 0%,transparent 50%);
+}
+.ns-bg::after {
+  content:'呪';position:absolute;font-family:'Noto Serif JP',serif;font-size:50vw;font-weight:700;
+  color:rgba(255,255,255,0.012);bottom:-10vw;right:-5vw;line-height:1;pointer-events:none;user-select:none;
+}
+.ns-grid {
+  position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,0.01) 60px),
+    repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.01) 60px);
+}
+
+/* ── HEADER ── */
+.ns-header {
+  position:relative;z-index:2;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(11,13,24,0.98) 0%,rgba(7,8,15,0.96) 100%);
+  border-bottom:1px solid rgba(201,162,39,0.12);
+  padding:0 28px;
+  display:flex;align-items:center;gap:18px;
+  height:64px;
+}
+.ns-header::after {
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,162,39,0.25),rgba(124,92,191,0.15),transparent);
+}
+.ns-back-btn {
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:9px;
+  padding:7px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted2);
+  font-family:'Rajdhani',sans-serif;letter-spacing:0.06em;transition:all 0.18s;
+}
+.ns-back-btn:hover { color:var(--text);border-color:rgba(201,162,39,0.3) }
+.ns-header-tkt {
+  display:flex;align-items:center;gap:10px;
+  background:rgba(201,162,39,0.06);border:1px solid rgba(201,162,39,0.18);
+  border-radius:9px;padding:6px 14px;
+}
+.ns-header-tktnum { font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold2) }
+.ns-header-sub { font-size:13px;font-weight:700;color:var(--text) }
+.ns-header-title {
+  flex:1;
+  font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--gold);
+  letter-spacing:0.08em;text-shadow:0 0 30px rgba(201,162,39,0.3);
+}
+.ns-header-actions { display:flex;align-items:center;gap:10px;margin-left:auto }
+
+/* ── TOOLBAR ── */
+.ns-toolbar {
+  position:relative;z-index:2;flex-shrink:0;
+  background:rgba(7,8,15,0.7);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+  padding:10px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.ns-filter-tabs { display:flex;gap:4px }
+.ns-ftab {
+  padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;
+  background:transparent;border:1px solid var(--border2);color:var(--muted2);
+  font-family:'Rajdhani',sans-serif;transition:all 0.18s;
+}
+.ns-ftab.active,
+.ns-ftab:hover { background:rgba(124,92,191,0.12);border-color:rgba(167,139,250,0.4);color:var(--purple3) }
+.ns-ftab.active { background:rgba(124,92,191,0.18) }
+.ns-view-toggle { display:flex;gap:4px;margin-left:auto }
+.ns-vtbtn {
+  width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted2);
+  font-size:14px;transition:all 0.15s;
+}
+.ns-vtbtn.active { background:rgba(201,162,39,0.1);border-color:rgba(201,162,39,0.3);color:var(--gold2) }
+.ns-add-btn {
+  display:flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,var(--purple),var(--purple2));
+  border:none;border-radius:9px;padding:8px 18px;cursor:pointer;
+  font-size:12px;font-weight:700;color:#fff;letter-spacing:0.08em;
+  font-family:'Rajdhani',sans-serif;transition:all 0.2s;text-transform:uppercase;
+  box-shadow:0 4px 16px rgba(124,92,191,0.35);
+}
+.ns-add-btn:hover { opacity:0.88;transform:translateY(-1px) }
+
+/* ── MAIN BODY ── */
+.ns-body {
+  position:relative;z-index:1;flex:1;overflow:hidden;display:flex;
+}
+
+/* ── ENTRIES LIST (left) ── */
+.ns-entries-col {
+  flex:1;overflow-y:auto;padding:24px 28px;
+  display:flex;flex-direction:column;gap:16px;
+}
+.ns-entries-col.view-scroll { padding:24px 15%;gap:0 }
+
+/* ── SINGLE ENTRY CARD ── */
+.ns-entry {
+  position:relative;
+  background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));
+  border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;transition:border-color 0.2s,transform 0.15s;
+  animation:ns-entry-in 0.3s cubic-bezier(0.22,1,0.36,1) both;
+}
+.ns-entry:hover { border-color:rgba(167,139,250,0.3) }
+.ns-entry-stripe {
+  position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;
+}
+.ns-entry-inner { padding:18px 20px 18px 24px }
+
+/* Scroll mode : no card border, just dividers */
+.view-scroll .ns-entry {
+  background:none;border:none;border-radius:0;border-bottom:1px solid var(--border);padding-bottom:8px;
+}
+.view-scroll .ns-entry:hover { transform:none;border-color:var(--border) }
+.view-scroll .ns-entry-stripe { display:none }
+.view-scroll .ns-entry-inner { padding:28px 0 }
+
+.ns-entry-header { display:flex;align-items:flex-start;gap:12px;margin-bottom:14px }
+.ns-entry-type-badge {
+  display:inline-flex;align-items:center;gap:5px;padding:3px 11px;
+  border-radius:20px;font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  border:1px solid;flex-shrink:0;
+}
+.ns-entry-meta { flex:1 }
+.ns-entry-title {
+  font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--text);
+  margin-bottom:4px;line-height:1.3;
+}
+.ns-entry-sub-meta { display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted2) }
+.ns-entry-author { font-weight:700;color:var(--text2) }
+.ns-entry-time { font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted) }
+.ns-entry-actions { display:flex;gap:6px;margin-left:auto;flex-shrink:0 }
+.ns-action-btn {
+  background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);
+  padding:3px 7px;border-radius:6px;transition:all 0.15s;
+}
+.ns-action-btn:hover { background:rgba(255,255,255,0.05);color:var(--text2) }
+.ns-action-btn.danger:hover { color:var(--danger) }
+
+.ns-entry-body {
+  font-family:'Zen Antique Soft',serif;font-size:14px;line-height:1.9;color:var(--text2);
+  white-space:pre-wrap;margin-bottom:14px;
+}
+.view-scroll .ns-entry-body { font-size:15px;line-height:2.1 }
+
+/* Mood tag */
+.ns-entry-mood {
+  display:inline-flex;align-items:center;gap:5px;font-size:10px;
+  padding:2px 10px;border-radius:20px;border:1px solid;margin-bottom:10px;
+}
+
+/* ── MJ REPLY ── */
+.ns-mj-reply {
+  margin-top:12px;padding:14px 16px;
+  background:linear-gradient(135deg,rgba(201,162,39,0.06),rgba(7,8,15,0.98));
+  border:1px solid rgba(201,162,39,0.2);border-left:3px solid var(--gold);
+  border-radius:10px;
+}
+.ns-mj-reply-header { display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap }
+.ns-mj-reply-badge {
+  display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;
+  font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  background:rgba(201,162,39,0.12);border:1px solid rgba(201,162,39,0.35);color:var(--gold3);
+}
+.ns-mj-reply-body { font-family:'Zen Antique Soft',serif;font-size:13px;color:var(--text2);line-height:1.85;white-space:pre-wrap }
+
+/* ── FORM PANEL (right or overlay) ── */
+.ns-form-panel {
+  width:420px;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(11,13,24,0.99),rgba(7,8,15,0.99));
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.ns-form-panel.open { transform:translateX(0) }
+.ns-form-header {
+  padding:20px 22px 16px;border-bottom:1px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ns-form-title { font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--gold);letter-spacing:0.06em }
+.ns-form-close {
+  background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;
+  padding:2px 6px;border-radius:6px;transition:color 0.15s;
+}
+.ns-form-close:hover { color:var(--text) }
+.ns-form-body { flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:14px }
+.ns-form-footer { padding:16px 22px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end }
+
+/* Type selector grid */
+.ns-type-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+}
+.ns-type-option {
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:10px 6px;border-radius:10px;cursor:pointer;
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);
+  transition:all 0.15s;font-family:'Rajdhani',sans-serif;
+}
+.ns-type-option:hover { border-color:rgba(167,139,250,0.4);background:rgba(124,92,191,0.07) }
+.ns-type-option.selected { background:rgba(124,92,191,0.15);border-color:rgba(167,139,250,0.5) }
+.ns-type-option .ns-type-icon { font-size:20px }
+.ns-type-option .ns-type-label { font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2) }
+.ns-type-option.selected .ns-type-label { color:var(--purple3) }
+
+/* Mood selector */
+.ns-mood-row { display:flex;flex-wrap:wrap;gap:6px }
+.ns-mood-chip {
+  padding:4px 12px;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border2);color:var(--muted2);
+  transition:all 0.15s;
+}
+.ns-mood-chip.selected { background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.4);color:#93c5fd }
+
+/* Textarea rich */
+.ns-textarea {
+  width:100%;background:rgba(255,255,255,0.02);border:1px solid var(--border2);
+  border-radius:10px;padding:14px;color:var(--text);font-family:'Zen Antique Soft',serif;
+  font-size:14px;line-height:1.8;resize:vertical;outline:none;min-height:160px;
+  transition:border-color 0.18s;
+}
+.ns-textarea:focus { border-color:rgba(124,92,191,0.5);background:rgba(124,92,191,0.03) }
+
+/* Stats bar */
+.ns-stats-bar {
+  display:flex;gap:14px;padding:12px 28px;
+  background:rgba(7,8,15,0.5);border-bottom:1px solid var(--border);
+  flex-shrink:0;position:relative;z-index:2;
+}
+.ns-stat { display:flex;flex-direction:column;align-items:center;gap:2px }
+.ns-stat-val { font-size:17px;font-weight:700;color:var(--text);font-family:'Cinzel',serif }
+.ns-stat-label { font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted) }
+
+/* MJ reply inline form */
+.ns-mj-form {
+  margin-top:12px;padding:14px;
+  background:rgba(201,162,39,0.03);border:1px dashed rgba(201,162,39,0.2);border-radius:10px;
+}
+
+/* Empty state */
+.ns-empty {
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;padding:60px;opacity:0.6;
+}
+.ns-empty-icon { font-size:52px }
+.ns-empty-text { font-family:'Cinzel',serif;font-size:15px;color:var(--muted2);text-align:center }
+.ns-empty-sub { font-size:12px;color:var(--muted);text-align:center;line-height:1.7 }
+</style>
+
+<!-- BG decorations -->
+<div class="ns-bg"><div class="ns-grid"></div></div>
+
+<!-- Header -->
+<div class="ns-header">
+  <button class="ns-back-btn" onclick="closeNarrSpace()">← Retour au ticket</button>
+  <div class="ns-header-tkt">
+    <span class="ns-header-tktnum" id="ns-tkt-num">—</span>
+    <span style="color:var(--border3)">·</span>
+    <span class="ns-header-sub" id="ns-tkt-sub">—</span>
+  </div>
+  <div class="ns-header-title">⛩ Espace Narrations</div>
+  <div class="ns-header-actions">
+    <button class="ns-add-btn" onclick="nsOpenForm()">✦ Nouvelle narration</button>
+  </div>
+</div>
+
+<!-- Stats bar -->
+<div class="ns-stats-bar" id="ns-stats-bar">
+  <div class="ns-stat"><div class="ns-stat-val" id="ns-stat-total">0</div><div class="ns-stat-label">Entrées</div></div>
+  <div class="ns-stat"><div class="ns-stat-val" id="ns-stat-narr">0</div><div class="ns-stat-label">Narrations</div></div>
+  <div class="ns-stat"><div class="ns-stat-val" id="ns-stat-mj">0</div><div class="ns-stat-label">Réponses MJ</div></div>
+  <div class="ns-stat"><div class="ns-stat-val" id="ns-stat-combat">0</div><div class="ns-stat-label">Combats</div></div>
+  <div class="ns-stat"><div class="ns-stat-val" id="ns-stat-last">—</div><div class="ns-stat-label">Dernière entrée</div></div>
+</div>
+
+<!-- Toolbar -->
+<div class="ns-toolbar">
+  <div class="ns-filter-tabs" id="ns-filter-tabs">
+    <button class="ns-ftab active" data-filter="">Tout</button>
+    <button class="ns-ftab" data-filter="narration">📜 Narration</button>
+    <button class="ns-ftab" data-filter="event">⭐ Événement</button>
+    <button class="ns-ftab" data-filter="combat">⚔ Combat</button>
+    <button class="ns-ftab" data-filter="dialogue">💬 Dialogue</button>
+    <button class="ns-ftab" data-filter="flashback">🌀 Flashback</button>
+    <button class="ns-ftab" data-filter="revelation">💥 Révélation</button>
+    <button class="ns-ftab" data-filter="introspection">🧠 Introspection</button>
+  </div>
+  <div class="ns-view-toggle" style="margin-left:auto">
+    <button class="ns-vtbtn active" id="ns-view-cards" onclick="nsSetView('cards')" title="Vue cartes">⊞</button>
+    <button class="ns-vtbtn" id="ns-view-scroll" onclick="nsSetView('scroll')" title="Vue parchemin">≡</button>
+  </div>
+</div>
+
+<!-- Body -->
+<div class="ns-body">
+  <!-- Entries list -->
+  <div class="ns-entries-col" id="ns-entries-col"></div>
+
+  <!-- Form panel -->
+  <div class="ns-form-panel" id="ns-form-panel">
+    <div class="ns-form-header">
+      <div class="ns-form-title" id="ns-form-title">✦ Nouvelle narration</div>
+      <button class="ns-form-close" onclick="nsCloseForm()">✕</button>
+    </div>
+    <div class="ns-form-body">
+      <input type="hidden" id="ns-editing-idx" value="">
+
+      <!-- Type -->
+      <div>
+        <div class="fl" style="font-size:10px;margin-bottom:10px">TYPE DE NARRATION</div>
+        <div class="ns-type-grid" id="ns-type-grid">
+          <div class="ns-type-option selected" data-type="narration" onclick="nsSelectType(this)"><span class="ns-type-icon">📜</span><span class="ns-type-label">Narration</span></div>
+          <div class="ns-type-option" data-type="event" onclick="nsSelectType(this)"><span class="ns-type-icon">⭐</span><span class="ns-type-label">Événement</span></div>
+          <div class="ns-type-option" data-type="combat" onclick="nsSelectType(this)"><span class="ns-type-icon">⚔</span><span class="ns-type-label">Combat</span></div>
+          <div class="ns-type-option" data-type="dialogue" onclick="nsSelectType(this)"><span class="ns-type-icon">💬</span><span class="ns-type-label">Dialogue</span></div>
+          <div class="ns-type-option" data-type="flashback" onclick="nsSelectType(this)"><span class="ns-type-icon">🌀</span><span class="ns-type-label">Flashback</span></div>
+          <div class="ns-type-option" data-type="revelation" onclick="nsSelectType(this)"><span class="ns-type-icon">💥</span><span class="ns-type-label">Révélation</span></div>
+          <div class="ns-type-option" data-type="introspection" onclick="nsSelectType(this)"><span class="ns-type-icon">🧠</span><span class="ns-type-label">Introspection</span></div>
+          <div class="ns-type-option" data-type="mort" onclick="nsSelectType(this)"><span class="ns-type-icon">☠</span><span class="ns-type-label">Mort / Fin</span></div>
+          <div class="ns-type-option" data-type="pouvoir" onclick="nsSelectType(this)"><span class="ns-type-icon">⚡</span><span class="ns-type-label">Éveil Pouvoir</span></div>
+        </div>
+      </div>
+
+      <!-- Titre -->
+      <div>
+        <label class="fl" style="font-size:10px">TITRE <span style="color:var(--muted)">(optionnel)</span></label>
+        <input class="fi" id="ns-titre" type="text" placeholder="Titre de la scène…" style="margin-top:6px">
+      </div>
+
+      <!-- Auteur -->
+      <div>
+        <label class="fl" style="font-size:10px">PERSONNAGE / AUTEUR</label>
+        <input class="fi" id="ns-author" type="text" placeholder="Nom RP…" style="margin-top:6px">
+      </div>
+
+      <!-- Mood -->
+      <div>
+        <div class="fl" style="font-size:10px;margin-bottom:8px">AMBIANCE</div>
+        <div class="ns-mood-row" id="ns-mood-row">
+          <span class="ns-mood-chip" data-mood="tension" onclick="nsToggleMood(this)">⚡ Tension</span>
+          <span class="ns-mood-chip" data-mood="melancolie" onclick="nsToggleMood(this)">🌧 Mélancolie</span>
+          <span class="ns-mood-chip" data-mood="violence" onclick="nsToggleMood(this)">🔥 Violence</span>
+          <span class="ns-mood-chip" data-mood="douceur" onclick="nsToggleMood(this)">🌸 Douceur</span>
+          <span class="ns-mood-chip" data-mood="mystere" onclick="nsToggleMood(this)">🌑 Mystère</span>
+          <span class="ns-mood-chip" data-mood="espoir" onclick="nsToggleMood(this)">🌟 Espoir</span>
+          <span class="ns-mood-chip" data-mood="desespoir" onclick="nsToggleMood(this)">💀 Désespoir</span>
+          <span class="ns-mood-chip" data-mood="ironie" onclick="nsToggleMood(this)">😏 Ironie</span>
+        </div>
+      </div>
+
+      <!-- Contenu -->
+      <div>
+        <label class="fl" style="font-size:10px">CONTENU RP *</label>
+        <textarea class="ns-textarea" id="ns-content" placeholder="Rédigez la scène, les actions, les pensées de votre personnage…&#10;&#10;Exemple : Dans les ruelles de Shibuya, l'énergie maudite commençait à se manifester…" style="margin-top:6px;min-height:200px"></textarea>
+        <div style="text-align:right;font-size:10px;color:var(--muted);margin-top:4px" id="ns-charcount">0 caractères</div>
+      </div>
+
+      <!-- Lieu -->
+      <div>
+        <label class="fl" style="font-size:10px">LIEU / CONTEXTE <span style="color:var(--muted)">(optionnel)</span></label>
+        <input class="fi" id="ns-lieu" type="text" placeholder="Shibuya, Jujutsu High, Lieu inconnu…" style="margin-top:6px">
+      </div>
+
+      <!-- Liens -->
+      <div>
+        <label class="fl" style="font-size:10px">🔗 LIENS <span style="color:var(--muted)">(label | url, un par ligne)</span></label>
+        <textarea class="fi" id="ns-links" placeholder="Fiche Google Doc | https://…" style="margin-top:6px;min-height:44px;font-size:11px;font-family:'Share Tech Mono',monospace"></textarea>
+      </div>
+    </div>
+    <div class="ns-form-footer">
+      <button class="btn btn-ghost" onclick="nsCloseForm()">Annuler</button>
+      <button class="btn btn-primary" onclick="nsSubmitEntry()">✦ Publier</button>
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- ══ FIREBASE SDK ══ -->
@@ -5270,20 +5648,20 @@ async function openTicketDetail(demId) {
   if (d.mjNote) { noteSec.style.display=''; document.getElementById('tkt-detail-note').textContent = d.mjNote; }
   else noteSec.style.display='none';
 
-  // ── Suivi RP ──────────────────────────────────────────
-  renderRpEntries(d);
-  // Reset RP form state
-  document.getElementById('tkt-rp-form').style.display = 'none';
-  document.getElementById('rp-content').value = '';
-  const rpFileInput = document.getElementById('rp-images-file');
-  if (rpFileInput) rpFileInput.value = '';
-  document.getElementById('rp-links').value = '';
-  document.getElementById('rp-author').value = '';
-  document.getElementById('rp-images-preview').innerHTML = '';
-  _imgStore.rp = [];
-  // Only show "Ajouter" button to player owning the ticket or staff
-  const rpBtn = document.getElementById('tkt-rp-add-btn');
-  if (rpBtn) rpBtn.style.display = (d.userId === CU.id || hasPerm(CU,'approve_requests')) ? '' : 'none';
+  // ── Résumé narrations (espace dédié) ─────────────────
+  const entries = d.rpEntries || [];
+  const totalMjReplies = entries.reduce((acc, e) => acc + (e.mjReplies||[]).length, 0);
+  const lastTs = entries.length ? entries[entries.length-1].ts : null;
+  const summaryEl = document.getElementById('tkt-rp-summary');
+  if (summaryEl) {
+    summaryEl.innerHTML = entries.length
+      ? `<div style="font-size:11px;color:var(--muted2);display:flex;gap:14px;flex-wrap:wrap">
+          <span>📜 <b style="color:var(--text)">${entries.length}</b> entrée${entries.length>1?'s':''}</span>
+          <span>🎲 <b style="color:var(--gold)">${totalMjReplies}</b> réponse${totalMjReplies>1?'s':''} MJ</span>
+          ${lastTs ? `<span>🕐 <b style="color:var(--text2)">${new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</b></span>` : ''}
+        </div>`
+      : `<div style="font-size:11px;color:var(--muted)">Aucune narration pour le moment.</div>`;
+  }
 
   // Timeline
   const timeline = (d.timeline || []);
@@ -6174,6 +6552,361 @@ async function renderNarrations() {
   }).join('');
 }
 
+// ══════════════════════════════════════════════════════
+//  ESPACE NARRATIONS DÉDIÉ (lié à un ticket)
+// ══════════════════════════════════════════════════════
+
+const NS_TYPE_META = {
+  narration:    { icon:'📜', label:'Narration',      color:'var(--purple2)',   cls:'narr-t-narr' },
+  event:        { icon:'⭐', label:'Événement',      color:'var(--gold)',      cls:'narr-t-event' },
+  combat:       { icon:'⚔', label:'Combat',          color:'var(--danger)',    cls:'narr-t-combat' },
+  dialogue:     { icon:'💬', label:'Dialogue',        color:'var(--cyan)',      cls:'narr-t-dial' },
+  flashback:    { icon:'🌀', label:'Flashback',       color:'var(--purple)',    cls:'narr-t-fb' },
+  revelation:   { icon:'💥', label:'Révélation',      color:'var(--warn)',      cls:'narr-t-rev' },
+  introspection:{ icon:'🧠', label:'Introspection',   color:'var(--blue)',      cls:'narr-t-intro' },
+  mort:         { icon:'☠',  label:'Mort / Fin',       color:'#6b7280',         cls:'narr-t-mort' },
+  pouvoir:      { icon:'⚡', label:'Éveil de pouvoir', color:'var(--gold3)',    cls:'narr-t-pvr' },
+};
+
+const NS_MOOD_META = {
+  tension:    { icon:'⚡', color:'#f59e0b' },
+  melancolie: { icon:'🌧', color:'#60a5fa' },
+  violence:   { icon:'🔥', color:'#ef4444' },
+  douceur:    { icon:'🌸', color:'#f9a8d4' },
+  mystere:    { icon:'🌑', color:'#a78bfa' },
+  espoir:     { icon:'🌟', color:'#22c55e' },
+  desespoir:  { icon:'💀', color:'#6b7280' },
+  ironie:     { icon:'😏', color:'#c9a227' },
+};
+
+let _nsCurrentTktId = null;
+let _nsFilter = '';
+let _nsView = 'cards';
+let _nsMood = [];
+
+async function openNarrSpace(demId) {
+  _nsCurrentTktId = demId;
+  const overlay = document.getElementById('narr-space-overlay');
+  overlay.classList.add('open');
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // Load ticket info
+  const [dems, subs] = await Promise.all([getDemandes(), getSubs()]);
+  const d = dems.find(x => x.id === demId);
+  const s = d ? subs.find(x => x.id === d.subId) : null;
+  document.getElementById('ns-tkt-num').textContent  = d?.ticketNum || '—';
+  document.getElementById('ns-tkt-sub').textContent  = s?.nom || '—';
+
+  // Filter tabs init
+  _nsFilter = '';
+  _nsView = 'cards';
+  document.querySelectorAll('.ns-ftab').forEach(t => {
+    t.classList.toggle('active', (t.dataset.filter || '') === _nsFilter);
+    t.onclick = () => { _nsFilter = t.dataset.filter || ''; nsRefreshEntries(); document.querySelectorAll('.ns-ftab').forEach(x => x.classList.toggle('active', x === t)); };
+  });
+  document.getElementById('ns-view-cards').classList.add('active');
+  document.getElementById('ns-view-scroll').classList.remove('active');
+  document.getElementById('ns-entries-col').className = 'ns-entries-col';
+
+  nsCloseForm();
+  await nsRefreshEntries();
+}
+
+function closeNarrSpace() {
+  const overlay = document.getElementById('narr-space-overlay');
+  overlay.classList.remove('open');
+  overlay.style.display = 'none';
+  document.body.style.overflow = '';
+  _nsCurrentTktId = null;
+}
+
+function nsSetView(v) {
+  _nsView = v;
+  document.getElementById('ns-view-cards').classList.toggle('active', v === 'cards');
+  document.getElementById('ns-view-scroll').classList.toggle('active', v === 'scroll');
+  const col = document.getElementById('ns-entries-col');
+  col.className = v === 'scroll' ? 'ns-entries-col view-scroll' : 'ns-entries-col';
+}
+
+async function nsRefreshEntries() {
+  if (!_nsCurrentTktId) return;
+  const d = await fsGetOne('demandes', _nsCurrentTktId);
+  const entries = (d?.rpEntries || []);
+
+  // Stats
+  const totalMjReplies = entries.reduce((acc, e) => acc + (e.mjReplies||[]).length, 0);
+  const combats = entries.filter(e => e.type === 'combat').length;
+  document.getElementById('ns-stat-total').textContent  = entries.length;
+  document.getElementById('ns-stat-narr').textContent   = entries.filter(e => e.type === 'narration').length;
+  document.getElementById('ns-stat-mj').textContent     = totalMjReplies;
+  document.getElementById('ns-stat-combat').textContent = combats;
+  const lastTs = entries.length ? entries[entries.length-1].ts : null;
+  document.getElementById('ns-stat-last').textContent = lastTs ? new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '—';
+
+  // Also update summary in ticket modal
+  const summaryEl = document.getElementById('tkt-rp-summary');
+  if (summaryEl) {
+    summaryEl.innerHTML = entries.length
+      ? `<div style="font-size:11px;color:var(--muted2);display:flex;gap:14px;flex-wrap:wrap">
+          <span>📜 <b style="color:var(--text)">${entries.length}</b> entrée${entries.length>1?'s':''}</span>
+          <span>🎲 <b style="color:var(--gold)">${totalMjReplies}</b> réponse${totalMjReplies>1?'s':''} MJ</span>
+          ${lastTs ? `<span>🕐 <b style="color:var(--text2)">${new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</b></span>` : ''}
+        </div>`
+      : `<div style="font-size:11px;color:var(--muted)">Aucune narration pour le moment.</div>`;
+  }
+
+  const col = document.getElementById('ns-entries-col');
+  let filtered = _nsFilter ? entries.filter(e => e.type === _nsFilter) : entries;
+
+  if (!filtered.length) {
+    col.innerHTML = `<div class="ns-empty">
+      <div class="ns-empty-icon">${_nsFilter ? (NS_TYPE_META[_nsFilter]?.icon||'📜') : '📜'}</div>
+      <div class="ns-empty-text">Aucune narration${_nsFilter ? ' de ce type' : ''}</div>
+      <div class="ns-empty-sub">Cliquez sur "✦ Nouvelle narration" pour commencer à écrire l'histoire de ce ticket.</div>
+    </div>`;
+    return;
+  }
+
+  const isMJ = hasPerm(CU, 'approve_requests');
+  const canAdd = d?.userId === CU.id || isMJ;
+  const globalEntries = d?.rpEntries || [];
+
+  col.innerHTML = filtered.map((e, fi) => {
+    // Find real index in globalEntries for operations
+    const realIdx = globalEntries.indexOf(e);
+    const meta = NS_TYPE_META[e.type] || NS_TYPE_META.narration;
+    const moods = e.moods || [];
+    const canDel = e.authorId === CU.id || isMJ;
+
+    const moodHtml = moods.length ? moods.map(m => {
+      const mm = NS_MOOD_META[m]; if (!mm) return '';
+      return `<span class="ns-entry-mood" style="color:${mm.color};border-color:${mm.color}33;background:${mm.color}11">${mm.icon} ${m}</span>`;
+    }).join('') : '';
+
+    const lieuHtml = e.lieu ? `<span style="font-size:10px;color:var(--muted2);padding:2px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:20px">📍 ${esc(e.lieu)}</span>` : '';
+
+    const imgsHtml = (e.images||[]).length ? `<div class="tkt-media-preview">${e.images.map(img=>`<div class="tkt-media-thumb" onclick="openLightbox('${esc(typeof img==='string'?img:img.dataUrl||img)}')" ><img src="${esc(typeof img==='string'?img:img.dataUrl||img)}" alt="" onerror="this.parentElement.style.display='none'"></div>`).join('')}</div>` : '';
+    const linksHtml = (e.links||[]).length ? `<div class="rp-entry-links">${e.links.map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener" class="rp-link-pill">🔗 ${esc(l.label)}</a>`).join('')}</div>` : '';
+
+    const repliesHtml = (e.mjReplies||[]).map((rep, ri) => `
+      <div class="ns-mj-reply">
+        <div class="ns-mj-reply-header">
+          <span class="ns-mj-reply-badge">🎲 Réponse MJ</span>
+          <span style="font-size:12px;font-weight:700;color:var(--gold2)">${esc(rep.authorName||'MJ')}</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto">${fmtDateTime(rep.ts)}</span>
+          ${isMJ ? `<button onclick="nsDeleteMJReply(${realIdx},${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 5px;border-radius:4px" title="Supprimer">🗑</button>` : ''}
+        </div>
+        <div class="ns-mj-reply-body">${esc(rep.content)}</div>
+      </div>`).join('');
+
+    const mjFormHtml = isMJ ? `
+      <div class="ns-mj-form" id="ns-mj-form-${realIdx}" style="display:none">
+        <label class="fl" style="font-size:9px;margin-bottom:6px">✍ Réponse MJ</label>
+        <textarea class="rp-textarea" id="ns-mj-reply-txt-${realIdx}" placeholder="Guidez la narration, ajoutez des conséquences RP…" style="min-height:80px;font-size:13px;margin-bottom:10px"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ns-mj-form-${realIdx}').style.display='none'">Annuler</button>
+          <button class="btn btn-sm" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:7px 16px;border-radius:7px;font-weight:700;font-size:11px;cursor:pointer" onclick="nsSubmitMJReply(${realIdx})">⚡ Publier</button>
+        </div>
+      </div>` : '';
+
+    const mjBtn = isMJ ? `<button onclick="nsToggleMJForm(${realIdx})" class="btn btn-ghost btn-sm" style="font-size:10px;color:var(--gold);margin-top:8px">🎲 Répondre MJ</button>` : '';
+
+    return `<div class="ns-entry" data-idx="${realIdx}" style="animation-delay:${fi*0.04}s">
+      <div class="ns-entry-stripe" style="background:${meta.color}"></div>
+      <div class="ns-entry-inner">
+        <div class="ns-entry-header">
+          <div class="ns-entry-meta">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+              <span class="ns-entry-type-badge" style="color:${meta.color};border-color:${meta.color}44;background:${meta.color}11">${meta.icon} ${meta.label}</span>
+              ${lieuHtml}
+              ${moodHtml}
+            </div>
+            ${e.titre ? `<div class="ns-entry-title">${esc(e.titre)}</div>` : ''}
+            <div class="ns-entry-sub-meta">
+              <span class="ns-entry-author">${esc(e.author||e.authorName||'?')}</span>
+              <span style="color:var(--border3)">·</span>
+              <span class="ns-entry-time">${fmtDateTime(e.ts)}</span>
+            </div>
+          </div>
+          <div class="ns-entry-actions">
+            ${canDel ? `<button class="ns-action-btn" onclick="nsOpenEditForm(${realIdx})" title="Modifier">✏</button>` : ''}
+            ${canDel ? `<button class="ns-action-btn danger" onclick="nsDeleteEntry(${realIdx})" title="Supprimer">🗑</button>` : ''}
+          </div>
+        </div>
+        <div class="ns-entry-body">${esc(e.content)}</div>
+        ${imgsHtml}${linksHtml}
+        ${repliesHtml}
+        ${mjBtn}
+        ${mjFormHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function nsOpenForm() {
+  document.getElementById('ns-form-title').textContent = '✦ Nouvelle narration';
+  document.getElementById('ns-editing-idx').value = '';
+  document.getElementById('ns-titre').value = '';
+  document.getElementById('ns-author').value = CU.nomrp || CU.username || '';
+  document.getElementById('ns-content').value = '';
+  document.getElementById('ns-lieu').value = '';
+  document.getElementById('ns-links').value = '';
+  _nsMood = [];
+  document.querySelectorAll('.ns-mood-chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.ns-type-option').forEach(t => t.classList.toggle('selected', t.dataset.type === 'narration'));
+  document.getElementById('ns-charcount').textContent = '0 caractères';
+  document.getElementById('ns-form-panel').classList.add('open');
+  setTimeout(() => document.getElementById('ns-content').focus(), 350);
+}
+
+async function nsOpenEditForm(idx) {
+  const d = await fsGetOne('demandes', _nsCurrentTktId);
+  const e = d?.rpEntries?.[idx]; if (!e) return;
+  document.getElementById('ns-form-title').textContent = '✏ Modifier la narration';
+  document.getElementById('ns-editing-idx').value = idx;
+  document.getElementById('ns-titre').value = e.titre || '';
+  document.getElementById('ns-author').value = e.author || '';
+  document.getElementById('ns-content').value = e.content || '';
+  document.getElementById('ns-lieu').value = e.lieu || '';
+  document.getElementById('ns-links').value = (e.links||[]).map(l=>l.label+'|'+l.url).join('\n');
+  _nsMood = e.moods || [];
+  document.querySelectorAll('.ns-mood-chip').forEach(c => c.classList.toggle('selected', _nsMood.includes(c.dataset.mood)));
+  const t = e.type || 'narration';
+  document.querySelectorAll('.ns-type-option').forEach(o => o.classList.toggle('selected', o.dataset.type === t));
+  document.getElementById('ns-charcount').textContent = (e.content||'').length + ' caractères';
+  document.getElementById('ns-form-panel').classList.add('open');
+}
+
+function nsCloseForm() {
+  document.getElementById('ns-form-panel').classList.remove('open');
+}
+
+function nsSelectType(el) {
+  document.querySelectorAll('.ns-type-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function nsToggleMood(el) {
+  const m = el.dataset.mood;
+  el.classList.toggle('selected');
+  if (_nsMood.includes(m)) _nsMood = _nsMood.filter(x => x !== m);
+  else _nsMood.push(m);
+}
+
+// Char counter
+document.getElementById('ns-content')?.addEventListener('input', function() {
+  document.getElementById('ns-charcount').textContent = this.value.length + ' caractères';
+});
+
+async function nsSubmitEntry() {
+  const content = document.getElementById('ns-content').value.trim();
+  if (!content) { toast('Le contenu est requis.', 'error'); return; }
+  if (!_nsCurrentTktId) return;
+
+  const type    = document.querySelector('.ns-type-option.selected')?.dataset.type || 'narration';
+  const titre   = document.getElementById('ns-titre').value.trim();
+  const author  = document.getElementById('ns-author').value.trim() || CU.nomrp || CU.username;
+  const lieu    = document.getElementById('ns-lieu').value.trim();
+  const linksRaw = document.getElementById('ns-links').value.trim();
+  const links = linksRaw ? linksRaw.split('\n').map(l=>{
+    const parts = l.split('|');
+    const url = (parts[1]||parts[0]).trim();
+    const label = parts.length>1 ? parts[0].trim() : url;
+    return url.startsWith('http') ? {label, url} : null;
+  }).filter(Boolean) : [];
+
+  const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
+  const entries = d.rpEntries || [];
+  const editIdx = document.getElementById('ns-editing-idx').value;
+  const now = new Date().toISOString();
+
+  if (editIdx !== '') {
+    const idx = parseInt(editIdx);
+    entries[idx] = { ...entries[idx], type, titre, author, content, lieu, moods: _nsMood, links, updatedAt: now };
+    const tl = d.timeline || [];
+    tl.push({ ts: now, actor: CU.nomrp||CU.username, action: 'a modifié une narration', icon: NS_TYPE_META[type]?.icon||'📜' });
+    await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries, timeline: tl });
+    toast('✦ Narration modifiée !', 'success');
+  } else {
+    const entry = {
+      type, titre, author, content, lieu, moods: _nsMood, links, images:[],
+      authorId: CU.id, authorName: CU.nomrp||CU.username, authorRole: CU.role,
+      mjReplies: [], ts: now
+    };
+    entries.push(entry);
+    const tl = d.timeline || [];
+    tl.push({ ts: now, actor: CU.nomrp||CU.username, action: `a ajouté une narration (${NS_TYPE_META[type]?.label||type})`, icon: NS_TYPE_META[type]?.icon||'📜' });
+    await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries, timeline: tl });
+    // Notify
+    if (d.userId !== CU.id) await pushNotif(d.userId, `📜 @${CU.username} a ajouté une narration sur votre ticket ${d.ticketNum||''}.`, 'system');
+    toast('✦ Narration publiée !', 'success');
+  }
+
+  _cache.demandes = null;
+  nsCloseForm();
+  await nsRefreshEntries();
+}
+
+async function nsDeleteEntry(idx) {
+  if (!confirm('Supprimer cette narration ?')) return;
+  const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
+  const entries = d.rpEntries || [];
+  entries.splice(idx, 1);
+  await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries });
+  _cache.demandes = null;
+  toast('Narration supprimée.', 'info');
+  await nsRefreshEntries();
+}
+
+async function nsSubmitMJReply(entryIdx) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const content = document.getElementById(`ns-mj-reply-txt-${entryIdx}`)?.value.trim();
+  if (!content) { toast('La réponse ne peut pas être vide.', 'error'); return; }
+  const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
+  const entries = d.rpEntries || [];
+  if (!entries[entryIdx]) return;
+  const reply = { content, authorId:CU.id, authorName:CU.nomrp||CU.username, authorRole:CU.role, ts:new Date().toISOString() };
+  if (!entries[entryIdx].mjReplies) entries[entryIdx].mjReplies = [];
+  entries[entryIdx].mjReplies.push(reply);
+  const tl = d.timeline || [];
+  tl.push({ ts: reply.ts, actor: CU.nomrp||CU.username, action: 'a répondu à une narration', icon: '🎲' });
+  await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries, timeline: tl });
+  _cache.demandes = null;
+  await pushNotif(d.userId, `🎲 Le MJ @${CU.username} a répondu à votre narration sur le ticket ${d.ticketNum||''}.`, 'system');
+  toast('✦ Réponse MJ publiée !', 'success');
+  await nsRefreshEntries();
+}
+
+async function nsDeleteMJReply(entryIdx, replyIdx) {
+  if (!hasPerm(CU, 'approve_requests')) return;
+  if (!confirm('Supprimer cette réponse MJ ?')) return;
+  const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
+  const entries = d.rpEntries || [];
+  if (entries[entryIdx]?.mjReplies) {
+    entries[entryIdx].mjReplies.splice(replyIdx, 1);
+    await fsUpdate('demandes', _nsCurrentTktId, { rpEntries: entries });
+    _cache.demandes = null;
+    toast('Réponse supprimée.', 'info');
+    await nsRefreshEntries();
+  }
+}
+
+function nsToggleMJForm(idx) {
+  const form = document.getElementById(`ns-mj-form-${idx}`);
+  if (!form) return;
+  const show = form.style.display === 'none';
+  form.style.display = show ? '' : 'none';
+  if (show) { form.scrollIntoView({behavior:'smooth',block:'nearest'}); document.getElementById(`ns-mj-reply-txt-${idx}`)?.focus(); }
+}
+
+// Keyboard shortcut: Escape closes narr space
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('narr-space-overlay')?.classList.contains('open')) {
+    nsCloseForm();
+  }
+});
+
 Object.assign(window, {
   // Auth & session
   redirectDiscord,
@@ -6226,6 +6959,10 @@ Object.assign(window, {
   renderNarrations, openModalNewNarration, openEditNarration, saveNarration, deleteNarration,
   submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
   submitMJReply, deleteMJReply, toggleMJReplyForm,
+  // 🆕 Espace Narrations dédié (ticket)
+  openNarrSpace, closeNarrSpace, nsSetView, nsOpenForm, nsCloseForm,
+  nsSelectType, nsToggleMood, nsSubmitEntry, nsDeleteEntry,
+  nsOpenEditForm, nsSubmitMJReply, nsDeleteMJReply, nsToggleMJForm,
   handleDemImageFiles, handleRpImageFiles,
   _removeImg,
   previewDemImages, previewRpImages,

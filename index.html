@@ -1808,6 +1808,44 @@ tr:hover td { background: rgba(201,162,39,0.02); }
 
 /* ── Image preview in modal-sub ── */
 #sub-image-preview-wrap { border-radius: 9px; overflow: hidden; }
+
+/* ══════════════════════════════════
+   SYSTÈME DE MAÎTRISE MJ
+══════════════════════════════════ */
+.mastery-selector {
+  display: flex; gap: 7px; flex-wrap: wrap;
+}
+.mastery-opt {
+  flex: 1; min-width: 80px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 6px; border-radius: 9px;
+  border: 1px solid var(--border2);
+  background: var(--bg3); cursor: pointer;
+  transition: all 0.18s;
+}
+.mastery-opt:hover { border-color: var(--gold); background: var(--bg4); transform: translateY(-1px); }
+.mastery-opt.selected {
+  border-color: var(--gold); background: rgba(201,162,39,0.1);
+  box-shadow: 0 0 12px rgba(201,162,39,0.2);
+}
+.mastery-opt-icon { font-size: 18px; }
+.mastery-opt-label { font-size: 11px; font-weight: 700; color: var(--text); letter-spacing: 0.04em; }
+.mastery-opt-stars { font-size: 9px; color: var(--gold); letter-spacing: 1px; }
+.mastery-opt.selected .mastery-opt-label { color: var(--gold); }
+
+.mastery-preview-box {
+  background: var(--bg3); border: 1px solid rgba(201,162,39,0.25);
+  border-radius: 9px; padding: 12px 14px;
+  font-size: 12px; color: var(--text2); line-height: 1.6;
+}
+.mastery-preview-box strong { color: var(--gold); }
+
+/* Badge de maîtrise dans les listes */
+.mastery-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em; border: 1px solid;
+}
 </style>
 </head>
 <body>
@@ -2582,10 +2620,44 @@ tr:hover td { background: rgba(201,162,39,0.02); }
     </div>
     <div id="mj-rep-info" style="margin-bottom:18px"></div>
     <div class="fg"><label class="fl">Note MJ (optionnel)</label><textarea class="fi" id="mj-rep-note" placeholder="Laissez un message pour le joueur…" style="min-height:80px"></textarea></div>
+
+    <!-- Niveau de maîtrise (visible seulement si approbation) -->
+    <div id="mj-mastery-section" style="display:none;margin-top:14px">
+      <label class="fl" style="margin-bottom:10px">⚡ Niveau de maîtrise attribué</label>
+      <div class="mastery-selector" id="mj-mastery-selector">
+        <div class="mastery-opt" data-level="1" onclick="selectMasteryLevel(1)">
+          <span class="mastery-opt-icon">🌱</span>
+          <span class="mastery-opt-label">Initié</span>
+          <span class="mastery-opt-stars">★☆☆☆☆</span>
+        </div>
+        <div class="mastery-opt" data-level="2" onclick="selectMasteryLevel(2)">
+          <span class="mastery-opt-icon">⚡</span>
+          <span class="mastery-opt-label">Apprenti</span>
+          <span class="mastery-opt-stars">★★☆☆☆</span>
+        </div>
+        <div class="mastery-opt" data-level="3" onclick="selectMasteryLevel(3)">
+          <span class="mastery-opt-icon">🔥</span>
+          <span class="mastery-opt-label">Praticien</span>
+          <span class="mastery-opt-stars">★★★☆☆</span>
+        </div>
+        <div class="mastery-opt" data-level="4" onclick="selectMasteryLevel(4)">
+          <span class="mastery-opt-icon">💜</span>
+          <span class="mastery-opt-label">Expert</span>
+          <span class="mastery-opt-stars">★★★★☆</span>
+        </div>
+        <div class="mastery-opt" data-level="5" onclick="selectMasteryLevel(5)">
+          <span class="mastery-opt-icon">👑</span>
+          <span class="mastery-opt-label">Maître</span>
+          <span class="mastery-opt-stars">★★★★★</span>
+        </div>
+      </div>
+      <div id="mj-mastery-preview" style="margin-top:10px;display:none"></div>
+    </div>
+
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-mj-rep')">Annuler</button>
-      <button class="btn btn-danger" onclick="submitMJRep('rejected')">✗ Refuser</button>
-      <button class="btn btn-success" onclick="submitMJRep('approved')">✓ Approuver</button>
+      <button class="btn btn-danger" onclick="openMasterySection(false);submitMJRep('rejected')">✗ Refuser</button>
+      <button class="btn btn-success" id="btn-mj-approve" onclick="openMasterySection(true);document.getElementById('btn-mj-approve').onclick=()=>submitMJRep('approved');this.textContent='✓ Confirmer l\'approbation'">✓ Approuver</button>
     </div>
   </div>
 </div>
@@ -4625,7 +4697,10 @@ async function renderPanelDemandes() {
       <td style="font-size:11px;color:var(--muted);white-space:nowrap">${fmtDate(d.createdAt)}</td>
       <td>${statusBadge(d.status)}</td>
       <td style="font-size:11px;color:var(--muted)">${d.treatedBy ? '@'+esc(d.treatedBy) : '—'}</td>
-      <td>${canTreat && d.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="openMJRep('${d.id}')">Traiter</button>` : `<span style="font-size:10px;color:var(--muted)">—</span>`} <button class="btn btn-ghost btn-sm" onclick="openCommentsModal('${d.id}')" title="Discussion">💬</button></td>
+      <td>
+        ${d.status === 'approved' && d.masteryLevel ? (() => { const ml = MASTERY_LEVELS[d.masteryLevel]; return ml ? `<span class="mastery-badge" style="background:${ml.color}18;border-color:${ml.color}44;color:${ml.color}">${ml.icon} ${ml.label}</span>` : ''; })() : ''}
+        ${canTreat && d.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="openMJRep('${d.id}')">Traiter</button>` : (d.status !== 'approved' ? `<span style="font-size:10px;color:var(--muted)">—</span>` : '')} <button class="btn btn-ghost btn-sm" onclick="openCommentsModal('${d.id}')" title="Discussion">💬</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -4643,6 +4718,7 @@ async function openMJRep(id) {
       ${d.message ? `<div style="font-size:11px;color:var(--muted);margin-top:8px;padding:8px 10px;background:var(--bg2);border-radius:5px">${esc(d.message)}</div>` : ''}
     </div>`;
   document.getElementById('mj-rep-note').value = '';
+  openMasterySection(false); // cachée par défaut, révélée au clic Approuver
   openModal('modal-mj-rep');
 }
 async function submitMJRep(status) {
@@ -4654,12 +4730,17 @@ async function submitMJRep(status) {
     const taken = allDems.filter(x => x.subId === d.subId && x.status === 'approved').length;
     if (s && taken >= s.slots) { toast('Plus de slots disponibles !', 'error'); return; }
   }
+  const masteryLevel = status === 'approved' ? (_mjSelectedMastery || 1) : null;
   const updates = { status, mjNote: note, treatedAt: new Date().toISOString(), treatedBy: CU.username };
+  if (masteryLevel) updates.masteryLevel = masteryLevel;
+
   // Ajouter un event de timeline
   const dOld = allDems.find(x => x.id === editingDemId);
   const tlOld = dOld?.timeline || [];
   const icons2 = {approved:'✅',rejected:'❌'};
-  tlOld.push({ ts: new Date().toISOString(), actor: CU.username, action: status==='approved'?'a approuvé ce ticket':'a refusé ce ticket', icon: icons2[status]||'📋', note: note||undefined });
+  const m = MASTERY_LEVELS[masteryLevel];
+  const masteryLabel = m ? ` — ${m.icon} ${m.label}` : '';
+  tlOld.push({ ts: new Date().toISOString(), actor: CU.username, action: status==='approved'?`a approuvé ce ticket${masteryLabel}`:'a refusé ce ticket', icon: icons2[status]||'📋', note: note||undefined });
   updates.timeline = tlOld;
   if (!dOld?.assignedTo) updates.assignedTo = CU.username;
   await fsUpdate('demandes', editingDemId, updates);
@@ -4667,16 +4748,21 @@ async function submitMJRep(status) {
   const users = await getUsers();
   const u = users.find(x => x.id === d.userId);
   const s = allSubs.find(x => x.id === d.subId);
-  await addLog('demande', `a ${status === 'approved' ? 'approuvé' : 'refusé'} la demande de @${u?.username || '?'}`, { sub: s?.nom });
+  await addLog('demande', `a ${status === 'approved' ? `approuvé (${m?.label||'?'})` : 'refusé'} la demande de @${u?.username || '?'}`, { sub: s?.nom });
   // 🔔 Notifier le joueur
   if (u) {
     const msg = status === 'approved'
-      ? `✅ Votre demande pour "${s?.nom || 'un sub-jutsu'}" a été approuvée !${note ? ' Note : ' + note : ''}`
+      ? buildMasteryNotifMessage(s?.nom || 'un sub-jutsu', masteryLevel, note)
       : `❌ Votre demande pour "${s?.nom || 'un sub-jutsu'}" a été refusée.${note ? ' Note : ' + note : ''}`;
     await pushNotif(u.id, msg, status === 'approved' ? 'demande_approved' : 'demande_rejected');
   }
+
+  // Reset le bouton approuver
+  const btnApprove = document.getElementById('btn-mj-approve');
+  if (btnApprove) { btnApprove.textContent = '✓ Approuver'; btnApprove.onclick = () => { openMasterySection(true); btnApprove.onclick=()=>submitMJRep('approved'); btnApprove.textContent='✓ Confirmer l\'approbation'; }; }
+
   closeModal('modal-mj-rep'); await renderPanelDemandes(); await renderStaffStats();
-  toast(status === 'approved' ? 'Demande approuvée ✓' : 'Demande refusée.', status === 'approved' ? 'success' : 'error');
+  toast(status === 'approved' ? `${m?.icon||'✅'} Approuvé — ${m?.label||'Initié'} !` : 'Demande refusée.', status === 'approved' ? 'success' : 'error');
 }
 
 // ══════════════════════════════════════════════════════
@@ -6973,6 +7059,69 @@ document.addEventListener('keydown', e => {
   }
 });
 
+
+// ══════════════════════════════════════════════════════
+//  SYSTÈME DE MAÎTRISE — NIVEAUX SUB-JUTSU
+// ══════════════════════════════════════════════════════
+
+const MASTERY_LEVELS = {
+  1: { label: 'Initié',     icon: '🌱', stars: 1, color: '#86efac', start: '#22c55e', end: '#86efac',
+       desc: 'Les bases sont posées. La technique est comprise mais son exécution reste instable et demande de la concentration.' },
+  2: { label: 'Apprenti',   icon: '⚡', stars: 2, color: '#93c5fd', start: '#60a5fa', end: '#93c5fd',
+       desc: 'Maîtrise solide. La technique peut être utilisée avec constance et efficacité.' },
+  3: { label: 'Praticien',  icon: '🔥', stars: 3, color: '#fcd34d', start: '#f59e0b', end: '#fcd34d',
+       desc: 'Maîtrise avancée. La technique est intégrée à l\'arsenal du combattant avec fluidité.' },
+  4: { label: 'Expert',     icon: '💜', stars: 4, color: '#c4b5fd', start: '#7c5cbf', end: '#c4b5fd',
+       desc: 'La technique est intégrée à l\'essence du combattant. La puissance est palpable.' },
+  5: { label: 'Maître',     icon: '👑', stars: 5, color: '#ffd97a', start: '#c9a227', end: '#ffd97a',
+       desc: 'Maîtrise absolue. La technique est devenue une extension naturelle de l\'âme maudite.' },
+};
+
+let _mjSelectedMastery = 1;
+
+function selectMasteryLevel(level) {
+  _mjSelectedMastery = level;
+  document.querySelectorAll('.mastery-opt').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.level) === level);
+  });
+  const m = MASTERY_LEVELS[level];
+  const starsOn  = '★'.repeat(m.stars);
+  const starsOff = '☆'.repeat(5 - m.stars);
+  const preview = document.getElementById('mj-mastery-preview');
+  preview.style.display = 'block';
+  preview.innerHTML = `
+    <div class="mastery-preview-box">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:20px">${m.icon}</span>
+        <strong>${m.label}</strong>
+        <span style="color:${m.color};font-size:12px;letter-spacing:2px">${starsOn}<span style="opacity:0.25">${starsOff}</span></span>
+      </div>
+      <div>${m.desc}</div>
+    </div>`;
+}
+
+function openMasterySection(show) {
+  const section = document.getElementById('mj-mastery-section');
+  if (section) section.style.display = show ? 'block' : 'none';
+  if (show) {
+    _mjSelectedMastery = 1;
+    document.querySelectorAll('.mastery-opt').forEach(el => el.classList.remove('selected'));
+    document.querySelector('.mastery-opt[data-level="1"]')?.classList.add('selected');
+    document.getElementById('mj-mastery-preview').style.display = 'none';
+  }
+}
+
+function buildMasteryNotifMessage(subName, level, mjNote) {
+  const m = MASTERY_LEVELS[level];
+  const starsOn  = '★'.repeat(m.stars);
+  const starsOff = '☆'.repeat(5 - m.stars);
+  let msg = `✅ Votre demande pour **${subName}** a été approuvée !\n`;
+  msg += `\n${m.icon} Niveau de maîtrise attribué : **${m.label}** ${starsOn}${starsOff}\n`;
+  msg += `\n_${m.desc}_`;
+  if (mjNote) msg += `\n\n📝 Note du MJ : ${mjNote}`;
+  return msg;
+}
+
 Object.assign(window, {
   // Auth & session
   redirectDiscord,
@@ -6988,6 +7137,8 @@ Object.assign(window, {
   openModalAddSub, openModalEditSub, saveSub, deleteSub,
   // Panel staff
   submitMJRep, openMJRep,
+  // Maîtrise
+  selectMasteryLevel, openMasterySection,
   // Membres
   viewUser, toggleBan, quickAssignRole,
   // Rôles

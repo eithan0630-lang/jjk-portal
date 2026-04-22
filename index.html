@@ -1907,7 +1907,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
         <div class="sb-item" id="nav-annonces" onclick="goPage('annonces')"><span class="ico">📣</span>Annonces<span class="sb-badge" id="nav-badge-annonces" style="display:none">0</span></div>
         <div class="sb-item" id="nav-classement" onclick="goPage('classement')"><span class="ico">🏆</span>Classement</div>
         <div class="sb-item" id="nav-tickets" onclick="goPage('tickets')"><span class="ico">🎫</span>Mes Tickets<span class="sb-badge" id="nav-badge-tkt" style="display:none">0</span></div>
-        <div class="sb-item" id="nav-narrations" onclick="goPage('narrations')"><span class="ico">📜</span>Narrations<span class="sb-badge" id="nav-badge-narrations" style="display:none">0</span></div>
+        <div class="sb-item" id="nav-suivis-rp" onclick="goPage('suivis-rp')"><span class="ico">⛩</span>Suivis RP<span class="sb-badge" id="nav-badge-suivis-rp" style="display:none">0</span></div>
         <div class="sb-item" id="nav-mes-demandes" onclick="goPage('mes-demandes')"><span class="ico">📋</span>Mes Demandes<span class="sb-badge" id="nav-badge-dem" style="display:none">0</span></div>
         <div class="sb-item" id="nav-profil" onclick="goPage('profil')"><span class="ico">👤</span>Mon Profil</div>
 
@@ -2220,35 +2220,23 @@ tr:hover td { background: rgba(201,162,39,0.02); }
         </div>
 
 
-        <!-- NARRATIONS (suivi libre) -->
-        <div class="page" id="page-narrations">
+        <!-- SUIVIS RP (tickets avec suivi RP actif) -->
+        <div class="page" id="page-suivis-rp">
           <div class="page-header">
             <div>
-              <div class="page-title"><span class="page-title-icon">📜</span>Narrations</div>
-              <div class="page-desc">Suivis narratifs libres — partie normale, scènes RP, journaux de personnage</div>
+              <div class="page-title"><span class="page-title-icon">⛩</span>Suivis RP</div>
+              <div class="page-desc">Tickets avec un Suivi RP actif — narrations, scènes et journaux de personnage</div>
             </div>
-            <button class="btn btn-primary" onclick="openModalNewNarration()">＋ Nouvelle narration</button>
           </div>
-          <!-- Quick stats -->
-          <div class="tkt-qs" id="narr-qs"></div>
-          <!-- Filters -->
+          <div class="tkt-qs" id="srp-qs"></div>
           <div class="tkt-filters" style="margin-bottom:14px">
-            <div class="search-bar" style="flex:1;min-width:160px"><input type="text" id="narr-search" placeholder="Rechercher une narration…" oninput="renderNarrations()"></div>
-            <select class="filter-sel" id="narr-type" onchange="renderNarrations()">
-              <option value="">Tous les types</option>
-              <option value="narration">📜 Narration</option>
-              <option value="event">⭐ Événement</option>
-              <option value="combat">⚔ Combat</option>
-              <option value="dialogue">💬 Dialogue</option>
-              <option value="flashback">🌀 Flashback</option>
-              <option value="suivi_normal">🗂 Suivi Normal</option>
-            </select>
-            <select class="filter-sel" id="narr-mine" onchange="renderNarrations()">
-              <option value="">Toutes</option>
-              <option value="mine">Mes narrations</option>
+            <div class="search-bar" style="flex:1;min-width:160px"><input type="text" id="srp-search" placeholder="Rechercher par personnage, faction, sub-jutsu…" oninput="renderSuivisRP()"></div>
+            <select class="filter-sel" id="srp-mine" onchange="renderSuivisRP()">
+              <option value="">Tous les suivis</option>
+              <option value="mine">Mes suivis</option>
             </select>
           </div>
-          <div id="narrations-container"></div>
+          <div id="suivis-rp-container"></div>
         </div>
 
         <!-- PROFIL -->
@@ -2519,9 +2507,56 @@ tr:hover td { background: rgba(201,162,39,0.02); }
       <div class="modal-title">Demande d'Apprentissage</div>
       <button class="modal-close" onclick="closeModal('modal-demande')">✕</button>
     </div>
-    <div class="alert alert-info">Sélectionnez un sub-jutsu et rédigez votre demande. Un MJ la traitera dans les meilleurs délais.</div>
+    <div class="alert alert-info">Sélectionnez un sub-jutsu et remplissez votre fiche personnage. Le ticket sera nommé automatiquement.</div>
+
+    <!-- ── Fiche Personnage ── -->
+    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,39,0.25),transparent);margin:0 0 14px"></div>
+    <div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:0.22em;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <span>⚔</span> Fiche Personnage
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(201,162,39,0.15),transparent)"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label class="fl">Prénom RP *</label>
+        <input class="fi" id="dem-prenom-rp" type="text" placeholder="Ex : Ryū" oninput="updateDemTicketName()">
+      </div>
+      <div class="fg">
+        <label class="fl">Nom RP *</label>
+        <input class="fi" id="dem-nom-rp" type="text" placeholder="Ex : Kazama" oninput="updateDemTicketName()">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label class="fl">Faction / Organisation</label>
+        <input class="fi" id="dem-faction" type="text" placeholder="Ex : Jujutsu High, Clan Zenin…" oninput="updateDemTicketName()">
+      </div>
+      <div class="fg">
+        <label class="fl">Grade / Rang RP</label>
+        <select class="fi" id="dem-grade-rp" onchange="updateDemTicketName()">
+          <option value="">— Sélectionner —</option>
+          <option value="Stagiaire">Stagiaire</option>
+          <option value="Grade 4">Grade 4</option>
+          <option value="Grade 3">Grade 3</option>
+          <option value="Grade 2">Grade 2</option>
+          <option value="Grade 1">Grade 1</option>
+          <option value="Semi-Grade 1">Semi-Grade 1</option>
+          <option value="Spécial Grade">Spécial Grade</option>
+          <option value="Enseignant">Enseignant</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Aperçu du nom de ticket généré -->
+    <div id="dem-ticket-name-preview" style="display:none;background:rgba(201,162,39,0.07);border:1px solid rgba(201,162,39,0.25);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px">
+      <div style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:5px">🎫 Nom du ticket généré</div>
+      <div style="font-family:'Cinzel',serif;color:var(--text);font-size:12px" id="dem-ticket-name-text">—</div>
+    </div>
+
+    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,191,0.2),transparent);margin:0 0 14px"></div>
+
     <div class="fg"><label class="fl">Sub-jutsu souhaité *</label>
-      <select class="fi" id="dem-sub-select" onchange="updateDemSubInfo(this.value)"><option value="">— Choisir —</option></select>
+      <select class="fi" id="dem-sub-select" onchange="updateDemSubInfo(this.value);updateDemTicketName()"><option value="">— Choisir —</option></select>
     </div>
     <div id="dem-sub-info" style="display:none;margin-bottom:15px">
       <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px" id="dem-sub-info-content"></div>
@@ -3734,7 +3769,7 @@ function redirectDiscord() {
 const PAGE_LABELS = {
   dashboard: 'Tableau de bord', catalogue: 'Catalogue', annonces: 'Annonces',
   classement: 'Classement', 'mes-demandes': 'Mes Demandes', profil: 'Mon Profil',
-  tickets: 'Mes Tickets', 'all-tickets': 'Gestion des Tickets', narrations: 'Narrations',
+  tickets: 'Mes Tickets', 'all-tickets': 'Gestion des Tickets', 'suivis-rp': 'Suivis RP',
   panel: 'Panel Staff', stats: 'Statistiques', logs: 'Journaux', roles: 'Rôles & Perms', export: 'Export données'
 };
 async function goPage(id) {
@@ -3746,12 +3781,13 @@ async function goPage(id) {
   document.getElementById('bc-current').textContent = PAGE_LABELS[id] || id;
   invalidateCache('users','subs','demandes','logs','annonces','notifs');
   if (id === 'tickets') { await renderMyTickets(); await updateTktBadge(); }
-  if (id === 'narrations') { await renderNarrations(); }
+  if (id === 'suivis-rp') { await renderSuivisRP(); await updateSuivisRpBadge(); }
   if (id === 'all-tickets') { await renderAllTickets(); }
   if (id === 'dashboard') await renderDashboard();
   if (id === 'catalogue') await renderCatalogue();
   if (id === 'annonces') { await renderAnnonces(); localStorage.setItem('jjk_ann_seen', Date.now()); await updateAnnoncesBadge(); }
   if (id === 'classement') await renderClassement();
+  if (id === 'suivis-rp') await renderSuivisRP();
   if (id === 'mes-demandes') await renderMesDemandes();
   if (id === 'profil') await renderProfil();
   if (id === 'panel') { await renderStaffStats(); await renderPanelSubs(); await renderPanelDemandes(); await renderPanelMembers(); }
@@ -4388,7 +4424,29 @@ async function openModalDemande(preId) {
   }).join('');
   document.getElementById('dem-message').value = '';
   document.getElementById('dem-sub-info').style.display = 'none';
+  // Reset champs RP
+  const elPrenom = document.getElementById('dem-prenom-rp');
+  const elNom = document.getElementById('dem-nom-rp');
+  const elFaction = document.getElementById('dem-faction');
+  const elGrade = document.getElementById('dem-grade-rp');
+  if (elPrenom) elPrenom.value = '';
+  if (elNom) elNom.value = '';
+  if (elFaction) elFaction.value = '';
+  if (elGrade) elGrade.value = '';
+  const preview = document.getElementById('dem-ticket-name-preview');
+  if (preview) preview.style.display = 'none';
+  // Pré-remplir depuis le profil si possible
+  if (CU && CU.nomrp) {
+    const parts = CU.nomrp.trim().split(' ');
+    if (parts.length >= 2) {
+      if (elPrenom) elPrenom.value = parts[0];
+      if (elNom) elNom.value = parts.slice(1).join(' ');
+    } else if (elPrenom) {
+      elPrenom.value = CU.nomrp;
+    }
+  }
   if (preId) await updateDemSubInfo(preId);
+  updateDemTicketName();
   openModal('modal-demande');
 }
 async function updateDemSubInfo(id) {
@@ -4403,10 +4461,48 @@ async function updateDemSubInfo(id) {
     `<div style="font-size:11px;color:var(--muted)">${taken}/${s.slots} slot${s.slots > 1 ? 's' : ''} pris</div>`;
   c.style.display = 'block';
 }
+// Génère le nom du ticket à partir des champs RP
+function genTicketTitle(prenomRp, nomRp, faction, grade, subNom) {
+  const nom = [prenomRp, nomRp].filter(Boolean).join(' ') || '?';
+  let titre = '';
+  if (faction) titre += `[${faction}] `;
+  if (grade) titre += `${grade} • `;
+  titre += nom;
+  if (subNom) titre += ` — ${subNom}`;
+  return titre.trim();
+}
+
+// Met à jour l'aperçu du nom de ticket dans le modal
+function updateDemTicketName() {
+  const prenom  = document.getElementById('dem-prenom-rp')?.value.trim() || '';
+  const nom     = document.getElementById('dem-nom-rp')?.value.trim() || '';
+  const faction = document.getElementById('dem-faction')?.value.trim() || '';
+  const grade   = document.getElementById('dem-grade-rp')?.value || '';
+  const subSel  = document.getElementById('dem-sub-select');
+  const subText = subSel?.options[subSel?.selectedIndex]?.text.split(' — ')[0] || '';
+  const preview = document.getElementById('dem-ticket-name-preview');
+  const previewText = document.getElementById('dem-ticket-name-text');
+  if (!preview || !previewText) return;
+  if (prenom || nom || faction || grade) {
+    const titre = genTicketTitle(prenom, nom, faction, grade, subText !== '— Choisir —' ? subText : '');
+    previewText.textContent = titre;
+    preview.style.display = '';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
 async function saveDemande() {
-  const subId = document.getElementById('dem-sub-select').value;
-  const msg = document.getElementById('dem-message').value.trim();
+  const subId    = document.getElementById('dem-sub-select').value;
+  const msg      = document.getElementById('dem-message').value.trim();
+  const prenomRp = document.getElementById('dem-prenom-rp')?.value.trim() || '';
+  const nomRp    = document.getElementById('dem-nom-rp')?.value.trim() || '';
+  const faction  = document.getElementById('dem-faction')?.value.trim() || '';
+  const grade    = document.getElementById('dem-grade-rp')?.value || '';
+
   if (!subId) { toast('Choisissez un sub-jutsu.', 'error'); return; }
+  if (!prenomRp && !nomRp) { toast('Renseignez au moins un prénom ou nom RP.', 'error'); return; }
+
   const [subs, dems] = await Promise.all([getSubs(), getDemandes()]);
   const s = subs.find(x => x.id === subId);
   if (!s) { toast('Sub introuvable.', 'error'); return; }
@@ -4414,6 +4510,9 @@ async function saveDemande() {
   if (taken >= s.slots) { toast('Plus de slots disponibles.', 'error'); return; }
   if (dems.find(d => d.userId === CU.id && d.subId === subId && d.status === 'pending')) { toast('Demande déjà en attente pour ce sub.', 'error'); return; }
   if (dems.find(d => d.userId === CU.id && d.subId === subId && d.status === 'approved')) { toast('Vous maîtrisez déjà ce sub-jutsu.', 'error'); return; }
+
+  // Générer le nom du ticket
+  const ticketTitle = genTicketTitle(prenomRp, nomRp, faction, grade, s.nom);
 
   // Images base64 depuis _imgStore
   const images = _imgStore.dem.map(img => img.dataUrl);
@@ -4438,13 +4537,19 @@ async function saveDemande() {
     id: 'd' + Date.now(), userId: CU.id, subId, message: msg,
     images, links,
     status: 'pending', priority: 'normale', tags: [],
-    ticketNum, timeline,
+    ticketNum,
+    ticketTitle,
+    rpPrenomRp: prenomRp,
+    rpNomRp: nomRp,
+    rpFaction: faction,
+    rpGrade: grade,
+    timeline,
     createdAt: now, mjNote: '', treatedBy: '', treatedAt: '', assignedTo: '',
     rpEntries: []
   };
   await fsSet('demandes', newDem.id, newDem);
   _cache.demandes = null;
-  await addLog('demande', `a ouvert le ticket ${ticketNum} pour`, { sub: s.nom });
+  await addLog('demande', `a ouvert le ticket ${ticketNum} — ${ticketTitle}`, { sub: s.nom });
   closeModal('modal-demande');
   // Reset form
   document.getElementById('dem-images-preview').innerHTML = '';
@@ -5558,7 +5663,7 @@ function tktCardHtml(d, subs, isStaffView, users) {
           ${slaIndicator(d.createdAt, d.status)}
           ${d.tags?.length ? tagsHtml : ''}
         </div>
-        <div class="tkt-card-title">⚡ ${esc(s.nom)}</div>
+        <div class="tkt-card-title">${d.ticketTitle ? esc(d.ticketTitle) : '⚡ '+esc(s.nom)}</div>
         ${isStaffView && u ? `<div style="font-size:11px;color:var(--muted2);margin-top:2px">Demandé par <b>${esc(u.nomrp||u.username)}</b> @${esc(u.username)}</div>` : ''}
         ${d.message ? `<div style="font-size:11px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px">${esc(d.message)}</div>` : ''}
       </div>
@@ -5592,7 +5697,7 @@ async function openTicketDetail(demId) {
   const statusD = TKT_STATUS[d.status]||TKT_STATUS.pending;
 
   document.getElementById('tkt-detail-num').textContent = d.ticketNum || '—';
-  document.getElementById('tkt-detail-title').textContent = `⚡ ${s.nom}`;
+  document.getElementById('tkt-detail-title').textContent = d.ticketTitle || `⚡ ${s.nom}`;
   document.getElementById('tkt-detail-hero').style.background = `linear-gradient(135deg,${statusD.color}10,rgba(7,8,15,0.98))`;
 
   document.getElementById('tkt-detail-badges').innerHTML = `
@@ -5604,6 +5709,9 @@ async function openTicketDetail(demId) {
 
   document.getElementById('tkt-detail-info').innerHTML = `
     <div class="profil-field"><div class="profil-field-label">Joueur</div><div class="profil-field-val">${esc(u.nomrp||u.username)} <span style="color:var(--muted)">@${esc(u.username)}</span></div></div>
+    ${(d.rpPrenomRp||d.rpNomRp) ? `<div class="profil-field"><div class="profil-field-label">Personnage RP</div><div class="profil-field-val" style="color:var(--text);font-weight:700">${esc([d.rpPrenomRp,d.rpNomRp].filter(Boolean).join(' '))}</div></div>` : ''}
+    ${d.rpFaction ? `<div class="profil-field"><div class="profil-field-label">Faction</div><div class="profil-field-val" style="color:var(--purple3)">${esc(d.rpFaction)}</div></div>` : ''}
+    ${d.rpGrade ? `<div class="profil-field"><div class="profil-field-label">Grade RP</div><div class="profil-field-val" style="color:var(--gold2)">${esc(d.rpGrade)}</div></div>` : ''}
     <div class="profil-field"><div class="profil-field-label">Sub-Jutsu</div><div class="profil-field-val" style="color:var(--gold)">${esc(s.nom)}</div></div>
     <div class="profil-field"><div class="profil-field-label">Ouvert le</div><div class="profil-field-val">${fmtDateTime(d.createdAt)}</div></div>
     <div class="profil-field"><div class="profil-field-label">Assigné à</div><div class="profil-field-val">${d.assignedTo ? '👤 '+esc(d.assignedTo) : '<span style="color:var(--muted)">Non assigné</span>'}</div></div>
@@ -6411,9 +6519,16 @@ async function deleteNarrMJReply(narrId, replyIdx) {
 }
 
 function updateNarrBadge() {
-  // future: badge count
-  const b = document.getElementById('nav-badge-narrations');
-  if (b) b.style.display = 'none';
+  // compat stub - kept for legacy calls
+}
+
+async function updateSuivisRpBadge() {
+  const b = document.getElementById('nav-badge-suivis-rp');
+  if (!b) return;
+  const dems = await getDemandes();
+  const active = dems.filter(d => d.rpOpen);
+  if (active.length > 0) { b.textContent = active.length; b.style.display = ''; }
+  else b.style.display = 'none';
 }
 
 async function handleNarrImageFiles(files) {
@@ -6518,6 +6633,105 @@ async function renderNarrations() {
       ${repliesHtml}
       ${mjReplyBtn}
       ${replyFormHtml}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  PAGE SUIVIS RP — liste des tickets avec RP actif
+// ══════════════════════════════════════════════════════
+async function renderSuivisRP() {
+  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const q     = (document.getElementById('srp-search')?.value || '').toLowerCase();
+  const mineF = document.getElementById('srp-mine')?.value || '';
+
+  let list = dems.filter(d => d.rpOpen);
+  if (mineF === 'mine') list = list.filter(d => d.userId === CU.id);
+  if (q) list = list.filter(d => {
+    const s = subs.find(x => x.id === d.subId);
+    const u = users.find(x => x.id === d.userId);
+    return (d.ticketTitle||'').toLowerCase().includes(q)
+      || (d.rpFaction||'').toLowerCase().includes(q)
+      || (d.rpPrenomRp||'').toLowerCase().includes(q)
+      || (d.rpNomRp||'').toLowerCase().includes(q)
+      || (s?.nom||'').toLowerCase().includes(q)
+      || (u?.username||'').toLowerCase().includes(q);
+  });
+  list.sort((a,b) => {
+    // Trier par dernière activité RP
+    const aLast = (a.rpEntries||[]).reduce((m,e) => e.ts > m ? e.ts : m, a.createdAt||'');
+    const bLast = (b.rpEntries||[]).reduce((m,e) => e.ts > m ? e.ts : m, b.createdAt||'');
+    return bLast.localeCompare(aLast);
+  });
+
+  // Quick stats
+  const qsEl = document.getElementById('srp-qs');
+  if (qsEl) {
+    const total     = dems.filter(d => d.rpOpen).length;
+    const mine      = dems.filter(d => d.rpOpen && d.userId === CU.id).length;
+    const withEntries = dems.filter(d => d.rpOpen && (d.rpEntries||[]).length > 0).length;
+    qsEl.innerHTML = [
+      { label: 'Suivis actifs', val: total,       accent: 'var(--purple2)' },
+      { label: 'Mes suivis',    val: mine,         accent: 'var(--gold)' },
+      { label: 'Avec narrations', val: withEntries, accent: 'var(--success)' },
+    ].map(s => `<div class="tkt-qs-item" style="--accent:${s.accent}"><div class="tkt-qs-val">${s.val}</div><div class="tkt-qs-label">${s.label}</div></div>`).join('');
+  }
+
+  const ctn = document.getElementById('suivis-rp-container');
+  if (!ctn) return;
+  if (!list.length) {
+    ctn.innerHTML = emptyState('⛩', 'Aucun suivi RP actif pour le moment. Un MJ peut en activer depuis un ticket.');
+    return;
+  }
+
+  ctn.innerHTML = list.map(d => {
+    const s = subs.find(x => x.id === d.subId) || { nom: '?', rang: '?' };
+    const u = users.find(x => x.id === d.userId) || { username: '?', nomrp: '?' };
+    const entries = d.rpEntries || [];
+    const totalMjR = entries.reduce((sum, e) => sum + (e.mjReplies||[]).length, 0);
+    const lastTs = entries.length ? entries[entries.length-1].ts : d.rpOpenedAt || d.createdAt;
+    const canAccess = hasPerm(CU, 'approve_requests') || d.userId === CU.id;
+    const titre = d.ticketTitle || s.nom;
+
+    // Faction badge
+    const factionHtml = d.rpFaction
+      ? `<span style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:4px;padding:2px 8px;font-size:9px;color:var(--purple3);letter-spacing:0.08em">[${esc(d.rpFaction)}]</span>`
+      : '';
+    const gradeHtml = d.rpGrade
+      ? `<span style="background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.25);border-radius:4px;padding:2px 8px;font-size:9px;color:var(--gold2)">${esc(d.rpGrade)}</span>`
+      : '';
+
+    return `<div class="tkt-card" style="--tkt-color:var(--purple2)" onclick="${canAccess ? `openNarrSpace('${d.id}')` : `openTicketDetail('${d.id}')`}">
+      <div class="tkt-card-top">
+        <div style="flex:1;min-width:0">
+          <div class="tkt-card-meta" style="margin-bottom:6px">
+            <span class="tkt-number">${esc(d.ticketNum||'—')}</span>
+            <span style="background:rgba(124,92,191,0.12);border:1px solid rgba(124,92,191,0.35);border-radius:4px;padding:2px 8px;font-size:9px;color:var(--purple3)">⛩ Suivi RP</span>
+            ${factionHtml}${gradeHtml}
+          </div>
+          <div class="tkt-card-title" style="font-family:'Cinzel',serif">${esc(titre)}</div>
+          <div style="font-size:11px;color:var(--muted2);margin-top:3px">⚡ ${esc(s.nom)} · Joueur : <b>${esc(u.nomrp||u.username)}</b></div>
+        </div>
+        <div class="tkt-card-badges" style="flex-direction:column;align-items:flex-end;gap:4px">
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted2)">
+            <span style="color:var(--purple3);font-weight:700">${entries.length}</span> narration${entries.length>1?'s':''}
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted2)">
+            <span style="color:var(--gold);font-weight:700">${totalMjR}</span> rép. MJ
+          </span>
+        </div>
+      </div>
+      <div class="tkt-card-foot">
+        <div class="tkt-card-assign">
+          ${d.assignedTo
+            ? `<div class="tkt-assign-av" style="background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);color:#60a5fa">${initials(d.assignedTo)}</div> MJ : <b>${esc(d.assignedTo)}</b>`
+            : `<span style="color:var(--muted)">⬜ Aucun MJ assigné</span>`}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${canAccess ? `<span style="font-size:11px;color:var(--purple2)">📖 Ouvrir</span>` : ''}
+          <span class="tkt-card-time">🕐 ${fmtDate(lastTs)}</span>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -6652,6 +6866,7 @@ async function activateRpSpace(demId) {
   await pushNotif(d.userId, `⛩ Le MJ @${CU.username} a activé le Suivi RP pour votre ticket ${d.ticketNum||''} ! Vous pouvez maintenant rédiger vos narrations.`, 'system');
   await addLog('demande', `a activé le Suivi RP sur le ticket ${d.ticketNum||''}`, {});
   toast('⛩ Suivi RP activé ! Le joueur peut maintenant accéder à son espace narrations.', 'success');
+  await updateSuivisRpBadge();
   // Reopen ticket detail to refresh
   await openTicketDetail(demId);
 }
@@ -6679,7 +6894,7 @@ async function openNarrSpace(demId) {
   const subs = await getSubs();
   const s = subs.find(x => x.id === d.subId);
   document.getElementById('ns-tkt-num').textContent = d.ticketNum || '—';
-  document.getElementById('ns-tkt-sub').textContent = s?.nom || '—';
+  document.getElementById('ns-tkt-sub').textContent = d.ticketTitle || s?.nom || '—';
 
   _nsFilter = '';
   _nsView = 'cards';
@@ -6983,7 +7198,7 @@ Object.assign(window, {
   openModal, closeModal,
   // Catalogue & demandes
   renderCatalogue, setCatView, toggleFav, openSubDetail,
-  openModalDemande, saveDemande, updateDemSubInfo,
+  openModalDemande, saveDemande, updateDemSubInfo, updateDemTicketName,
   // Sub-jutsu (staff)
   openModalAddSub, openModalEditSub, saveSub, deleteSub,
   // Panel staff
@@ -7021,12 +7236,14 @@ Object.assign(window, {
   openGlobalSearch, closeGlobalSearch, runGlobalSearch, handleGsKey, gsSelect,
   // RP & médias (compat)
   toggleRpForm, submitRpEntry, deleteRpEntry,
-  // Narrations libres (page dédiée)
+  // Narrations libres (page dédiée - conservées pour compatibilité interne)
   renderNarrations, openModalNewNarration, openEditNarration, saveNarration, deleteNarration,
   submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
   submitMJReply, deleteMJReply, toggleMJReplyForm,
   // Suivi RP ticket
   activateRpSpace, closeRpSpace,
+  // Page Suivis RP
+  renderSuivisRP,
   openNarrSpace, closeNarrSpace, nsSetView, nsOpenForm, nsCloseForm,
   nsSelectType, nsToggleMood, nsSubmitEntry, nsDeleteEntry,
   nsOpenEditForm, nsSubmitMJReply, nsDeleteMJReply, nsToggleMJForm,

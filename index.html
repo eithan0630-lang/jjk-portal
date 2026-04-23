@@ -2060,14 +2060,14 @@ tr:hover td { background: rgba(201,162,39,0.02); }
           <div class="page-header">
             <div>
               <div class="page-title"><span class="page-title-icon">⚡</span>Catalogue des Sub-Jutsu</div>
-              <div class="page-desc">Explorez et demandez les techniques disponibles sur le serveur</div>
+              <div class="page-desc">Explorez les techniques disponibles — soumettez une demande via <b style="color:var(--gold)">Mes Tickets</b></div>
             </div>
             <div style="display:flex;align-items:center;gap:8px">
               <div class="cat-view-toggle">
                 <button class="cat-view-btn active" id="cat-btn-grid" onclick="setCatView('grid')" title="Vue grille">⊞</button>
                 <button class="cat-view-btn" id="cat-btn-list" onclick="setCatView('list')" title="Vue liste">≡</button>
               </div>
-              <button class="btn btn-primary" onclick="openModalDemande(null)">+ Soumettre une demande</button>
+              
             </div>
           </div>
           <!-- Filtres en rangée propre -->
@@ -2178,7 +2178,7 @@ tr:hover td { background: rgba(201,162,39,0.02); }
               <div class="page-title"><span class="page-title-icon">🎫</span>Mes Tickets</div>
               <div class="page-desc">Suivez vos demandes de sub-jutsu sous forme de tickets</div>
             </div>
-            <button class="btn btn-primary" onclick="openModalDemande(null)">+ Nouveau ticket</button>
+            <button class="btn btn-primary" onclick="openNewTicketModal()">+ Nouveau ticket</button>
           </div>
           <!-- Quick stats -->
           <div class="tkt-qs" id="my-tkt-qs"></div>
@@ -2252,9 +2252,9 @@ tr:hover td { background: rgba(201,162,39,0.02); }
           <div class="page-header">
             <div>
               <div class="page-title"><span class="page-title-icon">📋</span>Mes Demandes</div>
-              <div class="page-desc">Historique de vos demandes d'apprentissage</div>
+              <div class="page-desc">Historique de vos tickets de demande d'apprentissage</div>
             </div>
-            <button class="btn btn-primary" onclick="openModalDemande(null)">+ Nouvelle demande</button>
+            
           </div>
           <div id="mes-demandes-list"></div>
         </div>
@@ -2556,10 +2556,10 @@ tr:hover td { background: rgba(201,162,39,0.02); }
 <div class="modal-overlay" id="modal-demande">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Demande d'Apprentissage</div>
+      <div class="modal-title">Nouveau Ticket de Sub-Jutsu</div>
       <button class="modal-close" onclick="closeModal('modal-demande')">✕</button>
     </div>
-    <div class="alert alert-info">Sélectionnez un sub-jutsu et rédigez votre demande. Un MJ la traitera dans les meilleurs délais.</div>
+    <div class="alert alert-info">Sélectionnez un sub-jutsu et rédigez votre demande. Elle sera soumise sous forme de ticket et traitée par un MJ.</div>
     <div class="fg"><label class="fl">Sub-jutsu souhaité *</label>
       <select class="fi" id="dem-sub-select" onchange="updateDemSubInfo(this.value)"><option value="">— Choisir —</option></select>
     </div>
@@ -4038,7 +4038,7 @@ function subCardV3Html(s, takenMap, allDems, favs) {
         <div style="font-size:10px;color:var(--muted)">👁 Voir détails</div>
         ${alreadyApproved ? `<span style="font-size:11px;color:var(--success);font-weight:700">✓ Maîtrisé</span>` :
           pendingDem ? `<span style="font-size:11px;color:var(--warn)">⏳ En attente</span>` :
-          free > 0 ? `<button class="btn btn-primary btn-sm" onclick="openModalDemande('${s.id}')">Demander</button>` :
+          free > 0 ? `<span style="font-size:11px;color:var(--success)">✅ Disponible</span>` :
           `<span style="font-size:11px;color:var(--danger)">🔒 Complet</span>`}
       </div>
     </div>
@@ -4069,7 +4069,7 @@ function subListHtml(s, takenMap, allDems, favs) {
     <div onclick="event.stopPropagation()">
       ${alreadyApproved ? `<span style="font-size:10px;color:var(--success)">✓</span>` :
         pendingDem ? `<span style="font-size:10px;color:var(--warn)">⏳</span>` :
-        free > 0 ? `<button class="btn btn-primary btn-sm" onclick="openModalDemande('${s.id}')">Demander</button>` :
+        free > 0 ? `<span style="font-size:10px;color:var(--success)">✅</span>` :
         `<span style="font-size:10px;color:var(--danger)">🔒</span>`}
     </div>
   </div>`;
@@ -4163,9 +4163,7 @@ async function openSubDetail(subId) {
   // ── Footer ──
   const footer = document.getElementById('sd-footer');
   footer.innerHTML = `<button class="btn btn-ghost" onclick="closeModal('modal-sub-detail')">Fermer</button>`;
-  if (!alreadyApproved && !pendingDem && free > 0) {
-    footer.innerHTML += `<button class="btn btn-primary" onclick="closeModal('modal-sub-detail');openModalDemande('${subId}')">⚡ Demander ce sub-jutsu</button>`;
-  } else if (alreadyApproved) {
+  if (alreadyApproved) {
     footer.innerHTML += `<span style="color:var(--success);font-weight:700;padding:8px 16px">✓ Déjà maîtrisé</span>`;
   } else if (pendingDem) {
     footer.innerHTML += `<span style="color:var(--warn);font-weight:700;padding:8px 16px">⏳ Demande en cours</span>`;
@@ -4550,7 +4548,36 @@ function updateDemTicketPreview() {
   document.getElementById('dem-ticket-preview').style.display = 'block';
 }
 
+async function openNewTicketModal(preId) {
+  // Ouvrir directement la modal pour créer un ticket (depuis page Tickets)
+  const [subs, allDems] = await Promise.all([getSubs(), getDemandes()]);
+  const activeSubs = subs.filter(s => s.active !== false);
+  const takenMap = {};
+  allDems.filter(d => d.status === 'approved').forEach(d => { takenMap[d.subId] = (takenMap[d.subId]||0) + 1; });
+  const sel = document.getElementById('dem-sub-select');
+  sel.innerHTML = '<option value="">— Choisir —</option>' + activeSubs.map(s => {
+    const free = s.slots - (takenMap[s.id]||0);
+    return `<option value="${s.id}" ${free <= 0 ? 'disabled' : ''}>${esc(s.nom)} — ${free} slot${free > 1 ? 's' : ''} libre${free > 1 ? 's' : ''}</option>`;
+  }).join('');
+  document.getElementById('dem-message').value = '';
+  document.getElementById('dem-sub-info').style.display = 'none';
+  document.getElementById('dem-prenom-rp').value = CU.rpPrenomRp || '';
+  document.getElementById('dem-nom-rp').value = CU.rpNomRp || '';
+  document.getElementById('dem-grade-rp').value = CU.rpGrade || '';
+  document.getElementById('dem-faction-rp').value = CU.rpFaction || '';
+  document.getElementById('dem-ticket-preview').style.display = 'none';
+  updateDemTicketPreview();
+  openModal('modal-demande');
+}
+
 async function openModalDemande(preId) {
+  // Rediriger vers la page Tickets pour soumettre une demande
+  await goPage('tickets');
+  toast('Utilisez le bouton "+ Nouveau ticket" pour soumettre une demande.', 'info');
+  return;
+  // (code original conservé mais inaccessible)
+  void preId;
+  if(false){
   const [subs, allDems] = await Promise.all([getSubs(), getDemandes()]);
   const activeSubs = subs.filter(s => s.active !== false);
   const takenMap = {};
@@ -4570,6 +4597,7 @@ async function openModalDemande(preId) {
   if (preId) { await updateDemSubInfo(preId); sel.value = preId; }
   updateDemTicketPreview();
   openModal('modal-demande');
+  } // end if(false)
 }
 async function updateDemSubInfo(id) {
   updateDemTicketPreview();
@@ -4620,7 +4648,7 @@ async function saveDemande() {
 
   // Construire le nom du ticket
   const subSel = document.getElementById('dem-sub-select');
-  const subNameForTicket = subSel?.options[subSel.selectedIndex]?.text || s.nom;
+  const subNameForTicket = s.nom;
   const ticketNameParts = [];
   if (gradeRp)   ticketNameParts.push(gradeRp);
   const fullRpName = [prenomRp, nomRp].filter(Boolean).join(' ');
@@ -7641,7 +7669,7 @@ Object.assign(window, {
   openModal, closeModal,
   // Catalogue & demandes
   renderCatalogue, setCatView, toggleFav, openSubDetail,
-  openModalDemande, saveDemande, updateDemSubInfo, updateDemTicketPreview,
+  openModalDemande, openNewTicketModal, saveDemande, updateDemSubInfo, updateDemTicketPreview,
   // Sub-jutsu (staff)
   openModalAddSub, openModalEditSub, saveSub, deleteSub,
   // Panel staff

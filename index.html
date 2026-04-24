@@ -7312,6 +7312,7 @@ async function changeTicketPriority(demId, prio) {
   await openTicketDetail(demId);
 }
 
+
 // ── Traitement staff ────────────────────────────────────
 
 let _tktSelectedMastery = 1;
@@ -9668,6 +9669,125 @@ window.nsSubmitEntry = nsSubmitEntryWrapped;
 window.nsOpenEditForm = nsOpenEditFormWrapped;
 window.nsCloseForm = nsCloseFormWrapped;
 
+
+// ══════════════════════════════════════════════════════
+//  EXPOSE ALL GLOBAL FUNCTIONS (module scope fix)
+// ══════════════════════════════════════════════════════
+window._removeImg = _removeImg;
+window.activateRpSpace = activateRpSpace;
+window.addComment = addComment;
+window.addTag = addTag;
+window.addTktComment = addTktComment;
+window.assignRole = assignRole;
+window.assignTicketToSelf = assignTicketToSelf;
+window.assignTktMastery = assignTktMastery;
+window.changePassword = changePassword;
+window.changeTicketPriority = changeTicketPriority;
+window.clearLogs = clearLogs;
+window.closeFounderReveal = closeFounderReveal;
+window.closeGlobalSearch = closeGlobalSearch;
+window.closeLightbox = closeLightbox;
+window.closeModal = closeModal;
+window.closeNarrSpace = closeNarrSpace;
+window.closeRpSpace = closeRpSpace;
+window.confirmCancel = confirmCancel;
+window.confirmOk = confirmOk;
+window.deleteAnnonce = deleteAnnonce;
+window.deleteMJReply = deleteMJReply;
+window.deleteNarrMJReply = deleteNarrMJReply;
+window.deleteNarration = deleteNarration;
+window.deleteRpEntry = deleteRpEntry;
+window.deleteSub = deleteSub;
+window.deleteTicket = deleteTicket;
+window.doLogout = doLogout;
+window.exportCSV = exportCSV;
+window.exportTicketsCSV = exportTicketsCSV;
+window.goPage = goPage;
+window.gsSelect = gsSelect;
+window.handleApproveClick = handleApproveClick;
+window.handleDemImageFiles = handleDemImageFiles;
+window.handleGsKey = handleGsKey;
+window.handleNarrImageFiles = handleNarrImageFiles;
+window.handleRpImageFiles = handleRpImageFiles;
+window.handleTagInput = handleTagInput;
+window.markAllNotifRead = markAllNotifRead;
+window.markNotifRead = markNotifRead;
+window.nsDeleteEntry = nsDeleteEntry;
+window.nsDeleteMJReply = nsDeleteMJReply;
+window.nsOpenEditForm = nsOpenEditForm;
+window.nsOpenForm = nsOpenForm;
+window.nsSelectType = nsSelectType;
+window.nsSetView = nsSetView;
+window.nsSubmitMJReply = nsSubmitMJReply;
+window.nsToggleMJForm = nsToggleMJForm;
+window.nsToggleMood = nsToggleMood;
+window.openCommentsModal = openCommentsModal;
+window.openEditNarration = openEditNarration;
+window.openGlobalSearch = openGlobalSearch;
+window.openLightbox = openLightbox;
+window.openMJRep = openMJRep;
+window.openModalAddSub = openModalAddSub;
+window.openModalAnnonce = openModalAnnonce;
+window.openModalAssignRole = openModalAssignRole;
+window.openModalEditAnnonce = openModalEditAnnonce;
+window.openModalEditProfil = openModalEditProfil;
+window.openModalEditSub = openModalEditSub;
+window.openModalNewNarration = openModalNewNarration;
+window.openNarrSpace = openNarrSpace;
+window.openNewTicketModal = openNewTicketModal;
+window.openSubDetail = openSubDetail;
+window.openTicketDetail = openTicketDetail;
+window.openTktInternalNote = openTktInternalNote;
+window.openTktTagModal = openTktTagModal;
+window.quickAssignRole = quickAssignRole;
+window.redirectDiscord = redirectDiscord;
+window.removeTag = removeTag;
+window.renderAllTickets = renderAllTickets;
+window.renderAnnonces = renderAnnonces;
+window.renderCatalogue = renderCatalogue;
+window.renderLogs = renderLogs;
+window.renderMyTickets = renderMyTickets;
+window.renderNarrations = renderNarrations;
+window.renderPanelDemandes = renderPanelDemandes;
+window.renderPanelMembers = renderPanelMembers;
+window.renderPanelSubs = renderPanelSubs;
+window.reopenTicket = reopenTicket;
+window.revokeSubJutsu = revokeSubJutsu;
+window.rteToggleColorPicker = rteToggleColorPicker;
+window.runGlobalSearch = runGlobalSearch;
+window.saveAnnonce = saveAnnonce;
+window.saveDemande = saveDemande;
+window.saveEditProfil = saveEditProfil;
+window.saveInternalNote = saveInternalNote;
+window.saveNarration = saveNarration;
+window.saveRoleFromPage = saveRoleFromPage;
+window.saveSub = saveSub;
+window.saveTagsModal = saveTagsModal;
+window.selectMasteryLevel = selectMasteryLevel;
+window.selectTktInlineMastery = selectTktInlineMastery;
+window.setAllTktView = setAllTktView;
+window.setCatView = setCatView;
+window.setTktView = setTktView;
+window.submitMJReply = submitMJReply;
+window.submitNarrMJReply = submitNarrMJReply;
+window.submitRpEntry = submitRpEntry;
+window.submitTktTreat = submitTktTreat;
+window.switchInnerTab = switchInnerTab;
+window.switchLbTab = switchLbTab;
+window.toggleBan = toggleBan;
+window.toggleFav = toggleFav;
+window.toggleMJReplyForm = toggleMJReplyForm;
+window.toggleNarrCategory = toggleNarrCategory;
+window.toggleNarrMJForm = toggleNarrMJForm;
+window.toggleNotifDropdown = toggleNotifDropdown;
+window.toggleRpForm = toggleRpForm;
+window.toggleTheme = toggleTheme;
+window.updateDemSubInfo = updateDemSubInfo;
+window.updateDemTicketPreview = updateDemTicketPreview;
+window.viewUser = viewUser;
+window.nsCloseForm = typeof nsCloseFormWrapped !== "undefined" ? nsCloseFormWrapped : nsCloseForm;
+window.nsSubmitEntry = typeof nsSubmitEntryWrapped !== "undefined" ? nsSubmitEntryWrapped : nsSubmitEntry;
+window.openModalNewNarrationForDem = typeof openModalNewNarrationForDemWrapped !== "undefined" ? openModalNewNarrationForDemWrapped : openModalNewNarrationForDem;
 
 
 

@@ -7312,12 +7312,6 @@ async function changeTicketPriority(demId, prio) {
   await openTicketDetail(demId);
 }
 
-// [removed duplicate — replaced by V14 version]);
-  _cache.demandes = null;
-  toast('Tags mis à jour.', 'success');
-  await openTicketDetail(demId);
-}
-
 // ── Traitement staff ────────────────────────────────────
 
 let _tktSelectedMastery = 1;

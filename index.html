@@ -9130,81 +9130,6 @@ async function goPage(page) {
 // ── Patch openTktTagModal pour pointer vers le nouveau ──
 // (la nouvelle fonction est déjà déclarée ci-dessus, ça override l'ancienne)
 
-Object.assign(window, {
-  // Auth & session
-  redirectDiscord,
-  switchAuthTab, doLogin, doRegister, doLogout,
-  // Navigation
-  goPage, switchInnerTab,
-  // Modals génériques
-  openModal, closeModal,
-  // Catalogue & demandes
-  renderCatalogue, setCatView, toggleFav, openSubDetail,
-  openModalDemande, openNewTicketModal, saveDemande, updateDemSubInfo, updateDemTicketPreview,
-  // Sub-jutsu (staff)
-  openModalAddSub, openModalEditSub, saveSub, deleteSub,
-  // Panel staff
-  submitMJRep, openMJRep, handleApproveClick,
-  // Maîtrise
-  selectMasteryLevel, openMasterySection,
-  // Membres
-  viewUser, toggleBan, quickAssignRole,
-  // Rôles
-  openModalAssignRole, assignRole, saveRoleFromPage,
-  // Profil
-  openModalEditProfil, saveEditProfil, changePassword,
-  // Logs
-  renderLogs, clearLogs,
-  // Rôles page
-  renderRoles,
-  // Fondateur
-  closeFounderReveal,
-  // Dashboard
-  renderDashboard,
-  // Annonces
-  renderAnnonces, openModalAnnonce, openModalEditAnnonce, saveAnnonce, deleteAnnonce,
-  // Notifications
-  toggleNotifDropdown, markAllNotifRead, markNotifRead,
-  // Commentaires
-  openCommentsModal, addComment,
-  // Export
-  exportCSV,
-  // Tickets
-  renderMyTickets, renderAllTickets, setTktView, setAllTktView,
-  openTicketDetail, openTktTreat, submitTktTreat, addTktComment,
-  selectTktMasteryLevel, toggleTktMasterySection,
-  selectTktInlineMastery, renderTktMasteryBlock, assignTktMastery,
-  assignTicketToSelf, changeTicketPriority, openTktTagModal, exportTicketsCSV,
-  revokeSubJutsu, reopenTicket, deleteTicket, openTktInternalNote,
-  // Stats
-  renderStats,
-  // Recherche globale
-  openGlobalSearch, closeGlobalSearch, runGlobalSearch, handleGsKey, gsSelect,
-  // RP & médias (compat)
-  toggleRpForm, submitRpEntry, deleteRpEntry,
-  // Narrations libres (page dédiée)
-  renderNarrations, openModalNewNarration, openModalNewNarrationForDem, openEditNarration, saveNarration, deleteNarration,
-  submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
-  submitMJReply, deleteMJReply, toggleMJReplyForm,
-  // Suivi RP ticket
-  toggleNarrCategory,
-  activateRpSpace, closeRpSpace,
-  openNarrSpace, closeNarrSpace, nsSetView, nsOpenForm, nsCloseForm,
-  nsSelectType, nsToggleMood, nsSubmitEntry, nsDeleteEntry,
-  nsOpenEditForm, nsSubmitMJReply, nsDeleteMJReply, nsToggleMJForm,
-  handleDemImageFiles, handleRpImageFiles,
-  _removeImg,
-  previewDemImages, previewRpImages,
-  openLightbox, closeLightbox,
-  // ── V14 nouvelles fonctions ──
-  toggleTheme,
-  copyTicketNum,
-  confirmOk, confirmCancel,
-  saveInternalNote,
-  openTktTagModal, saveTagsModal, handleTagInput, removeTag, addTag, renderTagChips,
-  updateNarrBadge, updateOnlineStatus,
-  attachWordCounter,
-});
 
 // ── Post-init: setup draft sur les champs principaux ──
 setTimeout(() => {
@@ -9690,6 +9615,84 @@ window.nsCloseForm = nsCloseFormWrapped;
 
 
 
+
+
+// ── Object.assign window (moved after RTE patches) ──
+Object.assign(window, {
+  // Auth & session
+  redirectDiscord,
+  switchAuthTab, doLogin, doRegister, doLogout,
+  // Navigation
+  goPage, switchInnerTab,
+  // Modals génériques
+  openModal, closeModal,
+  // Catalogue & demandes
+  renderCatalogue, setCatView, toggleFav, openSubDetail,
+  openModalDemande, openNewTicketModal, saveDemande, updateDemSubInfo, updateDemTicketPreview,
+  // Sub-jutsu (staff)
+  openModalAddSub, openModalEditSub, saveSub, deleteSub,
+  // Panel staff
+  submitMJRep, openMJRep, handleApproveClick,
+  // Maîtrise
+  selectMasteryLevel, openMasterySection,
+  // Membres
+  viewUser, toggleBan, quickAssignRole,
+  // Rôles
+  openModalAssignRole, assignRole, saveRoleFromPage,
+  // Profil
+  openModalEditProfil, saveEditProfil, changePassword,
+  // Logs
+  renderLogs, clearLogs,
+  // Rôles page
+  renderRoles,
+  // Fondateur
+  closeFounderReveal,
+  // Dashboard
+  renderDashboard,
+  // Annonces
+  renderAnnonces, openModalAnnonce, openModalEditAnnonce, saveAnnonce, deleteAnnonce,
+  // Notifications
+  toggleNotifDropdown, markAllNotifRead, markNotifRead,
+  // Commentaires
+  openCommentsModal, addComment,
+  // Export
+  exportCSV,
+  // Tickets
+  renderMyTickets, renderAllTickets, setTktView, setAllTktView,
+  openTicketDetail, openTktTreat, submitTktTreat, addTktComment,
+  selectTktMasteryLevel, toggleTktMasterySection,
+  selectTktInlineMastery, renderTktMasteryBlock, assignTktMastery,
+  assignTicketToSelf, changeTicketPriority, openTktTagModal, exportTicketsCSV,
+  revokeSubJutsu, reopenTicket, deleteTicket, openTktInternalNote,
+  // Stats
+  renderStats,
+  // Recherche globale
+  openGlobalSearch, closeGlobalSearch, runGlobalSearch, handleGsKey, gsSelect,
+  // RP & médias (compat)
+  toggleRpForm, submitRpEntry, deleteRpEntry,
+  // Narrations libres (page dédiée)
+  renderNarrations, openModalNewNarration, openEditNarration, saveNarration, deleteNarration,
+  submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
+  submitMJReply, deleteMJReply, toggleMJReplyForm,
+  // Suivi RP ticket
+  toggleNarrCategory,
+  activateRpSpace, closeRpSpace,
+  openNarrSpace, closeNarrSpace, nsSetView, nsOpenForm, nsCloseForm,
+  nsSelectType, nsToggleMood, nsSubmitEntry, nsDeleteEntry,
+  nsOpenEditForm, nsSubmitMJReply, nsDeleteMJReply, nsToggleMJForm,
+  handleDemImageFiles, handleRpImageFiles,
+  _removeImg,
+  previewDemImages, previewRpImages,
+  openLightbox, closeLightbox,
+  // ── V14 nouvelles fonctions ──
+  toggleTheme,
+  copyTicketNum,
+  confirmOk, confirmCancel,
+  saveInternalNote,
+  openTktTagModal, saveTagsModal, handleTagInput, removeTag, addTag, renderTagChips,
+  updateNarrBadge, updateOnlineStatus,
+  attachWordCounter,
+});
 
 </script>
 </body>

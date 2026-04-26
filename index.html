@@ -2799,360 +2799,6 @@ tr:hover td { background: rgba(201,162,39,0.02); }
   :root { --sw: 200px; --sidebar-w: 200px; }
   .content { padding: 18px; }
 }
-
-/* ════════════════════════════════════════════════
-   NOUVELLES FONCTIONNALITÉS V14
-════════════════════════════════════════════════ */
-
-/* ── Modal de confirmation stylée ── */
-#confirm-modal-overlay {
-  position: fixed; inset: 0; z-index: 9998;
-  background: rgba(0,0,0,0.82); backdrop-filter: blur(10px);
-  display: none; align-items: center; justify-content: center;
-  padding: 20px;
-}
-#confirm-modal-overlay.open { display: flex; }
-#confirm-modal-box {
-  background: linear-gradient(155deg, rgba(11,13,25,0.99), rgba(7,8,16,0.99));
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 20px; padding: 32px 36px;
-  max-width: 420px; width: 100%;
-  box-shadow: 0 60px 120px rgba(0,0,0,0.85), 0 0 80px rgba(124,92,191,0.07);
-  animation: modal-in 0.22s cubic-bezier(0.22,1,0.36,1) both;
-  position: relative;
-}
-#confirm-modal-box::before {
-  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 50%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(201,162,39,0.5), transparent);
-}
-.confirm-icon { font-size: 36px; margin-bottom: 14px; display: block; text-align: center; }
-.confirm-title {
-  font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;
-  color: var(--text); letter-spacing: 0.05em; text-align: center; margin-bottom: 8px;
-}
-.confirm-msg {
-  font-size: 12.5px; color: rgba(255,255,255,0.45); text-align: center;
-  line-height: 1.7; margin-bottom: 26px;
-}
-.confirm-input-wrap {
-  margin-bottom: 20px;
-}
-.confirm-input-wrap .fi {
-  width: 100%; font-size: 13px;
-}
-.confirm-footer { display: flex; gap: 10px; justify-content: center; }
-
-/* ── Compteur de mots ── */
-.word-counter {
-  font-size: 9.5px; color: rgba(255,255,255,0.22); text-align: right;
-  margin-top: 5px; letter-spacing: 0.05em; transition: color 0.2s;
-}
-.word-counter.has-content { color: rgba(201,162,39,0.55); }
-
-/* ── Indicateur de brouillon sauvegardé ── */
-.draft-indicator {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 9.5px; color: rgba(255,255,255,0.28);
-  letter-spacing: 0.05em;
-  opacity: 0; transition: opacity 0.4s;
-}
-.draft-indicator.visible { opacity: 1; }
-.draft-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--success); box-shadow: 0 0 6px var(--success);
-}
-
-/* ── Copier ticket ID ── */
-.copy-btn {
-  background: none; border: none; cursor: pointer;
-  color: rgba(255,255,255,0.25); font-size: 12px; padding: 2px 5px;
-  border-radius: 5px; transition: all 0.15s; vertical-align: middle;
-}
-.copy-btn:hover { color: var(--gold2); background: rgba(201,162,39,0.1); }
-.copy-btn.copied { color: var(--success); }
-
-/* ── Indicateur en ligne sidebar ── */
-.sb-online-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--success); box-shadow: 0 0 8px var(--success);
-  animation: pulse-dot 2.5s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-/* ── Badge narrations (fonctionnel) ── */
-#nav-badge-narrations {
-  background: linear-gradient(135deg, var(--purple2), var(--purple));
-  box-shadow: 0 0 10px rgba(167,139,250,0.5);
-}
-
-/* ── Topbar: bouton thème ── */
-.theme-toggle-btn {
-  width: 30px; height: 30px; border-radius: 8px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.35); font-size: 14px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: var(--transition); flex-shrink: 0;
-}
-.theme-toggle-btn:hover {
-  background: rgba(201,162,39,0.1);
-  border-color: rgba(201,162,39,0.3);
-  color: var(--gold2);
-  transform: rotate(20deg);
-}
-
-/* ── Mode clair ── */
-body.light-mode {
-  --bg: #f0f0f5; --bg1: #f7f7fc; --bg2: #eceef8; --bg3: #e4e6f3;
-  --bg4: #d8daf0; --bg5: #ced0e8;
-  --text: #1a1c2e; --text2: #3a3c55; --muted: #8890b8; --muted2: #6068a0;
-  --border: rgba(0,0,0,0.06); --border2: rgba(0,0,0,0.1); --border3: rgba(0,0,0,0.18);
-  --card-glass: rgba(255,255,255,0.7);
-  background: var(--bg);
-}
-body.light-mode .sidebar { background: rgba(248,248,255,0.97); border-right-color: rgba(0,0,0,0.07); }
-body.light-mode .topbar { background: rgba(248,248,255,0.9); border-bottom-color: rgba(0,0,0,0.06); }
-body.light-mode .sb-item { color: rgba(0,0,0,0.4); }
-body.light-mode .sb-item:hover { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.7); }
-body.light-mode .sb-item.active { color: var(--gold); background: rgba(201,162,39,0.08); }
-body.light-mode .modal { background: linear-gradient(155deg, rgba(252,252,255,0.99), rgba(248,248,255,0.99)); border-color: rgba(0,0,0,0.1); }
-body.light-mode .fi { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); color: var(--text); }
-body.light-mode .card-section { background: rgba(255,255,255,0.8); border-color: rgba(0,0,0,0.07); }
-body.light-mode .tkt-card { background: rgba(255,255,255,0.9); border-color: rgba(0,0,0,0.07); }
-body.light-mode .sub-card, body.light-mode .sub-card-v3 { background: rgba(255,255,255,0.9); border-color: rgba(0,0,0,0.08); }
-body.light-mode .jjk-bg::before { opacity: 0.4; }
-body.light-mode .theme-toggle-btn { color: rgba(0,0,0,0.5); }
-
-/* ── Petit pill "En ligne" dans sb-user ── */
-.sb-status-pill {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 8.5px; color: var(--success); letter-spacing: 0.08em;
-  text-transform: uppercase; font-weight: 600;
-}
-
-/* ── Quick action bar sur les ticket cards ── */
-.tkt-card-quick-actions {
-  display: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  align-items: center; gap: 4px;
-}
-.tkt-card:hover .tkt-card-quick-actions { display: flex; }
-.tkt-quick-btn {
-  width: 26px; height: 26px; border-radius: 6px;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.4); font-size: 12px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: var(--transition);
-}
-.tkt-quick-btn:hover { background: rgba(201,162,39,0.15); border-color: rgba(201,162,39,0.4); color: var(--gold2); }
-
-/* ── Keyboard shortcut hints ── */
-.kbd-hint {
-  font-family: 'Share Tech Mono', monospace; font-size: 9px;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 4px; padding: 1.5px 6px; color: rgba(255,255,255,0.28);
-  letter-spacing: 0.04em;
-}
-
-/* ── Annonce body: saut de ligne ── */
-.annonce-body { white-space: pre-wrap; }
-
-/* ── Textarea avec auto-resize ── */
-.fi-auto { resize: none; overflow: hidden; }
-
-/* ── Tag inline input ── */
-.tag-input-row {
-  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px; padding: 8px 12px; min-height: 42px;
-  transition: var(--transition); cursor: text;
-}
-.tag-input-row:focus-within {
-  border-color: rgba(201,162,39,0.4);
-  box-shadow: 0 0 0 3px rgba(201,162,39,0.07);
-}
-.tag-chip {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: rgba(201,162,39,0.1); border: 1px solid rgba(201,162,39,0.25);
-  color: var(--gold2); border-radius: 5px; padding: 2px 8px;
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em;
-}
-.tag-chip-remove {
-  background: none; border: none; cursor: pointer;
-  color: rgba(201,162,39,0.5); font-size: 11px; padding: 0;
-  line-height: 1; transition: color 0.15s;
-}
-.tag-chip-remove:hover { color: var(--danger); }
-.tag-input-bare {
-  background: none; border: none; outline: none; color: var(--text);
-  font-family: 'Rajdhani', sans-serif; font-size: 12px; min-width: 80px; flex: 1;
-}
-
-/* ── Note interne modal ── */
-#modal-internal-note .modal { max-width: 480px; }
-
-/* ════════════════════════════════════════════════
-   ÉDITEUR RICH TEXT (RTE)
-════════════════════════════════════════════════ */
-.rte-wrap {
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(255,255,255,0.03);
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-.rte-wrap:focus-within {
-  border-color: rgba(201,162,39,0.45);
-  box-shadow: 0 0 0 3px rgba(201,162,39,0.08), 0 0 20px rgba(201,162,39,0.04);
-}
-
-/* Toolbar */
-.rte-toolbar {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
-  padding: 8px 10px;
-  background: rgba(255,255,255,0.025);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  user-select: none;
-}
-.rte-toolbar-compact { padding: 6px 8px; }
-
-.rte-btn {
-  width: 28px; height: 28px; border-radius: 7px;
-  border: none; background: transparent;
-  color: rgba(255,255,255,0.38); font-size: 13px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; font-family: inherit;
-  flex-shrink: 0;
-}
-.rte-btn:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); }
-.rte-btn.active { background: rgba(201,162,39,0.15); color: var(--gold2); }
-.rte-btn[data-cmd="bold"]   { font-weight: 900; font-style: normal; }
-.rte-btn[data-cmd="italic"] { font-style: italic; }
-.rte-btn[data-cmd="underline"] { text-decoration: underline; }
-
-.rte-sep {
-  width: 1px; height: 18px; background: rgba(255,255,255,0.08);
-  margin: 0 4px; flex-shrink: 0;
-}
-
-/* Font size select */
-.rte-size-sel {
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px; color: rgba(255,255,255,0.5); font-size: 11px;
-  padding: 2px 5px; cursor: pointer; height: 26px; outline: none;
-  font-family: 'Rajdhani', sans-serif;
-}
-.rte-size-sel:focus { border-color: rgba(201,162,39,0.35); color: var(--text); }
-
-/* Color picker button */
-.rte-color-wrap { position: relative; display: flex; align-items: center; }
-.rte-color-swatch {
-  width: 28px; height: 28px; border-radius: 7px;
-  border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; position: relative; overflow: hidden;
-  background: transparent; transition: border-color 0.15s;
-}
-.rte-color-swatch:hover { border-color: rgba(201,162,39,0.4); }
-.rte-color-swatch .rte-color-bar {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
-}
-.rte-color-picker-dropdown {
-  position: absolute; top: 34px; left: 0; z-index: 9999;
-  background: rgba(10,12,24,0.99); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px; padding: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-  display: none; width: 196px;
-}
-.rte-color-picker-dropdown.open { display: block; }
-.rte-color-grid {
-  display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-bottom: 10px;
-}
-.rte-swatch {
-  width: 20px; height: 20px; border-radius: 5px; cursor: pointer;
-  border: 2px solid transparent; transition: transform 0.12s, border-color 0.12s;
-}
-.rte-swatch:hover { transform: scale(1.2); border-color: rgba(255,255,255,0.5); }
-.rte-swatch.selected { border-color: #fff; transform: scale(1.15); }
-.rte-color-custom { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
-.rte-color-custom input[type="color"] {
-  width: 28px; height: 28px; border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 6px; cursor: pointer; background: none; padding: 2px;
-}
-.rte-color-custom label { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 0.08em; }
-
-/* Highlight color picker */
-.rte-hl-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-bottom: 8px; }
-
-/* Heading select */
-.rte-heading-sel {
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px; color: rgba(255,255,255,0.5); font-size: 10.5px;
-  padding: 2px 6px; cursor: pointer; height: 26px; outline: none;
-  font-family: 'Rajdhani', sans-serif; letter-spacing: 0.04em;
-  max-width: 90px;
-}
-
-/* The contenteditable area */
-.rte-editor {
-  padding: 14px 16px;
-  outline: none;
-  color: var(--text2);
-  font-family: 'Zen Antique Soft', serif;
-  line-height: 1.85;
-  min-height: 120px;
-  cursor: text;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-y: auto;
-  max-height: 420px;
-}
-.rte-editor:empty::before {
-  content: attr(data-placeholder);
-  color: rgba(255,255,255,0.18);
-  pointer-events: none;
-  white-space: pre-wrap;
-  font-style: italic;
-  font-size: 13px;
-}
-
-/* Styles inside rte-editor */
-.rte-editor b, .rte-editor strong { color: var(--text); }
-.rte-editor h1 { font-family: 'Cinzel', serif; font-size: 20px; color: var(--gold); letter-spacing: 0.05em; margin: 12px 0 6px; }
-.rte-editor h2 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--gold2); letter-spacing: 0.04em; margin: 10px 0 5px; }
-.rte-editor h3 { font-size: 14px; font-weight: 700; color: var(--text); margin: 8px 0 4px; letter-spacing: 0.03em; }
-.rte-editor blockquote {
-  border-left: 3px solid rgba(201,162,39,0.45); padding: 4px 14px;
-  margin: 10px 0; color: rgba(255,255,255,0.5); font-style: italic;
-  background: rgba(201,162,39,0.04); border-radius: 0 6px 6px 0;
-}
-.rte-editor hr { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 14px 0; }
-.rte-editor ul, .rte-editor ol { padding-left: 20px; margin: 6px 0; }
-.rte-editor li { margin-bottom: 3px; }
-.rte-editor a { color: var(--gold2); text-decoration: underline; }
-
-/* Light mode adjustments */
-body.light-mode .rte-wrap { background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.1); }
-body.light-mode .rte-toolbar { background: rgba(0,0,0,0.025); border-bottom-color: rgba(0,0,0,0.06); }
-body.light-mode .rte-btn { color: rgba(0,0,0,0.4); }
-body.light-mode .rte-btn:hover { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.75); }
-body.light-mode .rte-editor { color: var(--text2); }
-body.light-mode .rte-editor:empty::before { color: rgba(0,0,0,0.25); }
-body.light-mode .rte-color-picker-dropdown { background: rgba(248,248,255,0.99); border-color: rgba(0,0,0,0.1); }
-body.light-mode .rte-size-sel, body.light-mode .rte-heading-sel { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); color: rgba(0,0,0,0.55); }
-
-/* Entry body (affichage) */
-.rp-entry-body, .ns-entry-body {
-  white-space: normal;
-}
-.rp-entry-body b, .ns-entry-body b,
-.rp-entry-body strong, .ns-entry-body strong { color: var(--text); }
-.rp-entry-body h1, .ns-entry-body h1 { font-family: 'Cinzel', serif; font-size: 20px; color: var(--gold); letter-spacing: 0.05em; margin: 12px 0 6px; }
-.rp-entry-body h2, .ns-entry-body h2 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--gold2); letter-spacing: 0.04em; margin: 10px 0 5px; }
-.rp-entry-body blockquote, .ns-entry-body blockquote {
-  border-left: 3px solid rgba(201,162,39,0.45); padding: 4px 14px;
-  margin: 10px 0; color: rgba(255,255,255,0.5); font-style: italic;
-  background: rgba(201,162,39,0.04); border-radius: 0 6px 6px 0;
-}
 </style>
 </head>
 <body>
@@ -3296,7 +2942,6 @@ body.light-mode .rte-size-sel, body.light-mode .rte-heading-sel { background: rg
             <span style="letter-spacing:0.05em">Rechercher</span>
             <span style="font-size:9px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-family:'Share Tech Mono',monospace">Ctrl K</span>
           </div>
-          <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn" title="Changer le thème">🌙</button>
           <div class="notif-bell" id="notif-bell" onclick="toggleNotifDropdown()" title="Notifications">
             🔔
             <span class="notif-count" id="notif-count"></span>
@@ -4090,11 +3735,7 @@ body.light-mode .rte-size-sel, body.light-mode .rte-heading-sel { background: rg
     </div>
     <div class="fg">
       <label class="fl">Contenu RP *</label>
-      <div class="rte-wrap" id="narr-rte-wrap">
-        <div class="rte-toolbar" id="narr-rte-toolbar" onmousedown="return false"></div>
-        <div class="rte-editor rp-textarea" id="narr-content-editor" contenteditable="true" data-placeholder="Rédigez votre narration, les actions de votre personnage, le contexte de la scène…&#10;&#10;Ex : Dans les ruelles sombres de Shibuya, l'énergie maudite commence à se manifester…" style="min-height:160px;font-size:14px"></div>
-        <textarea id="narr-content" style="display:none"></textarea>
-      </div>
+      <textarea class="rp-textarea" id="narr-content" placeholder="Rédigez votre narration, les actions de votre personnage, le contexte de la scène…&#10;&#10;Ex : Dans les ruelles sombres de Shibuya, l'énergie maudite commence à se manifester…" style="min-height:160px;font-size:14px"></textarea>
     </div>
     <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,191,0.25),transparent);margin:4px 0 16px"></div>
     <div style="font-size:9px;color:var(--purple2);text-transform:uppercase;letter-spacing:0.22em;margin-bottom:12px;display:flex;align-items:center;gap:8px">
@@ -4681,11 +4322,7 @@ body.light-mode .rte-size-sel, body.light-mode .rte-heading-sel { background: rg
       <!-- Contenu -->
       <div>
         <label class="fl" style="font-size:10px">CONTENU RP *</label>
-        <div class="rte-wrap" id="ns-rte-wrap" style="margin-top:6px">
-          <div class="rte-toolbar rte-toolbar-compact" id="ns-rte-toolbar" onmousedown="return false"></div>
-          <div class="rte-editor ns-textarea" id="ns-content-editor" contenteditable="true" data-placeholder="Rédigez la scène, les actions, les pensées de votre personnage…" style="min-height:200px"></div>
-          <textarea id="ns-content" style="display:none"></textarea>
-        </div>
+        <textarea class="ns-textarea" id="ns-content" placeholder="Rédigez la scène, les actions, les pensées de votre personnage…&#10;&#10;Exemple : Dans les ruelles de Shibuya, l'énergie maudite commençait à se manifester…" style="margin-top:6px;min-height:200px"></textarea>
         <div style="text-align:right;font-size:10px;color:var(--muted);margin-top:4px" id="ns-charcount">0 caractères</div>
       </div>
 
@@ -4710,64 +4347,6 @@ body.light-mode .rte-size-sel, body.light-mode .rte-heading-sel { background: rg
 </div>
 
 <!-- ══ FIREBASE SDK ══ -->
-
-<!-- Modal de confirmation stylée (remplace les confirm() natifs) -->
-<div id="confirm-modal-overlay">
-  <div id="confirm-modal-box">
-    <span class="confirm-icon" id="confirm-icon">⚠️</span>
-    <div class="confirm-title" id="confirm-title">Confirmer</div>
-    <div class="confirm-msg" id="confirm-msg">Êtes-vous sûr de vouloir effectuer cette action ?</div>
-    <div class="confirm-input-wrap" id="confirm-input-wrap" style="display:none">
-      <input class="fi" id="confirm-input" type="text" placeholder="">
-    </div>
-    <div class="confirm-footer">
-      <button class="btn btn-ghost" id="confirm-cancel-btn" onclick="confirmCancel()">Annuler</button>
-      <button class="btn btn-danger" id="confirm-ok-btn" onclick="confirmOk()">Confirmer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal note interne staff -->
-<div class="modal-overlay" id="modal-internal-note">
-  <div class="modal" style="max-width:480px">
-    <div class="modal-header">
-      <div class="modal-title">📝 Note Interne Staff</div>
-      <button class="modal-close" onclick="closeModal('modal-internal-note')">✕</button>
-    </div>
-    <div class="alert alert-info" style="margin-bottom:18px">Cette note est <strong>invisible pour le joueur</strong>. Visible uniquement par le staff.</div>
-    <div class="fg">
-      <label class="fl">Note</label>
-      <textarea class="fi" id="internal-note-text" placeholder="Observations, contexte, rappels pour le staff…" style="min-height:120px"></textarea>
-      <div class="word-counter" id="internal-note-counter">0 mots</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-internal-note')">Annuler</button>
-      <button class="btn btn-primary" onclick="saveInternalNote()">💾 Enregistrer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal tags inline -->
-<div class="modal-overlay" id="modal-tkt-tags">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
-      <div class="modal-title">🏷 Tags du ticket</div>
-      <button class="modal-close" onclick="closeModal('modal-tkt-tags')">✕</button>
-    </div>
-    <div class="fg">
-      <label class="fl">Tags <span style="color:var(--muted);font-weight:400">(Entrée pour ajouter)</span></label>
-      <div class="tag-input-row" id="tag-chips-wrap" onclick="document.getElementById('tag-bare-input').focus()">
-        <input class="tag-input-bare" id="tag-bare-input" placeholder="Ajouter un tag…" onkeydown="handleTagInput(event)">
-      </div>
-    </div>
-    <div style="font-size:10.5px;color:var(--muted2);margin-top:-8px;margin-bottom:18px">Suggestions : <span style="cursor:pointer;color:var(--gold2)" onclick="addTag('urgent')">urgent</span> · <span style="cursor:pointer;color:var(--gold2)" onclick="addTag('rp-long')">rp-long</span> · <span style="cursor:pointer;color:var(--gold2)" onclick="addTag('vérification')">vérification</span> · <span style="cursor:pointer;color:var(--gold2)" onclick="addTag('prioritaire')">prioritaire</span></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-tkt-tags')">Annuler</button>
-      <button class="btn btn-primary" onclick="saveTagsModal()">Enregistrer</button>
-    </div>
-  </div>
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -5240,7 +4819,29 @@ const PAGE_LABELS = {
   tickets: 'Mes Tickets', 'all-tickets': 'Gestion des Tickets', narrations: 'Suivis RP',
   panel: 'Panel Staff', stats: 'Statistiques', logs: 'Journaux', roles: 'Rôles & Perms', export: 'Export données'
 };
-// [V14: async function deleteSub(id) {]
+async function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const activePage = document.getElementById('page-' + id);
+  if (activePage) { activePage.classList.add('active'); void activePage.offsetHeight; }
+  document.getElementById('nav-' + id)?.classList.add('active');
+  document.getElementById('bc-current').textContent = PAGE_LABELS[id] || id;
+  invalidateCache('users','subs','demandes','logs','annonces','notifs');
+  if (id === 'tickets') { await renderMyTickets(); await updateTktBadge(); }
+  if (id === 'narrations') { await renderNarrations(); }
+  if (id === 'all-tickets') { await renderAllTickets(); }
+  if (id === 'dashboard') await renderDashboard();
+  if (id === 'catalogue') await renderCatalogue();
+  if (id === 'annonces') { await renderAnnonces(); localStorage.setItem('jjk_ann_seen', Date.now()); await updateAnnoncesBadge(); }
+  if (id === 'classement') await renderClassement();
+
+  if (id === 'profil') await renderProfil();
+  if (id === 'panel') { await renderStaffStats(); await renderPanelSubs(); await renderPanelDemandes(); await renderPanelMembers(); }
+  if (id === 'stats') await renderStats();
+  if (id === 'logs') await renderLogs();
+  if (id === 'roles') await renderRoles();
+  if (id === 'export') {}
+}
 function switchInnerTab(btn, id) {
   const container = btn.closest('.inner-tabs').parentElement;
   container.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
@@ -6102,6 +5703,16 @@ async function saveSub() {
   _cache.subs = null;
   closeModal('modal-sub'); await renderPanelSubs(); await renderStaffStats();
 }
+async function deleteSub(id) {
+  if (!hasPerm(CU, 'manage_subs')) { toast('Permission refusée.', 'error'); return; }
+  const subs = await getSubs();
+  const s = subs.find(x => x.id === id);
+  if (!confirm('Supprimer ce sub-jutsu ?')) return;
+  await fsDelete('subs', id);
+  _cache.subs = null;
+  await addLog('sub', 'a supprimé le sub-jutsu', { sub: s?.nom });
+  await renderPanelSubs(); await renderStaffStats(); toast('Supprimé.', 'success');
+}
 async function renderPanelSubs() {
   const q = (document.getElementById('ps-search').value || '').toLowerCase();
   const [allSubs, allDems] = await Promise.all([getSubs(), getDemandes()]);
@@ -6686,6 +6297,14 @@ async function saveAnnonce() {
   closeModal('modal-annonce');
   await renderAnnonces();
   await updateAnnoncesBadge();
+}
+async function deleteAnnonce(id) {
+  if (!confirm('Supprimer cette annonce ?')) return;
+  await fsDelete('annonces', id);
+  _cache.annonces = null;
+  await addLog('system', 'a supprimé une annonce');
+  await renderAnnonces();
+  toast('Annonce supprimée.', 'info');
 }
 async function updateAnnoncesBadge() {
   const badge = document.getElementById('nav-badge-annonces');
@@ -7312,6 +6931,18 @@ async function changeTicketPriority(demId, prio) {
   await openTicketDetail(demId);
 }
 
+// Tags modal (simple prompt)
+async function openTktTagModal(demId) {
+  const d = await fsGetOne('demandes', demId);
+  const current = (d.tags||[]).join(', ');
+  const input = prompt('Tags (séparés par virgule) :', current);
+  if (input === null) return;
+  const tags = input.split(',').map(t=>t.trim().toLowerCase().replace(/[^a-z0-9\-]/g,'')).filter(Boolean);
+  await fsUpdate('demandes', demId, { tags });
+  _cache.demandes = null;
+  toast('Tags mis à jour.', 'success');
+  await openTicketDetail(demId);
+}
 
 // ── Traitement staff ────────────────────────────────────
 
@@ -7444,7 +7075,29 @@ async function updateTktBadge() {
   if (b) { b.textContent = pending; b.style.display = pending > 0 ? '' : 'none'; }
 }
 
-// [removed duplicate — replaced by V14 version]
+// ── Révoquer un sub-jutsu approuvé ─────────────────────
+async function revokeSubJutsu(demId) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
+  const d = dems.find(x => x.id === demId); if (!d) return;
+  const s = subs.find(x => x.id === d.subId) || { nom: '?' };
+  const u = users.find(x => x.id === d.userId) || { username: '?', nomrp: '?' };
+  const reason = prompt(`Raison de la révocation du sub-jutsu "${s.nom}" pour ${u.nomrp || u.username} :`);
+  if (reason === null) return;
+  const now = new Date().toISOString();
+  const tl = d.timeline || [];
+  const tlRevoke = { ts: now, actor: CU.username, action: `a révoqué ce sub-jutsu${reason ? ' — ' + reason : ''}`, icon: '🚫' };
+  if (reason) tlRevoke.note = reason;
+  tl.push(tlRevoke);
+  await fsUpdate('demandes', demId, { status: 'revoked', revokedAt: now, revokedBy: CU.username, revokeReason: reason || '', timeline: tl });
+  _cache.demandes = null;
+  await addLog('demande', `a révoqué le sub-jutsu "${s.nom}" de @${u.username}${reason ? ' ('+reason+')' : ''}`, { sub: s.nom });
+  await pushNotif(d.userId, `🚫 Votre sub-jutsu "${s.nom}" a été révoqué par @${CU.username}.${reason ? ' Raison : ' + reason : ''}`, 'demande_rejected');
+  closeModal('modal-ticket-detail');
+  await renderAllTickets();
+  await renderPanelDemandes();
+  toast(`Sub-jutsu "${s.nom}" révoqué.`, 'error');
+}
 
 // ── Rouvrir un ticket refusé ou révoqué ────────────────
 async function reopenTicket(demId) {
@@ -7465,9 +7118,32 @@ async function reopenTicket(demId) {
   toast('Ticket rouvert.', 'info');
 }
 
-// [removed duplicate — replaced by V14 version]
+// ── Supprimer définitivement un ticket ─────────────────
+async function deleteTicket(demId) {
+  if (!hasPerm(CU, 'manage_users')) { toast('Permission refusée.', 'error'); return; }
+  if (!confirm('Supprimer définitivement ce ticket ? Cette action est irréversible.')) return;
+  const d = await fsGetOne('demandes', demId);
+  await fsDelete('demandes', demId);
+  _cache.demandes = null;
+  await addLog('demande', `a supprimé le ticket ${d?.ticketNum || demId}`, {});
+  closeModal('modal-ticket-detail');
+  await renderAllTickets();
+  await renderPanelDemandes();
+  toast('Ticket supprimé.', 'info');
+}
 
-// [openTktInternalNote replaced by V14 version]
+// ── Note interne staff ─────────────────────────────────
+async function openTktInternalNote(demId) {
+  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  const d = await fsGetOne('demandes', demId);
+  const current = d.internalNote || '';
+  const note = prompt('Note interne staff (non visible par le joueur) :', current);
+  if (note === null) return;
+  await fsUpdate('demandes', demId, { internalNote: note });
+  _cache.demandes = null;
+  toast('Note interne enregistrée.', 'success');
+  await openTicketDetail(demId);
+}
 
 // ── Export tickets CSV ──────────────────────────────────
 async function exportTicketsCSV() {
@@ -7664,7 +7340,7 @@ function renderRpEntries(d) {
         <span class="rp-entry-author">${esc(e.author || e.authorName || '?')}</span>
         <span class="rp-entry-time">${fmtDateTime(e.ts)}</span>
       </div>
-      <div class="rp-entry-body">${renderRteContent(e.content)}</div>
+      <div class="rp-entry-body">${esc(e.content)}</div>
       ${imgsHtml}
       ${linksHtml}
       ${repliesHtml}
@@ -7821,6 +7497,10 @@ const NARR_TYPE_META = {
 // Ouvre la modal pour créer une nouvelle narration
 let _currentNarrDemId = null;
 
+function openModalNewNarrationForDem(demId) {
+  _currentNarrDemId = demId;
+  openModalNewNarration();
+}
 
 async function openModalNewNarration() {
   // Vérifier qu'il existe au moins un ticket approuvé + rpOpen accessible
@@ -7875,9 +7555,64 @@ async function openModalNewNarration() {
 }
 
 // Ouvre en mode édition
+async function openEditNarration(narrId) {
+  const d = await fsGetOne('narrations', narrId);
+  if (!d) return;
+  if (d.authorId !== CU.id && !hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  document.getElementById('narr-modal-title').textContent = 'Modifier la Narration';
+  document.getElementById('narr-titre').value = d.titre || '';
+  document.getElementById('narr-modal-type').value = d.type || 'suivi_normal';
+  document.getElementById('narr-author').value = d.author || '';
+  document.getElementById('narr-content').value = d.content || '';
+  document.getElementById('narr-links').value = (d.links||[]).map(l => l.label !== l.url ? l.label + ' | ' + l.url : l.url).join('\n');
+  document.getElementById('narr-images-preview').innerHTML = '';
+  _imgStore.narr = [];
+  _editingNarrId = narrId;
+  openModal('modal-narration');
+}
 
 let _editingNarrId = null;
 
+async function saveNarration() {
+  const titre   = document.getElementById('narr-titre').value.trim();
+  const type    = document.getElementById('narr-modal-type').value;
+  const author  = document.getElementById('narr-author').value.trim() || CU.nomrp || CU.username;
+  const content = document.getElementById('narr-content').value.trim();
+  if (!titre)   { toast('Le titre est requis.', 'error'); return; }
+  if (!content) { toast('Le contenu est requis.', 'error'); return; }
+
+  const images = _imgStore.narr.map(img => img.dataUrl);
+  const linksRaw = document.getElementById('narr-links').value.trim();
+  const links = linksRaw ? linksRaw.split('\n').map(l => {
+    const parts = l.split('|');
+    const url = (parts[1]||parts[0]).trim();
+    const label = parts.length > 1 ? parts[0].trim() : url;
+    return url.startsWith('http') ? { label, url } : null;
+  }).filter(Boolean) : [];
+
+  const now = new Date().toISOString();
+  if (_editingNarrId) {
+    await fsUpdate('narrations', _editingNarrId, { titre, type, author, content, images, links, updatedAt: now });
+    toast('Narration mise à jour !', 'success');
+  } else {
+    const id = 'narr' + Date.now();
+    const demIdForNarr = document.getElementById('narr-dem-select')?.value || _currentNarrDemId || null;
+    await fsSet('narrations', id, {
+      id, titre, type, author, content, images, links,
+      authorId: CU.id, authorRole: CU.role,
+      demId: demIdForNarr,
+      createdAt: now, mjReplies: []
+    });
+    _currentNarrDemId = null;
+    toast('✦ Narration publiée !', 'success');
+    await addLog('narration', `a publié la narration "${titre}"`);
+  }
+  _editingNarrId = null;
+  _imgStore.narr = [];
+  closeModal('modal-narration');
+  await renderNarrations();
+  updateNarrBadge();
+}
 
 async function deleteNarration(narrId) {
   if (!confirm('Supprimer définitivement cette narration ?')) return;
@@ -7928,7 +7663,11 @@ async function deleteNarrMJReply(narrId, replyIdx) {
   await renderNarrations();
 }
 
-// [removed duplicate — replaced by V14 version]
+function updateNarrBadge() {
+  // future: badge count
+  const b = document.getElementById('nav-badge-narrations');
+  if (b) b.style.display = 'none';
+}
 
 async function handleNarrImageFiles(files) {
   const loaded = await _readFilesAsBase64(files);
@@ -8096,7 +7835,7 @@ async function renderNarrations() {
           <span class="rp-entry-author">${esc(n.author||'?')}</span>
           <span class="rp-entry-time">${fmtDateTime(n.createdAt)}</span>
         </div>
-        <div class="rp-entry-body">${renderRteContent(n.content)}</div>
+        <div class="rp-entry-body">${esc(n.content)}</div>
         ${imgsHtml}
         ${linksHtml}
         ${repliesHtml}
@@ -8579,7 +8318,7 @@ async function nsRefreshEntries() {
             ${canDel?`<button class="ns-action-btn danger" onclick="nsDeleteEntry(${realIdx})" title="Supprimer">🗑</button>`:''}
           </div>
         </div>
-        <div class="ns-entry-body">${renderRteContent(e.content)}</div>
+        <div class="ns-entry-body">${esc(e.content)}</div>
         ${imgsHtml}${linksHtml}
         ${repliesHtml}
         ${mjBtn}
@@ -8623,6 +8362,9 @@ async function nsOpenEditForm(idx) {
   document.getElementById('ns-form-panel').classList.add('open');
 }
 
+function nsCloseForm() {
+  document.getElementById('ns-form-panel').classList.remove('open');
+}
 
 function nsSelectType(el) {
   document.querySelectorAll('.ns-type-option').forEach(o=>o.classList.remove('selected'));
@@ -8639,6 +8381,45 @@ document.getElementById('ns-content')?.addEventListener('input', function() {
   document.getElementById('ns-charcount').textContent = this.value.length+' caractères';
 });
 
+async function nsSubmitEntry() {
+  const content = document.getElementById('ns-content').value.trim();
+  if (!content) { toast('Le contenu est requis.', 'error'); return; }
+  if (!_nsCurrentTktId) return;
+
+  const type     = document.querySelector('.ns-type-option.selected')?.dataset.type||'narration';
+  const titre    = document.getElementById('ns-titre').value.trim();
+  const author   = document.getElementById('ns-author').value.trim()||CU.nomrp||CU.username;
+  const lieu     = document.getElementById('ns-lieu').value.trim();
+  const linksRaw = document.getElementById('ns-links').value.trim();
+  const links    = linksRaw ? linksRaw.split('\n').map(l=>{
+    const parts=l.split('|');const url=(parts[1]||parts[0]).trim();const label=parts.length>1?parts[0].trim():url;
+    return url.startsWith('http')?{label,url}:null;
+  }).filter(Boolean) : [];
+
+  const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
+  const entries = d.rpEntries||[];
+  const editIdx = document.getElementById('ns-editing-idx').value;
+  const now = new Date().toISOString();
+
+  if (editIdx !== '') {
+    const idx = parseInt(editIdx);
+    entries[idx] = {...entries[idx], type, titre, author, content, lieu, moods:_nsMood, links, updatedAt:now};
+    const tl=d.timeline||[]; tl.push({ts:now,actor:CU.nomrp||CU.username,action:'a modifié une narration',icon:NS_TYPE_META[type]?.icon||'📜'});
+    await fsUpdate('demandes', _nsCurrentTktId, {rpEntries:entries,timeline:tl});
+    toast('✦ Narration modifiée !', 'success');
+  } else {
+    const entry = {type,titre,author,content,lieu,moods:_nsMood,links,images:[],
+      authorId:CU.id,authorName:CU.nomrp||CU.username,authorRole:CU.role,mjReplies:[],ts:now};
+    entries.push(entry);
+    const tl=d.timeline||[]; tl.push({ts:now,actor:CU.nomrp||CU.username,action:`a ajouté une narration (${NS_TYPE_META[type]?.label||type})`,icon:NS_TYPE_META[type]?.icon||'📜'});
+    await fsUpdate('demandes', _nsCurrentTktId, {rpEntries:entries,timeline:tl});
+    if (d.userId !== CU.id) await pushNotif(d.userId, `📜 @${CU.username} a ajouté une narration sur votre ticket ${d.ticketNum||''}.`, 'system');
+    toast('✦ Narration publiée !', 'success');
+  }
+  _cache.demandes = null;
+  nsCloseForm();
+  await nsRefreshEntries();
+}
 
 async function nsDeleteEntry(idx) {
   if (!confirm('Supprimer cette narration ?')) return;
@@ -8776,852 +8557,14 @@ function buildMasteryNotifMessage(subName, level, mjNote) {
   return msg;
 }
 
-// ══════════════════════════════════════════════════════
-//  ✦ NOUVELLES FONCTIONNALITÉS V14
-// ══════════════════════════════════════════════════════
-
-// ── 1. MODAL DE CONFIRMATION STYLÉE (remplace confirm() natif) ──
-let _confirmResolve = null;
-
-function showConfirm({ title = 'Confirmer', msg = '', icon = '⚠️', okLabel = 'Confirmer', okClass = 'btn-danger', inputLabel = null, inputPlaceholder = '' } = {}) {
-  return new Promise(resolve => {
-    _confirmResolve = resolve;
-    document.getElementById('confirm-icon').textContent = icon;
-    document.getElementById('confirm-title').textContent = title;
-    document.getElementById('confirm-msg').textContent = msg;
-    const okBtn = document.getElementById('confirm-ok-btn');
-    okBtn.textContent = okLabel;
-    okBtn.className = `btn ${okClass}`;
-    const inputWrap = document.getElementById('confirm-input-wrap');
-    const inputEl   = document.getElementById('confirm-input');
-    if (inputLabel) {
-      inputWrap.style.display = '';
-      inputEl.placeholder = inputPlaceholder;
-      inputEl.value = '';
-      document.getElementById('confirm-msg').textContent = msg;
-      setTimeout(() => inputEl.focus(), 100);
-    } else {
-      inputWrap.style.display = 'none';
-    }
-    document.getElementById('confirm-modal-overlay').classList.add('open');
-  });
-}
-function confirmOk() {
-  const inputEl = document.getElementById('confirm-input');
-  const val = inputEl.value.trim();
-  document.getElementById('confirm-modal-overlay').classList.remove('open');
-  if (_confirmResolve) _confirmResolve({ confirmed: true, value: val });
-  _confirmResolve = null;
-}
-function confirmCancel() {
-  document.getElementById('confirm-modal-overlay').classList.remove('open');
-  if (_confirmResolve) _confirmResolve({ confirmed: false, value: '' });
-  _confirmResolve = null;
-}
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && document.getElementById('confirm-modal-overlay')?.classList.contains('open')) confirmCancel();
-});
-
-// ── 2. TOGGLE THÈME CLAIR/SOMBRE ──
-function toggleTheme() {
-  const isLight = document.body.classList.toggle('light-mode');
-  localStorage.setItem('jjk_theme', isLight ? 'light' : 'dark');
-  const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = isLight ? '☀️' : '🌙';
-}
-// Appliquer le thème sauvegardé au démarrage
-(function applyTheme() {
-  const saved = localStorage.getItem('jjk_theme');
-  if (saved === 'light') {
-    document.body.classList.add('light-mode');
-    const btn = document.getElementById('theme-btn');
-    if (btn) btn.textContent = '☀️';
-  }
-})();
-
-// ── 3. COPIER LE NUMÉRO DE TICKET ──
-function copyTicketNum(num, el) {
-  navigator.clipboard?.writeText(num).then(() => {
-    if (el) {
-      el.classList.add('copied');
-      el.textContent = '✓';
-      setTimeout(() => { el.classList.remove('copied'); el.textContent = '📋'; }, 1800);
-    }
-    toast(`N° ${num} copié !`, 'success');
-  }).catch(() => toast('Copie non supportée', 'error'));
-}
-
-// ── 4. COMPTEUR DE MOTS ──
-function attachWordCounter(textareaId, counterId) {
-  const ta = document.getElementById(textareaId);
-  const ctr = document.getElementById(counterId);
-  if (!ta || !ctr) return;
-  const update = () => {
-    const words = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
-    const chars = ta.value.length;
-    ctr.textContent = `${words} mot${words !== 1 ? 's' : ''} · ${chars} car.`;
-    ctr.classList.toggle('has-content', words > 0);
-  };
-  ta.addEventListener('input', update);
-  update();
-}
-
-// ── 5. AUTO-SAVE DRAFT ──
-const _drafts = {};
-function setupDraft(fieldId, draftKey, indicatorId) {
-  const el = document.getElementById(fieldId);
-  if (!el) return;
-  // Charger le brouillon existant
-  const saved = localStorage.getItem('jjk_draft_' + draftKey);
-  if (saved && !el.value) { el.value = saved; }
-  let _timer;
-  el.addEventListener('input', () => {
-    clearTimeout(_timer);
-    _timer = setTimeout(() => {
-      if (el.value.trim()) {
-        localStorage.setItem('jjk_draft_' + draftKey, el.value);
-        const ind = document.getElementById(indicatorId);
-        if (ind) { ind.classList.add('visible'); setTimeout(() => ind.classList.remove('visible'), 2000); }
-      } else {
-        localStorage.removeItem('jjk_draft_' + draftKey);
-      }
-    }, 800);
-  });
-}
-function clearDraft(draftKey) {
-  localStorage.removeItem('jjk_draft_' + draftKey);
-}
-
-// ── 6. BADGE NARRATIONS FONCTIONNEL ──
-async function updateNarrBadge() {
-  const b = document.getElementById('nav-badge-narrations');
-  if (!b || !CU) return;
-  try {
-    const narrs = await fsGetAll('narrations');
-    const lastSeen = parseInt(localStorage.getItem('jjk_narr_seen') || '0');
-    const isMJ = hasPerm(CU, 'approve_requests');
-    // Pour un joueur : nouvelles réponses MJ sur ses narrations
-    // Pour un MJ : nouvelles narrations de joueurs
-    let unseen = 0;
-    if (isMJ) {
-      unseen = narrs.filter(n => n.authorId !== CU.id && new Date(n.createdAt||'').getTime() > lastSeen).length;
-    } else {
-      unseen = narrs.filter(n => n.authorId === CU.id && (n.mjReplies||[]).some(r => new Date(r.ts||'').getTime() > lastSeen)).length;
-    }
-    b.style.display = unseen > 0 ? '' : 'none';
-    b.textContent = unseen > 9 ? '9+' : String(unseen);
-    b.style.background = 'linear-gradient(135deg, var(--purple2), var(--purple))';
-    b.style.boxShadow = '0 0 10px rgba(167,139,250,0.5)';
-  } catch(e) { /* silencieux */ }
-}
-
-// ── 7. NOTE INTERNE — vrai modal (remplace prompt()) ──
-let _internalNoteTktId = null;
-async function openTktInternalNote(demId) {
-  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
-  _internalNoteTktId = demId;
-  const d = await fsGetOne('demandes', demId);
-  document.getElementById('internal-note-text').value = d?.internalNote || '';
-  // Attacher compteur de mots
-  attachWordCounter('internal-note-text', 'internal-note-counter');
-  openModal('modal-internal-note');
-}
-async function saveInternalNote() {
-  if (!_internalNoteTktId) return;
-  const note = document.getElementById('internal-note-text').value.trim();
-  await fsUpdate('demandes', _internalNoteTktId, { internalNote: note });
-  _cache.demandes = null;
-  closeModal('modal-internal-note');
-  toast('📝 Note interne enregistrée.', 'success');
-  await openTicketDetail(_internalNoteTktId);
-}
-
-// ── 8. TAGS — vrai modal avec chips (remplace prompt()) ──
-let _tagModalTktId = null;
-let _currentTags = [];
-
-async function openTktTagModal(demId) {
-  _tagModalTktId = demId;
-  const d = await fsGetOne('demandes', demId);
-  _currentTags = [...(d?.tags || [])];
-  renderTagChips();
-  document.getElementById('tag-bare-input').value = '';
-  openModal('modal-tkt-tags');
-  setTimeout(() => document.getElementById('tag-bare-input')?.focus(), 150);
-}
-function renderTagChips() {
-  const wrap = document.getElementById('tag-chips-wrap');
-  const input = document.getElementById('tag-bare-input');
-  if (!wrap) return;
-  // Supprimer anciens chips mais garder l'input
-  wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
-  _currentTags.forEach((tag, i) => {
-    const chip = document.createElement('span');
-    chip.className = 'tag-chip';
-    chip.innerHTML = `#${esc(tag)} <button class="tag-chip-remove" onclick="removeTag(${i})" title="Supprimer">✕</button>`;
-    wrap.insertBefore(chip, input);
-  });
-}
-function removeTag(i) {
-  _currentTags.splice(i, 1);
-  renderTagChips();
-}
-function addTag(tag) {
-  const clean = tag.trim().toLowerCase().replace(/[^a-z0-9\-éèêëàâîïùûç]/g, '').slice(0, 20);
-  if (clean && !_currentTags.includes(clean) && _currentTags.length < 8) {
-    _currentTags.push(clean);
-    renderTagChips();
-    document.getElementById('tag-bare-input').value = '';
-  }
-}
-function handleTagInput(e) {
-  if (e.key === 'Enter' || e.key === ',') {
-    e.preventDefault();
-    addTag(e.target.value);
-  } else if (e.key === 'Backspace' && !e.target.value && _currentTags.length > 0) {
-    _currentTags.pop();
-    renderTagChips();
-  }
-}
-async function saveTagsModal() {
-  if (!_tagModalTktId) return;
-  await fsUpdate('demandes', _tagModalTktId, { tags: _currentTags });
-  _cache.demandes = null;
-  closeModal('modal-tkt-tags');
-  toast('🏷 Tags mis à jour.', 'success');
-  await openTicketDetail(_tagModalTktId);
-}
-
-// ── 9. RÉVOCATION — vrai modal (remplace prompt()) ──
-async function revokeSubJutsu(demId) {
-  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
-  const result = await showConfirm({
-    title: 'Révoquer le Sub-Jutsu',
-    icon: '🚫',
-    msg: 'Cette action va retirer ce sub-jutsu au joueur. Indiquez une raison ci-dessous.',
-    okLabel: '🚫 Révoquer',
-    okClass: 'btn-danger',
-    inputLabel: 'Raison',
-    inputPlaceholder: 'Raison de la révocation…'
-  });
-  if (!result.confirmed) return;
-  const reason = result.value;
-  const [dems, subs, users] = await Promise.all([getDemandes(), getSubs(), getUsers()]);
-  const d = dems.find(x => x.id === demId); if (!d) return;
-  const s = subs.find(x => x.id === d.subId) || { nom: '?' };
-  const u = users.find(x => x.id === d.userId) || { username: '?', nomrp: '?' };
-  const now = new Date().toISOString();
-  const tl = d.timeline || [];
-  const tlRevoke = { ts: now, actor: CU.username, action: `a révoqué ce sub-jutsu${reason ? ' — ' + reason : ''}`, icon: '🚫' };
-  if (reason) tlRevoke.note = reason;
-  tl.push(tlRevoke);
-  await fsUpdate('demandes', demId, { status: 'revoked', revokedAt: now, revokedBy: CU.username, revokeReason: reason || '', timeline: tl });
-  _cache.demandes = null;
-  await addLog('demande', `a révoqué le sub-jutsu "${s.nom}" de @${u.username}${reason ? ' ('+reason+')' : ''}`, { sub: s.nom });
-  await pushNotif(d.userId, `🚫 Votre sub-jutsu "${s.nom}" a été révoqué par @${CU.username}.${reason ? ' Raison : ' + reason : ''}`, 'demande_rejected');
-  closeModal('modal-ticket-detail');
-  await renderAllTickets();
-  await renderPanelDemandes();
-  toast(`Sub-jutsu "${s.nom}" révoqué.`, 'error');
-}
-
-// ── 10. SUPPRESSION TICKET — vrai modal ──
-async function deleteTicket(demId) {
-  if (!hasPerm(CU, 'manage_users')) { toast('Permission refusée.', 'error'); return; }
-  const result = await showConfirm({
-    title: 'Supprimer le ticket',
-    icon: '🗑',
-    msg: 'Supprimer définitivement ce ticket ? Cette action est irréversible.',
-    okLabel: '🗑 Supprimer',
-    okClass: 'btn-danger'
-  });
-  if (!result.confirmed) return;
-  const d = await fsGetOne('demandes', demId);
-  await fsDelete('demandes', demId);
-  _cache.demandes = null;
-  await addLog('demande', `a supprimé le ticket ${d?.ticketNum || demId}`, {});
-  closeModal('modal-ticket-detail');
-  await renderAllTickets();
-  await renderPanelDemandes();
-  toast('Ticket supprimé.', 'info');
-}
-
-// ── 11. SUPPRESSION SUB-JUTSU — vrai modal ──
-async function deleteSub(id) {
-  if (!hasPerm(CU, 'manage_subs')) { toast('Permission refusée.', 'error'); return; }
-  const subs = await getSubs();
-  const s = subs.find(x => x.id === id);
-  const result = await showConfirm({
-    title: 'Supprimer le Sub-Jutsu',
-    icon: '⚡',
-    msg: `Supprimer "${s?.nom || 'ce sub-jutsu'}" définitivement ? Les demandes liées resteront en base.`,
-    okLabel: 'Supprimer',
-    okClass: 'btn-danger'
-  });
-  if (!result.confirmed) return;
-  await fsDelete('subs', id);
-  _cache.subs = null;
-  await addLog('sub', 'a supprimé le sub-jutsu', { sub: s?.nom });
-  await renderPanelSubs(); await renderStaffStats(); toast('Supprimé.', 'success');
-}
-
-// ── 12. SUPPRESSION ANNONCE — vrai modal ──
-async function deleteAnnonce(id) {
-  const result = await showConfirm({
-    title: 'Supprimer l\'annonce',
-    icon: '📣',
-    msg: 'Cette annonce sera supprimée définitivement.',
-    okLabel: 'Supprimer',
-    okClass: 'btn-danger'
-  });
-  if (!result.confirmed) return;
-  await fsDelete('annonces', id);
-  _cache.annonces = null;
-  await addLog('system', 'a supprimé une annonce');
-  await renderAnnonces();
-  toast('Annonce supprimée.', 'info');
-}
-
-// ── 13. AUTO-RESIZE TEXTAREA ──
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 400) + 'px';
-}
-// Attacher sur tous les .fi-auto
-document.addEventListener('input', e => {
-  if (e.target.classList.contains('fi-auto')) autoResize(e.target);
-});
-
-// ── 14. INDICATEUR EN LIGNE DANS LA SIDEBAR ──
-function updateOnlineStatus() {
-  const el = document.getElementById('sb-online-status');
-  if (!el || !CU) return;
-  el.innerHTML = `<span class="sb-status-pill"><span class="sb-online-dot"></span> En ligne</span>`;
-}
-
-
-// ── 15. NAVIGATION — goPage ──
-async function goPage(page) {
-  // Mise à jour sidebar active
-  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
-  const navEl = document.getElementById('nav-' + page);
-  if (navEl) navEl.classList.add('active');
-
-  // Afficher la bonne page
-  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-  const pageEl = document.getElementById('page-' + page);
-  if (pageEl) pageEl.classList.add('active');
-
-  // Rendre le contenu
-  if (page === 'dashboard')        await renderDashboard();
-  else if (page === 'catalogue')   await renderCatalogue();
-  else if (page === 'annonces')    { await renderAnnonces(); localStorage.setItem('jjk_ann_seen', Date.now().toString()); setTimeout(updateAnnoncesBadge, 300); }
-  else if (page === 'classement')  await renderClassement();
-  else if (page === 'stats')       await renderStats();
-  else if (page === 'tickets')     await renderMyTickets();
-  else if (page === 'all-tickets') await renderAllTickets();
-  else if (page === 'narrations')  { await renderNarrations(); localStorage.setItem('jjk_narr_seen', Date.now().toString()); setTimeout(updateNarrBadge, 500); }
-  else if (page === 'profil')      await renderProfil();
-  else if (page === 'panel')       await renderPanelSubs();
-  else if (page === 'logs')        await renderLogs();
-  else if (page === 'roles')       await renderRoles();
-}
-
-// ── Patch openTktTagModal pour pointer vers le nouveau ──
-// (la nouvelle fonction est déjà déclarée ci-dessus, ça override l'ancienne)
-
-
-// ── Post-init: setup draft sur les champs principaux ──
-setTimeout(() => {
-  // Compteur de mots sur la note interne
-  attachWordCounter('internal-note-text', 'internal-note-counter');
-  // Draft auto sur le message de demande
-  setupDraft('dem-message', 'dem_message', null);
-  // Status en ligne
-  updateOnlineStatus();
-  // Init éditeurs RTE
-  rteInit('narr-rte-toolbar', 'narr-content-editor', 'narr-content', false);
-  rteInit('ns-rte-toolbar', 'ns-content-editor', 'ns-content', true);
-}, 600);
-
-// ══════════════════════════════════════════════════════
-//  ✦ ÉDITEUR RICH TEXT (RTE)
-// ══════════════════════════════════════════════════════
-
-const RTE_COLORS = [
-  '#ffffff','#e2e2e2','#aaaaaa','#666666','#333333','#000000','#ef4444','#f97316',
-  '#f59e0b','#eab308','#22c55e','#10b981','#06b6d4','#3b82f6','#6366f1','#a855f7',
-  '#ec4899','#f43f5e','#c9a227','#ff6b35','#7c5cbf','#60a5fa','#86efac','#fcd34d',
-  // transparente (aucune couleur)
-  'transparent',
-];
-const RTE_HL_COLORS = [
-  'rgba(255,235,59,0.45)','rgba(255,152,0,0.35)','rgba(244,67,54,0.3)',
-  'rgba(33,150,243,0.3)','rgba(76,175,80,0.35)','rgba(156,39,176,0.3)',
-  'rgba(201,162,39,0.25)','transparent',
-];
-
-// Palette de 8 couleurs RP thématiques
-const RTE_RP_COLORS = [
-  { label: 'Or', color: '#c9a227' },
-  { label: 'Pourpre', color: '#a855f7' },
-  { label: 'Sang', color: '#ef4444' },
-  { label: 'Ciel', color: '#60a5fa' },
-  { label: 'Émeraude', color: '#22c55e' },
-  { label: 'Flamme', color: '#f97316' },
-  { label: 'Cyan', color: '#06b6d4' },
-  { label: 'Rose', color: '#ec4899' },
-];
-
-// Sanitize HTML — garde les balises safe, vire tout le reste
-function rteSanitize(html) {
-  const allowed = ['b','strong','i','em','u','s','span','h1','h2','h3','p','br','blockquote','ul','ol','li','hr','div'];
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  function clean(node) {
-    for (const child of [...node.childNodes]) {
-      if (child.nodeType === 3) continue; // texte OK
-      if (child.nodeType === 1) {
-        const tag = child.tagName.toLowerCase();
-        if (!allowed.includes(tag)) {
-          // Remplacer par ses enfants
-          while (child.firstChild) node.insertBefore(child.firstChild, child);
-          node.removeChild(child);
-        } else {
-          // Nettoyer les attributs : garder seulement style (filtré)
-          const attrs = [...child.attributes];
-          attrs.forEach(a => {
-            if (a.name === 'style') {
-              // Garder seulement color, background-color, font-size, text-decoration, font-weight, font-style
-              const safe = a.value.split(';').filter(r => /^(color|background-color|font-size|text-decoration|font-weight|font-style|background)\s*:/i.test(r.trim())).join(';');
-              if (safe) child.setAttribute('style', safe);
-              else child.removeAttribute('style');
-            } else {
-              child.removeAttribute(a.name);
-            }
-          });
-          clean(child);
-        }
-      } else {
-        node.removeChild(child);
-      }
-    }
-  }
-  clean(tmp);
-  return tmp.innerHTML;
-}
-
-// Initialise un RTE sur une toolbar + editor + hidden textarea
-function rteInit(toolbarId, editorId, hiddenId, compact) {
-  const toolbar  = document.getElementById(toolbarId);
-  const editor   = document.getElementById(editorId);
-  const hidden   = document.getElementById(hiddenId);
-  if (!toolbar || !editor) return;
-
-  // ── Construire la toolbar ──
-  toolbar.innerHTML = '';
-
-  function mkBtn(title, html, cmd, arg) {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'rte-btn'; b.title = title;
-    b.innerHTML = html; b.dataset.cmd = cmd;
-    if (arg !== undefined) b.dataset.arg = arg;
-    b.onclick = () => { rteExec(cmd, arg); editor.focus(); updateToolbarState(toolbar, editor); };
-    return b;
-  }
-  function mkSep() {
-    const s = document.createElement('div');
-    s.className = 'rte-sep'; return s;
-  }
-
-  // Titre select
-  const headSel = document.createElement('select');
-  headSel.className = 'rte-heading-sel'; headSel.title = 'Style de titre';
-  [['Normal',''],['Titre 1','h1'],['Titre 2','h2'],['Titre 3','h3']].forEach(([l,v]) => {
-    const o = document.createElement('option'); o.value = v; o.textContent = l;
-    headSel.appendChild(o);
-  });
-  headSel.onchange = () => {
-    const v = headSel.value;
-    if (v) document.execCommand('formatBlock', false, v);
-    else document.execCommand('formatBlock', false, 'p');
-    editor.focus();
-  };
-  toolbar.appendChild(headSel);
-  toolbar.appendChild(mkSep());
-
-  // Gras, italique, souligné, barré
-  toolbar.appendChild(mkBtn('Gras (Ctrl+B)', '<b>G</b>', 'bold'));
-  toolbar.appendChild(mkBtn('Italique (Ctrl+I)', '<i>I</i>', 'italic'));
-  toolbar.appendChild(mkBtn('Souligné (Ctrl+U)', '<u>U</u>', 'underline'));
-  toolbar.appendChild(mkBtn('Barré', '<s>S</s>', 'strikeThrough'));
-  toolbar.appendChild(mkSep());
-
-  // Taille de police
-  const sizeSel = document.createElement('select');
-  sizeSel.className = 'rte-size-sel'; sizeSel.title = 'Taille du texte';
-  [['Petite','1'],['Normale','3'],['Moyenne','4'],['Grande','5'],['Très grande','6']].forEach(([l,v]) => {
-    const o = document.createElement('option'); o.value = v; o.textContent = l;
-    if (v === '3') o.selected = true;
-    sizeSel.appendChild(o);
-  });
-  sizeSel.onchange = () => { document.execCommand('fontSize', false, sizeSel.value); editor.focus(); };
-  toolbar.appendChild(sizeSel);
-  toolbar.appendChild(mkSep());
-
-  // Couleur du texte
-  const colorWrap = document.createElement('div');
-  colorWrap.className = 'rte-color-wrap';
-  let _curColor = '#c9a227';
-  colorWrap.innerHTML = `
-    <button type="button" class="rte-color-swatch" id="${editorId}-clr-btn" title="Couleur du texte" onclick="rteToggleColorPicker('${editorId}-clr-drop','${editorId}')">
-      <span>A</span><div class="rte-color-bar" id="${editorId}-clr-bar" style="background:${_curColor}"></div>
-    </button>
-    <div class="rte-color-picker-dropdown" id="${editorId}-clr-drop">
-      <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.15em;margin-bottom:8px">COULEUR DU TEXTE</div>
-      <div class="rte-color-grid" id="${editorId}-clr-grid"></div>
-      <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.15em;margin:8px 0 6px">COULEURS RP</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px" id="${editorId}-rp-grid"></div>
-      <div class="rte-color-custom">
-        <input type="color" id="${editorId}-clr-custom" value="${_curColor}" title="Couleur personnalisée">
-        <label>Personnalisée</label>
-      </div>
-    </div>`;
-  toolbar.appendChild(colorWrap);
-
-  // Remplir la grille de couleurs
-  setTimeout(() => {
-    const grid = document.getElementById(`${editorId}-clr-grid`);
-    const rpGrid = document.getElementById(`${editorId}-rp-grid`);
-    if (grid) RTE_COLORS.forEach(c => {
-      const sw = document.createElement('div');
-      sw.className = 'rte-swatch'; 
-      sw.style.background = c === 'transparent' ? 'linear-gradient(135deg,#fff 45%,#ef4444 45%)' : c;
-      sw.title = c; sw.onclick = () => {
-        const color = c === 'transparent' ? null : c;
-        if (color) document.execCommand('foreColor', false, color);
-        else document.execCommand('removeFormat', false, null);
-        updateColorBar(`${editorId}-clr-bar`, color || '#fff');
-        rteCloseColorPicker(`${editorId}-clr-drop`);
-        editor.focus();
-      };
-      grid.appendChild(sw);
-    });
-    if (rpGrid) RTE_RP_COLORS.forEach(({label, color}) => {
-      const pill = document.createElement('button');
-      pill.type = 'button'; pill.className = 'rte-btn';
-      pill.style.cssText = `width:auto;padding:0 10px;height:24px;font-size:10.5px;background:${color}18;border:1px solid ${color}44;color:${color};border-radius:20px;font-weight:700`;
-      pill.textContent = label;
-      pill.onclick = () => {
-        document.execCommand('foreColor', false, color);
-        updateColorBar(`${editorId}-clr-bar`, color);
-        rteCloseColorPicker(`${editorId}-clr-drop`);
-        editor.focus();
-      };
-      rpGrid.appendChild(pill);
-    });
-    const custIn = document.getElementById(`${editorId}-clr-custom`);
-    if (custIn) custIn.oninput = () => {
-      document.execCommand('foreColor', false, custIn.value);
-      updateColorBar(`${editorId}-clr-bar`, custIn.value);
-      editor.focus();
-    };
-  }, 100);
-  toolbar.appendChild(mkSep());
-
-  // Surbrillance (highlight)
-  const hlWrap = document.createElement('div');
-  hlWrap.className = 'rte-color-wrap';
-  hlWrap.innerHTML = `
-    <button type="button" class="rte-color-swatch" title="Surligner" onclick="rteToggleColorPicker('${editorId}-hl-drop','${editorId}')">
-      <span style="font-size:14px">✦</span><div class="rte-color-bar" id="${editorId}-hl-bar" style="background:rgba(255,235,59,0.45)"></div>
-    </button>
-    <div class="rte-color-picker-dropdown" id="${editorId}-hl-drop">
-      <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.15em;margin-bottom:8px">SURLIGNAGE</div>
-      <div class="rte-hl-grid" id="${editorId}-hl-grid"></div>
-    </div>`;
-  toolbar.appendChild(hlWrap);
-  setTimeout(() => {
-    const hlGrid = document.getElementById(`${editorId}-hl-grid`);
-    if (hlGrid) RTE_HL_COLORS.forEach(c => {
-      const sw = document.createElement('div');
-      sw.className = 'rte-swatch';
-      sw.style.background = c === 'transparent' ? 'linear-gradient(135deg,#fff 45%,#ef4444 45%)' : c;
-      sw.style.border = '1px solid rgba(255,255,255,0.15)';
-      sw.onclick = () => {
-        if (c === 'transparent') document.execCommand('removeFormat', false, null);
-        else document.execCommand('hiliteColor', false, c);
-        updateColorBar(`${editorId}-hl-bar`, c === 'transparent' ? 'transparent' : c);
-        rteCloseColorPicker(`${editorId}-hl-drop`);
-        editor.focus();
-      };
-      hlGrid.appendChild(sw);
-    });
-  }, 100);
-  toolbar.appendChild(mkSep());
-
-  // Alignement
-  if (!compact) {
-    toolbar.appendChild(mkBtn('Aligner à gauche', '⬅', 'justifyLeft'));
-    toolbar.appendChild(mkBtn('Centrer', '↔', 'justifyCenter'));
-    toolbar.appendChild(mkBtn('Aligner à droite', '➡', 'justifyRight'));
-    toolbar.appendChild(mkSep());
-  }
-
-  // Listes
-  toolbar.appendChild(mkBtn('Liste à puces', '•≡', 'insertUnorderedList'));
-  toolbar.appendChild(mkBtn('Liste numérotée', '1≡', 'insertOrderedList'));
-  toolbar.appendChild(mkSep());
-
-  // Citation & séparateur
-  toolbar.appendChild(mkBtn('Citation', '❝', 'formatBlock', 'blockquote'));
-  toolbar.appendChild(mkBtn('Séparateur', '—', 'insertHorizontalRule'));
-  toolbar.appendChild(mkSep());
-
-  // Effacer le formatage
-  toolbar.appendChild(mkBtn('Effacer le formatage', '✕', 'removeFormat'));
-
-  // ── Éditeur events ──
-  editor.addEventListener('input', () => {
-    if (hidden) hidden.value = editor.innerHTML;
-    updateToolbarState(toolbar, editor);
-    // charcount pour ns
-    const cc = document.getElementById('ns-charcount');
-    if (cc && editorId === 'ns-content-editor') cc.textContent = editor.innerText.length + ' caractères';
-  });
-  editor.addEventListener('keydown', e => {
-    // Tab → indentation
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
-    }
-  });
-  editor.addEventListener('keyup', () => updateToolbarState(toolbar, editor));
-  editor.addEventListener('mouseup', () => updateToolbarState(toolbar, editor));
-}
-
-function rteExec(cmd, arg) {
-  document.execCommand(cmd, false, arg || null);
-}
-
-function updateColorBar(barId, color) {
-  const bar = document.getElementById(barId);
-  if (bar) bar.style.background = color;
-}
-
-function rteToggleColorPicker(dropId, editorId) {
-  // Fermer tous les autres
-  document.querySelectorAll('.rte-color-picker-dropdown.open').forEach(d => {
-    if (d.id !== dropId) d.classList.remove('open');
-  });
-  document.getElementById(dropId)?.classList.toggle('open');
-}
-function rteCloseColorPicker(dropId) {
-  document.getElementById(dropId)?.classList.remove('open');
-}
-document.addEventListener('click', e => {
-  if (!e.target.closest('.rte-color-wrap')) {
-    document.querySelectorAll('.rte-color-picker-dropdown.open').forEach(d => d.classList.remove('open'));
-  }
-});
-
-function updateToolbarState(toolbar, editor) {
-  // Mettre à jour l'état actif des boutons
-  ['bold','italic','underline','strikeThrough'].forEach(cmd => {
-    const btn = toolbar.querySelector(`[data-cmd="${cmd}"]`);
-    if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
-  });
-}
-
-// ── Récupérer le HTML d'un éditeur (sanitisé) ──
-function rteGetHTML(editorId) {
-  const el = document.getElementById(editorId);
-  if (!el) return '';
-  return rteSanitize(el.innerHTML);
-}
-
-// ── Charger du HTML dans un éditeur ──
-function rteSetHTML(editorId, html) {
-  const el = document.getElementById(editorId);
-  if (!el) return;
-  el.innerHTML = rteSanitize(html || '');
-  const hidden = document.getElementById(editorId.replace('-editor', '').replace('-content', '') + 'content');
-  // plus simple : trouver la textarea cachée associée
-  const edEl = el.id; // "narr-content-editor"
-  // narr-content-editor → narr-content
-  const hiddenId = edEl.replace('-editor', '');
-  const h = document.getElementById(hiddenId);
-  if (h) h.value = el.innerHTML;
-}
-
-// ── Vider un éditeur ──
-function rteClear(editorId) {
-  const el = document.getElementById(editorId);
-  if (el) { el.innerHTML = ''; }
-  const hiddenId = editorId.replace('-editor', '');
-  const h = document.getElementById(hiddenId);
-  if (h) h.value = '';
-}
-
-// ── PATCH saveNarration pour utiliser le RTE ──
-const _origSaveNarration = saveNarration;
-async function saveNarration() {
-  const titre  = document.getElementById('narr-titre').value.trim();
-  const type   = document.getElementById('narr-modal-type').value;
-  const author = document.getElementById('narr-author').value.trim() || CU.nomrp || CU.username;
-  // Récupérer le HTML de l'éditeur RTE
-  const contentHTML = rteGetHTML('narr-content-editor');
-  const contentText = document.getElementById('narr-content-editor')?.innerText?.trim() || '';
-  if (!titre)       { toast('Le titre est requis.', 'error'); return; }
-  if (!contentText) { toast('Le contenu est requis.', 'error'); return; }
-
-  // Mettre à jour la hidden textarea
-  const hiddenTa = document.getElementById('narr-content');
-  if (hiddenTa) hiddenTa.value = contentHTML;
-
-  const images = _imgStore.narr.map(img => img.dataUrl);
-  const linksRaw = document.getElementById('narr-links').value.trim();
-  const links = linksRaw ? linksRaw.split('\n').map(l => {
-    const parts = l.split('|');
-    const url = (parts[1]||parts[0]).trim();
-    const label = parts.length > 1 ? parts[0].trim() : url;
-    return url.startsWith('http') ? { label, url } : null;
-  }).filter(Boolean) : [];
-
-  const now = new Date().toISOString();
-  if (_editingNarrId) {
-    await fsUpdate('narrations', _editingNarrId, { titre, type, author, content: contentHTML, contentText, images, links, updatedAt: now });
-    toast('Narration mise à jour !', 'success');
-  } else {
-    const id = 'narr' + Date.now();
-    const demIdForNarr = document.getElementById('narr-dem-select')?.value || _currentNarrDemId || null;
-    await fsSet('narrations', id, {
-      id, titre, type, author, content: contentHTML, contentText, images, links,
-      authorId: CU.id, authorRole: CU.role,
-      demId: demIdForNarr,
-      createdAt: now, mjReplies: []
-    });
-    _currentNarrDemId = null;
-    toast('✦ Narration publiée !', 'success');
-    await addLog('narration', `a publié la narration "${titre}"`);
-  }
-  _editingNarrId = null;
-  _imgStore.narr = [];
-  rteClear('narr-content-editor');
-  closeModal('modal-narration');
-  await renderNarrations();
-  updateNarrBadge();
-}
-
-// ── PATCH openEditNarration pour charger dans le RTE ──
-const _origOpenEditNarration = openEditNarration;
-async function openEditNarration(narrId) {
-  const d = await fsGetOne('narrations', narrId);
-  if (!d) return;
-  if (d.authorId !== CU.id && !hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
-  document.getElementById('narr-modal-title').textContent = 'Modifier la Narration';
-  document.getElementById('narr-titre').value = d.titre || '';
-  document.getElementById('narr-modal-type').value = d.type || 'suivi_normal';
-  document.getElementById('narr-author').value = d.author || '';
-  // Charger dans l'éditeur RTE
-  setTimeout(() => {
-    const editor = document.getElementById('narr-content-editor');
-    if (editor) editor.innerHTML = rteSanitize(d.content || '');
-  }, 80);
-  document.getElementById('narr-links').value = (d.links||[]).map(l => l.label !== l.url ? l.label + ' | ' + l.url : l.url).join('\n');
-  document.getElementById('narr-images-preview').innerHTML = '';
-  _imgStore.narr = [];
-  _editingNarrId = narrId;
-  openModal('modal-narration');
-}
-
-// ── PATCH openModalNewNarration/ForDem pour vider le RTE ──
-// (wrapping inline — pas de redéclaration)
-const _origOpenModalNewNarration = openModalNewNarration;
-const openModalNewNarrationWrapped = function() {
-  rteClear('narr-content-editor');
-  _origOpenModalNewNarration();
-};
-// On remplace la référence globale
-window.openModalNewNarration = openModalNewNarrationWrapped;
-
-const _origOpenModalNewNarrationForDem = openModalNewNarrationForDem;
-const openModalNewNarrationForDemWrapped = async function(demId) {
-  rteClear('narr-content-editor');
-  await _origOpenModalNewNarrationForDem(demId);
-};
-window.openModalNewNarrationForDem = openModalNewNarrationForDemWrapped;
-
-// ── PATCH nsSubmitEntry pour utiliser le RTE ──
-const _origNsSubmitEntry = nsSubmitEntry;
-const nsSubmitEntryWrapped = async function() {
-  const editor = document.getElementById('ns-content-editor');
-  const contentHTML = rteGetHTML('ns-content-editor');
-  const hidden = document.getElementById('ns-content');
-  if (hidden) hidden.value = contentHTML;
-  await _origNsSubmitEntry();
-  rteClear('ns-content-editor');
-};
-window.nsSubmitEntry = nsSubmitEntryWrapped;
-
-// ── PATCH nsOpenEditForm pour charger dans le RTE ──
-const _origNsOpenEditForm = nsOpenEditForm;
-const nsOpenEditFormWrapped = function(idx) {
-  _origNsOpenEditForm(idx);
-  setTimeout(() => {
-    const ta = document.getElementById('ns-content');
-    const editor = document.getElementById('ns-content-editor');
-    if (ta && editor) editor.innerHTML = rteSanitize(ta.value || '');
-  }, 80);
-
-}
-
-// ── PATCH nsCloseForm pour vider l'éditeur ──
-const _origNsCloseForm = nsCloseForm;
-const nsCloseFormWrapped = function() {
-  _origNsCloseForm();
-  rteClear('ns-content-editor');
-};
-window.nsCloseForm = nsCloseFormWrapped;
-
-// ── Affichage du contenu : utiliser innerHTML au lieu de esc() ──
-function renderRteContent(content) {
-  if (!content) return '';
-  if (/<[a-z][\s\S]*>/i.test(content)) {
-    return rteSanitize(content);
-  }
-  return esc(content).replace(/\n/g, '<br>');
-}
-
-// Exposer toutes les nouvelles fonctions
-window.renderRteContent = renderRteContent;
-window.rteGetHTML = rteGetHTML;
-window.rteSetHTML = rteSetHTML;
-window.rteClear = rteClear;
-window.rteInit = rteInit;
-window.rteToggleColorPicker = rteToggleColorPicker;
-window.saveNarration = saveNarration;
-window.openEditNarration = openEditNarration;
-window.openModalNewNarration = openModalNewNarrationWrapped;
-window.openModalNewNarrationForDem = openModalNewNarrationForDemWrapped;
-window.nsSubmitEntry = nsSubmitEntryWrapped;
-window.nsOpenEditForm = nsOpenEditFormWrapped;
-window.nsCloseForm = nsCloseFormWrapped;
-
-
-
-
-
-
-
-
-
-
-// ── Object.assign window (moved after RTE patches) ──
 Object.assign(window, {
   // Auth & session
   redirectDiscord,
   switchAuthTab, doLogin, doRegister, doLogout,
+  // Panel staff (tabs internes)
+  renderPanelSubs, renderPanelDemandes, renderPanelMembers,
+  // Classement
+  switchLbTab,
   // Navigation
   goPage, switchInnerTab,
   // Modals génériques
@@ -9671,7 +8614,7 @@ Object.assign(window, {
   // RP & médias (compat)
   toggleRpForm, submitRpEntry, deleteRpEntry,
   // Narrations libres (page dédiée)
-  renderNarrations, openModalNewNarration, openEditNarration, saveNarration, deleteNarration,
+  renderNarrations, openModalNewNarration, openModalNewNarrationForDem, openEditNarration, saveNarration, deleteNarration,
   submitNarrMJReply, toggleNarrMJForm, deleteNarrMJReply, handleNarrImageFiles,
   submitMJReply, deleteMJReply, toggleMJReplyForm,
   // Suivi RP ticket
@@ -9684,15 +8627,8 @@ Object.assign(window, {
   _removeImg,
   previewDemImages, previewRpImages,
   openLightbox, closeLightbox,
-  // ── V14 nouvelles fonctions ──
-  toggleTheme,
-  copyTicketNum,
-  confirmOk, confirmCancel,
-  saveInternalNote,
-  openTktTagModal, saveTagsModal, handleTagInput, removeTag, addTag, renderTagChips,
-  updateNarrBadge, updateOnlineStatus,
-  attachWordCounter,
 });
+
 
 </script>
 </body>

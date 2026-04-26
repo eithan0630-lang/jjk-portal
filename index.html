@@ -7289,8 +7289,8 @@ function renderRpEntries(d) {
   }
   list.innerHTML = entries.map((e, i) => {
     const meta = RP_TYPE_META[e.type] || RP_TYPE_META.narration;
-    const canDel = (CU.id === e.authorId || hasPerm(CU, 'approve_requests'));
-    const isMJ   = hasPerm(CU, 'approve_requests');
+    const canDel = (CU.id === e.authorId || isStaff(CU));
+    const isMJ   = isStaff(CU);
 
     const imgsHtml = (e.images||[]).length ? `
       <div class="tkt-media-preview">${e.images.map(img=>`
@@ -7312,7 +7312,7 @@ function renderRpEntries(d) {
           <span class="rp-mj-reply-badge">🎲 Réponse MJ</span>
           <span style="font-size:12px;font-weight:700;color:var(--gold2)">${esc(rep.authorName||'MJ')}</span>
           <span class="rp-mj-reply-time">${fmtDateTime(rep.ts)}</span>
-          ${hasPerm(CU,'approve_requests') ? `<button onclick="deleteMJReply('${d.id}',${i},${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px;margin-left:4px" title="Supprimer">🗑</button>` : ''}
+          ${isStaff(CU) ? `<button onclick="deleteMJReply('${d.id}',${i},${ri})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px;margin-left:4px" title="Supprimer">🗑</button>` : ''}
         </div>
         <div class="rp-mj-reply-body">${esc(rep.content)}</div>
       </div>`).join('');
@@ -7359,7 +7359,7 @@ function toggleMJReplyForm(idx) {
 }
 
 async function submitMJReply(demId, entryIdx) {
-  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  if (!isStaff(CU)) { toast('Permission refusée.', 'error'); return; }
   const content = document.getElementById(`mj-reply-content-${entryIdx}`)?.value.trim();
   if (!content) { toast('La réponse ne peut pas être vide.', 'error'); return; }
 
@@ -7391,7 +7391,7 @@ async function submitMJReply(demId, entryIdx) {
 }
 
 async function deleteMJReply(demId, entryIdx, replyIdx) {
-  if (!hasPerm(CU, 'approve_requests')) return;
+  if (!isStaff(CU)) return;
   if (!confirm('Supprimer cette réponse MJ ?')) return;
   const d = await fsGetOne('demandes', demId);
   if (!d) return;
@@ -7505,7 +7505,7 @@ function openModalNewNarrationForDem(demId) {
 async function openModalNewNarration() {
   // Vérifier qu'il existe au moins un ticket approuvé + rpOpen accessible
   const [allDems, subs] = await Promise.all([getDemandes(), getSubs()]);
-  const isMJ = hasPerm(CU, 'approve_requests');
+  const isMJ = isStaff(CU);
   const eligibleDems = allDems.filter(d =>
     d.status === 'approved' && d.rpOpen &&
     (isMJ || d.userId === CU.id)
@@ -7558,7 +7558,7 @@ async function openModalNewNarration() {
 async function openEditNarration(narrId) {
   const d = await fsGetOne('narrations', narrId);
   if (!d) return;
-  if (d.authorId !== CU.id && !hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  if (d.authorId !== CU.id && !isStaff(CU)) { toast('Permission refusée.', 'error'); return; }
   document.getElementById('narr-modal-title').textContent = 'Modifier la Narration';
   document.getElementById('narr-titre').value = d.titre || '';
   document.getElementById('narr-modal-type').value = d.type || 'suivi_normal';
@@ -7618,7 +7618,7 @@ async function deleteNarration(narrId) {
   if (!confirm('Supprimer définitivement cette narration ?')) return;
   const d = await fsGetOne('narrations', narrId);
   if (!d) return;
-  if (d.authorId !== CU.id && !hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  if (d.authorId !== CU.id && !isStaff(CU)) { toast('Permission refusée.', 'error'); return; }
   await fsDelete('narrations', narrId);
   toast('Narration supprimée.', 'info');
   await renderNarrations();
@@ -7626,7 +7626,7 @@ async function deleteNarration(narrId) {
 }
 
 async function submitNarrMJReply(narrId, idx) {
-  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  if (!isStaff(CU)) { toast('Permission refusée.', 'error'); return; }
   const content = document.getElementById('narr-mj-reply-content-' + narrId)?.value.trim();
   if (!content) { toast('La réponse ne peut pas être vide.', 'error'); return; }
   const d = await fsGetOne('narrations', narrId);
@@ -7652,7 +7652,7 @@ function toggleNarrMJForm(narrId, idx) {
 }
 
 async function deleteNarrMJReply(narrId, replyIdx) {
-  if (!hasPerm(CU, 'approve_requests')) return;
+  if (!isStaff(CU)) return;
   if (!confirm('Supprimer cette réponse MJ ?')) return;
   const d = await fsGetOne('narrations', narrId);
   if (!d) return;
@@ -7721,15 +7721,15 @@ async function renderNarrations() {
   const q      = (document.getElementById('narr-search')?.value || '').toLowerCase();
   const typeF  = document.getElementById('narr-type')?.value || '';
   const mineF  = document.getElementById('narr-mine')?.value || '';
-  const isMJ   = hasPerm(CU, 'approve_requests');
+  const isMJ   = isStaff(CU);
 
   // Charger tickets approuvés avec rpOpen + narrations
   const [allDems, subs, narrs_all] = await Promise.all([getDemandes(), getSubs(), fsGetAll('narrations')]);
 
-  // Tickets accessibles : approuvés + rpOpen + (owner ou staff)
+  // Tickets accessibles : approuvés + rpOpen + (staff ou owner du ticket)
   const eligibleDems = allDems.filter(d =>
     d.status === 'approved' && d.rpOpen &&
-    (isMJ || d.userId === CU.id)
+    (isStaff(CU) || d.userId === CU.id)
   );
 
   // Filtrer les narrations liées à un ticket éligible
@@ -7946,7 +7946,7 @@ let _nsMood = [];
 function renderRpStatusBlock(d) {
   const el = document.getElementById('tkt-rp-status-block');
   if (!el) return;
-  const isMJ = hasPerm(CU, 'approve_requests');
+  const isMJ = isStaff(CU);
   const isOwner = d.userId === CU.id;
   const rpOpen = !!d.rpOpen;
   const entries = d.rpEntries || [];
@@ -8042,7 +8042,7 @@ function renderRpStatusBlock(d) {
 }
 
 async function activateRpSpace(demId) {
-  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  if (!isStaff(CU)) { toast('Permission refusée.', 'error'); return; }
   const d = await fsGetOne('demandes', demId); if (!d) return;
   const tl = d.timeline || [];
   const now = new Date().toISOString();
@@ -8066,7 +8066,7 @@ let _tktInlineMastery = 1;
 function renderTktMasteryBlock(d) {
   const block = document.getElementById('tkt-mastery-assign-block');
   if (!block) return;
-  const isMJ = hasPerm(CU, 'approve_requests');
+  const isMJ = isStaff(CU);
   if (!isMJ || d.status !== 'approved') { block.style.display = 'none'; return; }
   block.style.display = '';
 
@@ -8125,7 +8125,7 @@ function selectTktInlineMastery(level) {
 }
 
 async function assignTktMastery() {
-  if (!hasPerm(CU, 'approve_requests')) { toast('Permission refusée.', 'error'); return; }
+  if (!isStaff(CU)) { toast('Permission refusée.', 'error'); return; }
   const demId = currentTktId;
   if (!demId) return;
   const level = _tktInlineMastery;
@@ -8165,7 +8165,7 @@ _${m.desc}_
 }
 
 async function closeRpSpace(demId) {
-  if (!hasPerm(CU, 'approve_requests')) return;
+  if (!isStaff(CU)) return;
   if (!confirm('Désactiver le Suivi RP ? Le joueur ne pourra plus y accéder.')) return;
   await fsUpdate('demandes', demId, { rpOpen: false });
   _cache.demandes = null;
@@ -8178,8 +8178,8 @@ async function openNarrSpace(demId) {
   _nsCurrentTktId = demId;
   const d = await fsGetOne('demandes', demId); if (!d) return;
 
-  // Vérif accès : MJ ou owner
-  if (!hasPerm(CU,'approve_requests') && d.userId !== CU.id) {
+  // Vérif accès : staff ou owner du ticket
+  if (!isStaff(CU) && d.userId !== CU.id) {
     toast('Accès non autorisé.', 'error'); return;
   }
   if (!d.rpOpen) { toast('Le Suivi RP n\'est pas encore activé.', 'error'); return; }
@@ -8240,7 +8240,7 @@ async function nsRefreshEntries() {
   document.getElementById('ns-stat-last').textContent = lastTs
     ? new Date(lastTs).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '—';
 
-  const isMJ   = hasPerm(CU,'approve_requests');
+  const isMJ   = isStaff(CU);
   const isOwner = d?.userId === CU.id;
   const col     = document.getElementById('ns-entries-col');
   let filtered  = _nsFilter ? entries.filter(e=>e.type===_nsFilter) : entries;
@@ -8433,7 +8433,7 @@ async function nsDeleteEntry(idx) {
 }
 
 async function nsSubmitMJReply(entryIdx) {
-  if (!hasPerm(CU,'approve_requests')) { toast('Permission refusée.','error'); return; }
+  if (!isStaff(CU)) { toast('Permission refusée.','error'); return; }
   const content = document.getElementById(`ns-mj-reply-txt-${entryIdx}`)?.value.trim();
   if (!content) { toast('La réponse ne peut pas être vide.','error'); return; }
   const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
@@ -8451,7 +8451,7 @@ async function nsSubmitMJReply(entryIdx) {
 }
 
 async function nsDeleteMJReply(entryIdx, replyIdx) {
-  if (!hasPerm(CU,'approve_requests')) return;
+  if (!isStaff(CU)) return;
   if (!confirm('Supprimer cette réponse MJ ?')) return;
   const d = await fsGetOne('demandes', _nsCurrentTktId); if (!d) return;
   const entries = d.rpEntries||[];
